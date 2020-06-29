@@ -24,27 +24,6 @@ import static j2html.TagCreator.article;
 import static j2html.TagCreator.attrs;
 import io.javalin.websocket.WsContext;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.api.TimeCharacteristic;
-import org.apache.flink.streaming.api.datastream.DataStream;
-
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
-import org.apache.flink.util.Collector;
-import org.apache.flink.table.api.DataTypes;
-import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
-import org.apache.flink.table.sources.CsvTableSource;
-import org.apache.flink.table.sources.StreamTableSource;
-import org.apache.flink.table.descriptors.Csv;
-import org.apache.flink.table.descriptors.Schema;
-import org.apache.flink.table.descriptors.FileSystem;
-import org.apache.flink.table.descriptors.Rowtime;
-import org.apache.flink.table.sinks.CsvTableSink;
-import org.apache.flink.table.sinks.TableSink;
 
 class LogItem {
 	String name, addr;
@@ -75,67 +54,14 @@ class LogPage {
 public class App {
 	private static Map<WsContext, String> userUsernameMap = new ConcurrentHashMap<>();
 	private static int nextUserNumber = 1;
-	private static final boolean STARTSTREAM = true;
 	static MustacheFactory mf = new DefaultMustacheFactory();
 	static int LOGID = 0;
 	static LogPage logpage = new LogPage();
 
 	public static void addLog() {
-		/*
-		 * StreamExecutionEnvironment env =
-		 * StreamExecutionEnvironment.getExecutionEnvironment();
-		 */
-		/* StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env); */
-		/* DataStream<String> dataStream = env.socketTextStream("localhost", 9999); */
 	}
 
 	public static void main(String[] args) throws Exception {
-		String inputfile = "/tmp/wc.csv";
-		String outputfile = "/tmp/out.csv";
-		if (STARTSTREAM) {
-			StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-			env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-			env.setParallelism(1);
-			/*
-			 * DataStream<Tuple2<String, Integer>> dataStream =
-			 * env.socketTextStream("localhost", 9999)
-			 */
-			/* .flatMap(new Splitter()).keyBy(0).timeWindow(Time.seconds(5)).sum(1); */
-			StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
-			String[] fieldNames = new String[] { "word", "cnt", "rowtime" };
-
-			TypeInformation<?>[] fieldTypes = new TypeInformation<?>[] { Types.STRING,
-			Types.INT, Types.SQL_TIMESTAMP};
-			CsvTableSource csvsource = new CsvTableSource("/tmp/wc.csv", fieldNames,
-			fieldTypes, null, ",", null, null, false, null, false);
-
-			System.out.println(csvsource.getTableSchema());
-			tableEnv.registerTableSource("WcT", csvsource);
-			/* tableEnv.connect(new FileSystem().path(inputfile)).withFormat(new Csv()).withSchema(new Schema() */
-			/*                 .field("word", DataTypes.STRING()).field("cnt", DataTypes.INT()) */
-			/*                 .field("rowtime", DataTypes.TIMESTAMP()).rowtime(new Rowtime())) */
-			/*                 .createTemporaryTable("WcT"); */
-			tableEnv.sqlQuery("select * from WcT").printSchema();
-			/* Table table = tableEnv.sqlQuery("select word, sum(cnt) from WcT group by TUMBLE(rowtime, INTERVAL '1' SECOND),word"); */
-			Table table = tableEnv.sqlQuery("select word, cnt from WcT");
-			tableEnv.connect(new FileSystem().path(outputfile)).withFormat(new Csv())
-					.withSchema(new Schema().field("word", DataTypes.STRING()).field("cnt",
-							DataTypes.INT()))
-					.createTemporaryTable("WcResult");
-			table.insertInto("WcResult");
-
-			/*
-			 * tableEnv.registerTableSink("CsvSinkTable", new
-			 * CsvTableSink("/tmp/result.csv"));
-			 */
-			/* Table Wc = tableEnv.from("CsvTable"); */
-			/*
-			 * Wc.groupBy("word").select("word,cnt.sum as count").insertInto("CsvSinkTable")
-			 * ;
-			 */
-			/* ; */
-			env.execute();
-		}
 		logpage.add("log1", LOGID++, "localhost:9999");
 		logpage.add("log2", LOGID++, "localhost:9999");
 		JavalinRenderer.register(JavalinMustache.INSTANCE, ".html");
@@ -182,19 +108,5 @@ public class App {
 		return article(b(sender + " says:"),
 				span(attrs(".timestamp"), new SimpleDateFormat("HH:mm:ss").format(new Date())),
 				p(message)).render();
-	}
-
-	public static class Splitter implements FlatMapFunction<String, Tuple2<String, Integer>> {
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void flatMap(String sentence, Collector<Tuple2<String, Integer>> out) throws Exception {
-			for (String word : sentence.split(" ")) {
-				out.collect(new Tuple2<String, Integer>(word, 1));
-			}
-		}
 	}
 }
