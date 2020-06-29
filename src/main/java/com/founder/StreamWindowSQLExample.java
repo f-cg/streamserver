@@ -35,25 +35,13 @@
 package com.founder;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
-import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-/* import org.apache.flink.streaming.api.functions.sink.SinkFunction; */
 import org.apache.flink.table.api.EnvironmentSettings;
-import com.founder.SocketSink;
-
 import org.apache.flink.table.api.Table;
 
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 
 import org.apache.flink.types.Row;
-
-import org.apache.flink.util.FileUtils;
-
-import java.io.File;
-
-import java.io.IOException;
 
 /**
  * 
@@ -102,19 +90,7 @@ public class StreamWindowSQLExample {
 
 		// write source data into temporary file and get the absolute path
 
-		String contents = "1,beer,3,2019-12-12 00:00:01\n" +
-
-				"1,diaper,4,2019-12-12 00:00:02\n" +
-
-				"2,pen,3,2019-12-12 00:00:04\n" +
-
-				"2,rubber,3,2019-12-12 00:00:06\n" +
-
-				"3,rubber,2,2019-12-12 00:00:05\n" +
-
-				"4,beer,1,2019-12-12 00:00:08";
-
-		String path = createTempFile(contents);
+		String path = "/tmp/orders8676864575091063956.csv";
 
 		// register table via DDL with watermark,
 
@@ -175,24 +151,6 @@ public class StreamWindowSQLExample {
 		// 2019-12-12 00:00:00.000,3,10,3
 
 		// 2019-12-12 00:00:05.000,3,6,2
-
-	}
-
-	/**
-	 * 
-	 * Creates a temporary file with the contents and returns the absolute path.
-	 * 
-	 */
-
-	private static String createTempFile(String contents) throws IOException {
-
-		File tempFile = File.createTempFile("orders", ".csv");
-
-		tempFile.deleteOnExit();
-
-		FileUtils.writeFileUtf8(tempFile, contents);
-
-		return tempFile.toURI().toString();
 
 	}
 
