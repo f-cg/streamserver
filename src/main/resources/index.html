@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>日志流管理</title>
+	</head>
+	<body>
+		<h2>日志流列表</h2>
+		{{#logs}}
+		<div class="logitem">
+		<a href="{{logid}}" target="_blank">{{name}}</a>
+		</div>
+		{{/logs}}
+	</body>
+</html>
