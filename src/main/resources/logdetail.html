@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>日志详情</title>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+</head>
+<body>
+    <p id="logid" >
+        {{logid}}
+    </p>
+    <h2>{{queriesheader}}</h2>
+    <div id="queries"> </div>
+    <textarea id="querysql" rows="8" cols="40"></textarea>
+    <button type="button" onclick="registerquery()"> 提交 </button>
+    <div id="debug"> </div>
+    <script src="/websocketlog.js">
+    </script>
+</body>
+</html>

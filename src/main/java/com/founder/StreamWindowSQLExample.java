@@ -117,6 +117,7 @@ public class StreamWindowSQLExample {
 				"  'format.type' = 'csv'\n" +
 
 				")";
+		System.out.println(ddl);
 
 		tEnv.sqlUpdate(ddl);
 
@@ -135,14 +136,21 @@ public class StreamWindowSQLExample {
 				"FROM orders\n" +
 
 				"GROUP BY TUMBLE(ts, INTERVAL '5' SECOND)";
+		System.out.println(query);
 
 		Table result = tEnv.sqlQuery(query);
-
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
-		resultDs.addSink(new SocketSink());
+		resultDs.addSink(new SocketSink("logid0",0));
 		resultDs.print();
 
 		// submit the job
+
+		tEnv.execute("Streaming Window SQL Job");
+
+		Table result2 = tEnv.sqlQuery(query);
+		DataStream<Row> resultDs2 = tEnv.toAppendStream(result2, Row.class);
+		resultDs2.addSink(new SocketSink("logid0",0));
+		resultDs2.print();
 
 		tEnv.execute("Streaming Window SQL Job");
 

@@ -1,16 +1,31 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>日志流管理</title>
-	</head>
-	<body>
-		<h2>日志流列表</h2>
-		{{#logs}}
-		<div class="logitem">
-		<a href="{{logid}}" target="_blank">{{name}}</a>
-		</div>
-		{{/logs}}
-	</body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>日志流管理</title>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+</head>
+<body>
+    <div>
+        <h2>日志流列表</h2>
+        <ol>
+            {{#logs}}
+            <li class="logitem">
+                <a href="log/{{logid}}" target="_blank">{{name}}</a>
+            </li>
+            {{/logs}}
+        </ol>
+    </div>
+    <div>
+        <form action="/addlogstream" method="post" accept-charset="utf-8">
+            <textarea name="ddl" rows="8" cols="40"></textarea>
+            <label for="addlogname">
+                name:
+            </label>
+            <input type="text" name="addname" value="" id="addlogname">
+            <input type="submit" value="新增">
+        </form>
+    </div>
+</body>
 </html>

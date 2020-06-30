@@ -1,11 +1,11 @@
 package com.founder;
 
-import java.text.SimpleDateFormat;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
@@ -15,98 +15,108 @@ import org.json.JSONObject;
 import io.javalin.Javalin;
 import io.javalin.plugin.rendering.JavalinRenderer;
 import io.javalin.plugin.rendering.template.JavalinMustache;
-import java.io.StringWriter;
-
-import static j2html.TagCreator.b;
-import static j2html.TagCreator.span;
-import static j2html.TagCreator.p;
-import static j2html.TagCreator.article;
-import static j2html.TagCreator.attrs;
-import io.javalin.websocket.WsContext;
-
-
-class LogItem {
-	String name, addr;
-	int logid;
-
-	LogItem(String name, int logid, String addr) {
-		this.name = name;
-		this.logid = logid;
-		this.addr = addr;
-	}
-}
-
-class LogPage {
-	List<LogItem> logs = new ArrayList<LogItem>();
-
-	LogPage() {
-	}
-
-	void add(LogItem logitem) {
-		logs.add(logitem);
-	}
-
-	void add(String name, int logid, String addr) {
-		this.add(new LogItem(name, logid, addr));
-	}
-}
 
 public class App {
-	private static Map<WsContext, String> userUsernameMap = new ConcurrentHashMap<>();
-	private static int nextUserNumber = 1;
 	static MustacheFactory mf = new DefaultMustacheFactory();
 	static int LOGID = 0;
-	static LogPage logpage = new LogPage();
+	static LogStreamsManager lsm = new LogStreamsManager();
+	static UniServer uniserver = new UniServer(lsm);
 
 	public static void addLog() {
 	}
 
 	public static void main(String[] args) throws Exception {
-		logpage.add("log1", LOGID++, "localhost:9999");
-		logpage.add("log2", LOGID++, "localhost:9999");
+		System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("/tmp/print.txt")), true));
 		JavalinRenderer.register(JavalinMustache.INSTANCE, ".html");
 		Javalin app = Javalin.create(config -> {
 			config.addStaticFiles("/public");
-		}).start(7776);
+		}).start(Constants.JAVALINWEBPORT);
+		uniserver.start();
 		app.get("/", ctx -> {
+			System.out.println(ctx.path());
 			/* ctx.result("index"); */
-			/* Map<String, MyLog> model = new HashMap<String, MyLog>(); */
-			/* model.put("logs", new MyLog()); */
-			/* ctx.render("index.html", new MyLog()); */
 			StringWriter html = new StringWriter();
+			LogPage logpage = new LogPage(lsm);
 			mf.compile("index.html").execute(html, logpage).flush();
 			ctx.html(html.toString());
 		});
-		app.get("/:logid", ctx -> {
-			ctx.result("logid");
+		app.get("/log/:logid", ctx -> {
+			Map<String, String> model = new HashMap<String, String>();
+			String logid = ctx.pathParam("logid");
+			LogStream ls = lsm.getls(logid);
+			String queriesheader = "查询列表";
+			if (ls.initddl != null) {
+				queriesheader = "请新增查询才能创建流";
+			}
+			System.out.println(ctx.path());
+			model.put("logid", logid);
+			model.put("queriesheader", queriesheader);
+			ctx.render("logdetail.html", model);
 		});
-		app.ws("/chat", ws -> {
+		app.post("/addlogstream", ctx -> {
+			System.out.println(ctx.formParamMap());
+			LogStream ls = new LogStream(ctx.formParam("addname"), ctx.formParam("ddl"));
+			lsm.add(ls);
+			// TODO: name should be identical
+			String logid = ctx.formParam("addname");
+			ctx.redirect("/log/" + logid);
+		});
+		app.ws("/ws/:logid", ws -> {
 			ws.onConnect(ctx -> {
-				String username = "User" + nextUserNumber++;
-				userUsernameMap.put(ctx, username);
-				broadcastMessage("Server", (username + " joined the chat"));
+				System.out.println(ctx.matchedPath());
+				String logid = ctx.pathParam("logid");
+				System.out.println("logid:" + logid);
+				LogStream ls = lsm.getls(logid);
+				ls.wss.add(ctx);
+				/* String username = "User" + nextUserNumber++; */
+				/* userUsernameMap.put(ctx, username); */
+				/* broadcastMessage("Server", (username + " joined the chat")); */
+				System.out.println("joined");
 			});
 			ws.onClose(ctx -> {
-				String username = userUsernameMap.get(ctx);
-				userUsernameMap.remove(ctx);
-				broadcastMessage("Server", (username + " left the chat"));
+				/* String username = userUsernameMap.get(ctx); */
+				/* userUsernameMap.remove(ctx); */
+				/* broadcastMessage("Server", (username + " left the chat")); */
+				System.out.println("left");
 			});
 			ws.onMessage(ctx -> {
-				broadcastMessage(userUsernameMap.get(ctx), ctx.message());
+				/* broadcastMessage(userUsernameMap.get(ctx), ctx.message()); */
+				String logid = ctx.pathParam("logid");
+				String msg = ctx.message();
+				System.out.println(msg);
+				JSONObject js = new JSONObject(msg);
+				String type = (String) js.get("type");
+				String query = (String) js.get("query");
+				if (type.equals("register")) {
+					LogStream ls = lsm.getls(logid);
+					ls.add_query(query);
+				}
 			});
 		});
 	}
 
-	private static void broadcastMessage(String sender, String message) {
-		userUsernameMap.keySet().stream().filter(ctx -> ctx.session.isOpen()).forEach(session -> {
-			session.send(new JSONObject().put("userMessage", createHtmlMessageFromSender(sender, message))
-					.put("userlist", userUsernameMap.values()).toString());
-		});
-	}
+	/* private static void broadcastMessage(String sender, String message) { */
+	/*
+	 * userUsernameMap.keySet().stream().filter(ctx ->
+	 * ctx.session.isOpen()).forEach(session -> {
+	 */
+	/*
+	 * session.send(new JSONObject().put("userMessage",
+	 * createHtmlMessageFromSender(sender, message))
+	 */
+	/* .put("userlist", userUsernameMap.values()).toString()); */
+	/* }); */
+	/* } */
 
-	private static String createHtmlMessageFromSender(String sender, String message) {
-		return article(b(sender + " says:"),
-				span(attrs(".timestamp"), new SimpleDateFormat("HH:mm:ss").format(new Date())),
-				p(message)).render();
-	}
+	/*
+	 * private static String createHtmlMessageFromSender(String sender, String
+	 * message) {
+	 */
+	/* return article(b(sender + " says:"), */
+	/*
+	 * span(attrs(".timestamp"), new SimpleDateFormat("HH:mm:ss").format(new
+	 * Date())),
+	 */
+	/* p(message)).render(); */
+	/* } */
 }
