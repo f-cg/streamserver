@@ -68,9 +68,6 @@ public class App {
 				System.out.println("logid:" + logid);
 				LogStream ls = lsm.getls(logid);
 				ls.wss.add(ctx);
-				/* String username = "User" + nextUserNumber++; */
-				/* userUsernameMap.put(ctx, username); */
-				/* broadcastMessage("Server", (username + " joined the chat")); */
 				System.out.println("joined");
 			});
 			ws.onClose(ctx -> {
@@ -94,19 +91,6 @@ public class App {
 			});
 		});
 	}
-
-	/* private static void broadcastMessage(String sender, String message) { */
-	/*
-	 * userUsernameMap.keySet().stream().filter(ctx ->
-	 * ctx.session.isOpen()).forEach(session -> {
-	 */
-	/*
-	 * session.send(new JSONObject().put("userMessage",
-	 * createHtmlMessageFromSender(sender, message))
-	 */
-	/* .put("userlist", userUsernameMap.values()).toString()); */
-	/* }); */
-	/* } */
 
 	/*
 	 * private static String createHtmlMessageFromSender(String sender, String

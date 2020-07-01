@@ -1,14 +1,35 @@
 package com.founder;
+
 import io.javalin.websocket.WsContext;
+
+import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
+
+class Query {
+	String qsql;
+	int qid;
+	TableSchema resultSchema;
+	ArrayDeque<Object> result=new ArrayDeque<>();
+
+	Query(String qsql, TableSchema schema, int qid) {
+		this.qsql = qsql;
+		this.resultSchema = schema;
+		this.qid = qid;
+	}
+}
 
 public class LogStream {
 	/*
@@ -22,6 +43,7 @@ public class LogStream {
 	/* Map<Integer, SocketSink> sinks = new ConcurrentHashMap<>(); */
 	List<WsContext> wss = new LinkedList<>();
 	Integer queryinc = 1;
+	Map<Integer, Query> queries = new ConcurrentHashMap<>();
 
 	LogStream() {
 		this(null, null);
@@ -37,7 +59,7 @@ public class LogStream {
 		tEnv = StreamTableEnvironment.create(env, settings);
 	}
 
-	void add_query(String query) {
+	void add_query(String querysql) {
 		// sql query
 		// addSink
 		// execute
@@ -47,9 +69,16 @@ public class LogStream {
 			initddl = null;
 		}
 		System.out.println("add_query sqlQuery");
-		Table result = tEnv.sqlQuery(query);
-		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
+		Table result = tEnv.sqlQuery(querysql);
+		result.printSchema();
+		TableSchema resultSchema = result.getSchema();
+		/* Optional<DataType> f0type = resultSchema.getFieldDataType(0); */
+		/* System.out.println(resultSchema); */
+		/* System.out.println(f0type); */
 		int queryid = queryinc++;
+		Query query = new Query(querysql, resultSchema, queryid);
+		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
+		queries.put(queryid, query);
 		SocketSink sink = new SocketSink(name, queryid);
 		resultDs.addSink(sink);
 		/* sinks.put(queryid, sink); */
@@ -63,4 +92,3 @@ public class LogStream {
 	void register(String ddl) {
 	}
 }
-

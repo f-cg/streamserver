@@ -5,12 +5,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
+
+import com.esotericsoftware.kryo.util.ObjectMap;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-import com.founder.Constants;
 
 public class SocketSink extends RichSinkFunction<Row> {
 
@@ -44,32 +46,24 @@ public class SocketSink extends RichSinkFunction<Row> {
 
 	@Override
 	public void invoke(Row record, Context ctx) {
-		System.out.println("classname:" + record.getClass().getName());
-		System.out.println("record:" + record);
-		System.out.println("arity:" + record.getArity());
+		int fieldscount=record.getArity();
+		Object[] fields=new Object[fieldscount];
+		for (int i = 0; i < fieldscount; i++) {
+			fields[i]=record.getField(i);
+		}
 		Socket s;
 		JSONObject json = new JSONObject();
+		json.put("logid", logid);
+		json.put("queryid", queryid);
+		json.put("record", Arrays.asList(fields));
 		try {
 			s = new Socket(Constants.UNISERVERHOST, Constants.UNISERVERPORT);
-			// 2:获取输出流
 			OutputStream os = s.getOutputStream();
-			// 3:写数据
-			json.put("logid", logid);
-			json.put("queryid", queryid);
-			json.put("record", record);
 			os.write(json.toString().getBytes());
-			// 4:关闭套接字
 			s.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		/* this.wss.stream().filter(ct -> ct.session.isOpen()).forEach(session -> { */
-		/* this.wss.stream().forEach(session -> { */
-		/* System.out.println("session_send"); */
-		/* session.send("record wss:"+record); */
-		/* }); */
-		/* writer.write(record); */
 	}
 
 	/* @Override */
