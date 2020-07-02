@@ -55,52 +55,57 @@ public class App {
 		});
 		app.post("/addlogstream", ctx -> {
 			System.out.println(ctx.formParamMap());
-			LogStream ls = new LogStream(ctx.formParam("addname"), ctx.formParam("ddl"));
-			lsm.add(ls);
-			// TODO: name should be identical
-			String logid = ctx.formParam("addname");
-			ctx.redirect("/log/" + logid);
+			String addname = ctx.formParam("addname", "");
+			String ddl = ctx.formParam("ddl");
+			if (addname.isEmpty() || ddl.isEmpty()) {
+				ctx.redirect("/formerror.html");
+			} else if (lsm.getls(addname) != null) {
+				ctx.result("已经存在名为[" + addname + "]的日志流，请换一个名字");
+			} else {
+				LogStream ls = new LogStream(addname, ddl);
+				lsm.add(ls);
+				String logid = ctx.formParam("addname");
+				ctx.redirect("/log/" + logid);
+			}
 		});
 		app.ws("/ws/:logid", ws -> {
 			ws.onConnect(ctx -> {
 				System.out.println(ctx.matchedPath());
+				// 添加该连接到相应日志流的连接列表里
 				String logid = ctx.pathParam("logid");
 				System.out.println("logid:" + logid);
 				LogStream ls = lsm.getls(logid);
 				ls.wss.add(ctx);
 				System.out.println("joined");
+				// 日志流对应的所有查询的Meta发给该连接
+				for (Query q: ls.queries.values()) {
+					ctx.send(q.queryMetaString());
+				}
+				// 日志流对应的所有查询的结果发给该连接
+				for (Query q: ls.queries.values()) {
+					ctx.send(q.queryDataString());
+				}
 			});
 			ws.onClose(ctx -> {
-				/* String username = userUsernameMap.get(ctx); */
-				/* userUsernameMap.remove(ctx); */
-				/* broadcastMessage("Server", (username + " left the chat")); */
 				System.out.println("left");
 			});
 			ws.onMessage(ctx -> {
-				/* broadcastMessage(userUsernameMap.get(ctx), ctx.message()); */
 				String logid = ctx.pathParam("logid");
 				String msg = ctx.message();
 				System.out.println(msg);
 				JSONObject js = new JSONObject(msg);
-				String type = (String) js.get("type");
-				String query = (String) js.get("query");
+				String type = js.getString("type");
 				if (type.equals("register")) {
+					String query = (String) js.get("query");
 					LogStream ls = lsm.getls(logid);
 					ls.add_query(query);
+				}else if(type.equals("queryMeta")){
+					int qid = js.getInt("queryId");
+					LogStream ls = lsm.getls(logid);
+					Query qr = ls.queries.get(qid);
+					ctx.send(qr.queryMetaString());
 				}
 			});
 		});
 	}
-
-	/*
-	 * private static String createHtmlMessageFromSender(String sender, String
-	 * message) {
-	 */
-	/* return article(b(sender + " says:"), */
-	/*
-	 * span(attrs(".timestamp"), new SimpleDateFormat("HH:mm:ss").format(new
-	 * Date())),
-	 */
-	/* p(message)).render(); */
-	/* } */
 }

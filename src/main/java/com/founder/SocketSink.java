@@ -53,8 +53,8 @@ public class SocketSink extends RichSinkFunction<Row> {
 		}
 		Socket s;
 		JSONObject json = new JSONObject();
-		json.put("logid", logid);
-		json.put("queryid", queryid);
+		json.put("logId", logid);
+		json.put("queryId", queryid);
 		json.put("record", Arrays.asList(fields));
 		try {
 			s = new Socket(Constants.UNISERVERHOST, Constants.UNISERVERPORT);

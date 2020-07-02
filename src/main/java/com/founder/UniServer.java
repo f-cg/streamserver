@@ -33,24 +33,16 @@ public class UniServer extends Thread {
 				JSONObject json = new JSONObject(sinkmsg);
 
 				// 分解socketsink发过来的json，
-				String logid = json.getString("logid");
-				int qid = json.getInt("queryid");
+				String logid = json.getString("logId");
+				int qid = json.getInt("queryId");
 				Object record = json.get("record");
 
 				// 按logid qid放到合适的query结果列表
-				json.put("type", "queryData");
 				LogStream ls = lsm.getls(logid);
-				ls.queries.get(qid).result.push(record);
-
-				JSONObject sjson = new JSONObject();
-				sjson.put("type", "queryData");
-				sjson.put("logid", logid);
-				sjson.put("qid", qid);
-				sjson.put("data", ls.queries.get(qid).result);
-				ls.wss.stream().filter(ct -> ct.session.isOpen()).forEach(session -> {
-					System.out.println("session_send: " + sjson.toString());
-					session.send(sjson.toString());
-				});
+				Query q = ls.queries.get(qid);
+				q.result.push(record);
+				System.out.println("before broadcast:"+q.queryDataString());
+				ls.broadcast(q.queryDataString());
 				s.close();
 			}
 		} catch (IOException e) {

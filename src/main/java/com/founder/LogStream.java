@@ -3,6 +3,7 @@ package com.founder;
 import io.javalin.websocket.WsContext;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,17 +18,36 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
+import org.json.JSONObject;
 
 class Query {
 	String qsql;
 	int qid;
-	TableSchema resultSchema;
-	ArrayDeque<Object> result=new ArrayDeque<>();
+	List<String> fieldNames;
+	ArrayDeque<Object> result = new ArrayDeque<>();
 
 	Query(String qsql, TableSchema schema, int qid) {
 		this.qsql = qsql;
-		this.resultSchema = schema;
+		this.fieldNames = Arrays.asList(schema.getFieldNames());
 		this.qid = qid;
+	}
+
+	String queryMetaString() {
+		JSONObject js = new JSONObject();
+		js.put("type", "queryMeta");
+		/* js.put("logid", logid); */
+		js.put("queryId", qid);
+		js.put("fieldNames", fieldNames);
+		js.put("querySql", qsql);
+		return js.toString();
+	}
+
+	String queryDataString() {
+		JSONObject js = new JSONObject();
+		js.put("type", "queryData");
+		js.put("queryId", qid);
+		js.put("data", result);
+		return js.toString();
 	}
 }
 
@@ -79,6 +99,7 @@ public class LogStream {
 		Query query = new Query(querysql, resultSchema, queryid);
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
 		queries.put(queryid, query);
+		broadcast(query.queryMetaString());
 		SocketSink sink = new SocketSink(name, queryid);
 		resultDs.addSink(sink);
 		/* sinks.put(queryid, sink); */
@@ -90,5 +111,12 @@ public class LogStream {
 	}
 
 	void register(String ddl) {
+	}
+
+	void broadcast(String msg) {
+		wss.stream().filter(ct -> ct.session.isOpen()).forEach(session -> {
+			System.out.println("session_send: " + msg);
+			session.send(msg);
+		});
 	}
 }
