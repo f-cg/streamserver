@@ -98,7 +98,7 @@ public class KafkaConnectorConsumerTableSQLApp{
 
 		// the events are out of order, hence, we use 3 seconds to wait the late events
 		String ddl = "CREATE TABLE MyUserTable (\n" + "wordc STRING\n" + ") WITH (\n"
-				+ "'connector.type' = 'kafka',\n" + "'connector.version' = '0.11',\n"
+				+ "'connector.type' = 'kafka',\n" + "'connector.version' = 'universal',\n"
 				+ "'connector.topic' = 'test',\n"
 				+ "'connector.properties.zookeeper.connect' = 'localhost:2181',\n"
 				+ "'connector.properties.bootstrap.servers' = 'localhost:9092',\n"

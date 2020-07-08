@@ -120,6 +120,11 @@ under the License.
 			<version>1.2.17</version>
 			<scope>runtime</scope>
 		</dependency>
+		    <dependency>
+		      <groupId>org.apache.flink</groupId>
+		      <artifactId>flink-connector-kafka_2.11</artifactId>
+			<version>1.10.0</version>
+		    </dependency>
     <dependency>
         <groupId>io.javalin</groupId>
         <artifactId>javalin</artifactId>
@@ -151,6 +156,11 @@ under the License.
 		  <version>1.10.0</version>
 		  <!-- <scope>provided</scope> -->
 	</dependency>
+	    <dependency>
+	      <groupId>org.apache.flink</groupId>
+	      <artifactId>flink-cep_2.11</artifactId>
+	      <version>1.10.0</version>
+	    </dependency>
 	</dependencies>
 
 	<build>
