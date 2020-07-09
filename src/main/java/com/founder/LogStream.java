@@ -73,7 +73,7 @@ public class LogStream {
 		this.name = name;
 		this.initddl = initddl;
 
-		env = StreamExecutionEnvironment.getExecutionEnvironment();
+		env = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(Constants.parallel);
 		settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
 
 		tEnv = StreamTableEnvironment.create(env, settings);
