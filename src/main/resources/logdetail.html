@@ -5,8 +5,9 @@
     <title>日志详情</title>
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/logdetailstyle.css">
+    <script src="/echarts.min.js"></script>
+    <script src="/mustache.min.js"></script>
+    <link rel="stylesheet" href="/logdetailstyle.css">
 </head>
 <body>
     <p id="logid">
@@ -14,11 +15,6 @@
     </p>
     <h2>{{queriesheader}}</h2>
     <div id="queries">
-        <!-- <div id="query0" class="query"> -->
-	<!-- <label onmouseout="recover(this);" onmouseenter="changelabel(this);" title=""></label> -->
-	<!--         <div class="querydisplay"> -->
-	<!--         </div> -->
-	<!-- </div> -->
     </div>
     <textarea id="querysql" rows="8" cols="40"></textarea>
     <button type="button" onclick="registerquery()">
@@ -26,9 +22,6 @@
     </button>
     <div id="debug">
     </div>
-    <script src="/websocketlog.js">
-    </script>
-    <script charset="utf-8">
-    </script>
+    <script src="/mstlogdetail.js"></script>
 </body>
 </html>

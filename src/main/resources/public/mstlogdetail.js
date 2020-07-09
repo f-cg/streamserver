@@ -1,4 +1,20 @@
-// small helper function for selecting element by id
+var querydisplayTemplate=`
+		<div class="querydisplay">
+		</div>
+`
+var querydisplaycontrolTemplate=`
+		<div class="querydisplaycontrol">
+			<form action="reallogdetail_submit" method="get" accept-charset="utf-8">
+			</form>
+		</div>
+`
+var queryTemplate=`
+	    <div id="{{query_id}}" class="query">
+		    <label class="querylabel" onmouseout="recover(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
+            ${querydisplayTemplate}
+	</div>
+`
+
 var DEBUG = true;
 var id = idx => document.getElementById(idx);
 var Metas = {};
@@ -35,26 +51,18 @@ function registerquery() {
 }
 
 function drawQueryData(qid, data) {
+    let view = {
+        query_id:'query'+qid,
+        title: Metas[qid].querySql
+    }
     print('draw query '+qid);
     let querynode = id('query' + qid);
     if (querynode == null) {
-        querynode = document.createElement('div');
-        querynode.id = "query" + qid;
-        querynode.className = 'query';
-        let querylabel = document.createElement('label');
-        querylabel.innerText = '查询语句';
-        querylabel.className = 'querylabel';
-        querylabel.className = 'querylabel';
-        querylabel.title = Metas[qid].querySql;
-        querylabel.setAttribute('onmouseenter', 'changelabel(this);');
-        querylabel.setAttribute('onmouseout', 'recoverlabel(this);');
-        querylabel.setAttribute('onclick', 'clickCopy(this);');
-        var querydisplaynode = document.createElement('div');
-        querydisplaynode.className = 'querydisplay';
-        querynode.appendChild(querylabel);
-        querynode.appendChild(querydisplaynode);
-        id('queries').appendChild(querynode);
+        let rendered = Mustache.render(queryTemplate, view);
+        // id('queries').appendChild(querynode);
+        id('queries').insertAdjacentHTML('beforeend',rendered);
     }
+
     let fieldNames = Metas[qid].fieldNames;
     print(fieldNames);
 
