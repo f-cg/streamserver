@@ -7,21 +7,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <script src="/echarts.min.js"></script>
     <script src="/mustache.min.js"></script>
-    <link rel="stylesheet" href="/logdetailstyle.css">
+    <link rel="stylesheet" href="/logdetail.css">
 </head>
 <body>
-    <p id="logid">
-        {{logid}}
+    <p id="log-id">
+        {{logId}}
     </p>
-    <h2>{{queriesheader}}</h2>
+    <h2>{{queriesHeader}}</h2>
     <div id="queries">
     </div>
-    <textarea id="querysql" rows="8" cols="40"></textarea>
-    <button type="button" onclick="registerquery()">
+    <textarea id="query-sql" rows="8" cols="40"></textarea>
+    <button type="button" onclick="registerQuery()">
         提交
     </button>
     <div id="debug">
     </div>
-    <script src="/mstlogdetail.js"></script>
+    <script src="/logdetail.js"></script>
 </body>
 </html>

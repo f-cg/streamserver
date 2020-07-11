@@ -12,6 +12,7 @@ var queryTemplate=`
 	    <div id="{{query_id}}" class="query">
 		    <label class="querylabel" onmouseout="recover(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
             ${querydisplayTemplate}
+            ${querydisplaycontrolTemplate}
 	</div>
 `
 
@@ -19,15 +20,15 @@ var DEBUG = true;
 var id = idx => document.getElementById(idx);
 var Metas = {};
 
-let logid = id("logid").innerHTML.trim()
-console.log(logid)
+let logId = id("log-id").innerHTML.trim()
+console.log(logId)
 //Establish the WebSocket connection and set up event handlers
-let ws = new WebSocket("ws://" + location.hostname + ":" + location.port + "/ws/" + logid);
+let ws = new WebSocket("ws://" + location.hostname + ":" + location.port + "/ws/" + logId);
 ws.onmessage = msg => processMsg(msg);
 ws.onclose = () => alert("WebSocket connection closed");
 
 function pullResult() {
-    ws.send(JSON.stringify({"type": "queryList", "logId": logid}));
+    ws.send(JSON.stringify({"type": "queryList", "logId": logId}));
 }
 
 function processMsg(msg) { // Update chat-panel and list of connected users
@@ -40,13 +41,13 @@ function processMsg(msg) { // Update chat-panel and list of connected users
     }
 }
 
-function registerquery() {
-    let sql = id("querysql").value;
+function registerQuery() {
+    let sql = id("query-sql").value;
     console.log(sql);
     if (sql.trim().length > 0) {
-        let rq = {"type": "register", "logId": logid, "query": sql};
+        let rq = {"type": "register", "logId": logId, "query": sql};
         ws.send(JSON.stringify(rq));
-        id("querysql").value = "";
+        id("query-sql").value = "";
     }
 }
 
@@ -140,4 +141,3 @@ function clickCopy(that) {
     document.body.removeChild(dummy);
     that.innerText = '已经复制';
 }
-

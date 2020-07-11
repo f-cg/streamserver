@@ -12,7 +12,7 @@
         <ol>
             {{#logs}}
             <li class="logitem">
-                <a href="log/{{logid}}" target="_blank">{{name}}</a>
+                <a href="log/{{logId}}" target="_blank">{{name}}</a>
             </li>
             {{/logs}}
         </ol>
@@ -20,10 +20,10 @@
     <div>
         <form action="/addlogstream" method="post" accept-charset="utf-8">
             <textarea name="ddl" rows="8" cols="40"></textarea>
-            <label for="addlogname">
+            <label for="add-log-name">
                 name:
             </label>
-            <input type="text" name="addname" value="" id="addlogname">
+            <input type="text" name="addname" value="" id="add-log-name">
             <input type="submit" value="新增">
         </form>
     </div>

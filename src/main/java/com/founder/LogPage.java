@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 class LogItem {
-	String name, addr, logid;
+	String name, addr, logId;
 
-	LogItem(String name, String logid, String addr) {
+	LogItem(String name, String logId, String addr) {
 		this.name = name;
-		this.logid = logid;
+		this.logId = logId;
 		this.addr = addr;
 	}
 }
@@ -26,7 +26,7 @@ public class LogPage {
 		logs.add(logitem);
 	}
 
-	void add(String name, String logid, String addr) {
-		this.add(new LogItem(name, logid, addr));
+	void add(String name, String logId, String addr) {
+		this.add(new LogItem(name, logId, addr));
 	}
 }

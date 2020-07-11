@@ -42,15 +42,15 @@ public class App {
 		});
 		app.get("/log/:logid", ctx -> {
 			Map<String, String> model = new HashMap<String, String>();
-			String logid = ctx.pathParam("logid");
-			LogStream ls = lsm.getls(logid);
-			String queriesheader = "查询列表";
+			String logId = ctx.pathParam("logid");
+			LogStream ls = lsm.getls(logId);
+			String queriesHeader = "查询列表";
 			if (ls.initddl != null) {
-				queriesheader = "请新增查询才能创建流";
+				queriesHeader = "请新增查询才能创建流";
 			}
 			System.out.println(ctx.path());
-			model.put("logid", logid);
-			model.put("queriesheader", queriesheader);
+			model.put("logId", logId);
+			model.put("queriesHeader", queriesHeader);
 			ctx.render("logdetail.html", model);
 		});
 		app.post("/addlogstream", ctx -> {
