@@ -77,12 +77,14 @@ public class App {
 				LogStream ls = lsm.getls(logid);
 				ls.wss.add(ctx);
 				System.out.println("joined");
+				//日志流对应的所有查询的id列表发给该连接
+				ctx.send(ls.queriesListString());
 				// 日志流对应的所有查询的Meta发给该连接
-				for (Query q: ls.queries.values()) {
+				for (Query q : ls.queries) {
 					ctx.send(q.queryMetaString());
 				}
 				// 日志流对应的所有查询的结果发给该连接
-				for (Query q: ls.queries.values()) {
+				for (Query q : ls.queries) {
 					ctx.send(q.queryDataString());
 				}
 			});
@@ -99,10 +101,10 @@ public class App {
 					String query = (String) js.get("query");
 					LogStream ls = lsm.getls(logid);
 					ls.add_query(query);
-				}else if(type.equals("queryMeta")){
+				} else if (type.equals("queryMeta")) {
 					int qid = js.getInt("queryId");
 					LogStream ls = lsm.getls(logid);
-					Query qr = ls.queries.get(qid);
+					Query qr = ls.getquery(qid);
 					ctx.send(qr.queryMetaString());
 				}
 			});

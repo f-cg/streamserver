@@ -3,12 +3,10 @@ package com.founder;
 import io.javalin.websocket.WsContext;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -16,7 +14,6 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
-import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
 import org.json.JSONObject;
 
@@ -63,7 +60,7 @@ public class LogStream {
 	/* Map<Integer, SocketSink> sinks = new ConcurrentHashMap<>(); */
 	List<WsContext> wss = new LinkedList<>();
 	Integer queryinc = 1;
-	Map<Integer, Query> queries = new ConcurrentHashMap<>();
+	List<Query> queries = new LinkedList<>();
 
 	LogStream() {
 		this(null, null);
@@ -98,7 +95,8 @@ public class LogStream {
 		int queryid = queryinc++;
 		Query query = new Query(querysql, resultSchema, queryid);
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
-		queries.put(queryid, query);
+		queries.add(query);
+		broadcast(queriesListString());
 		broadcast(query.queryMetaString());
 		SocketSink sink = new SocketSink(name, queryid);
 		resultDs.addSink(sink);
@@ -118,5 +116,26 @@ public class LogStream {
 			System.out.println("session_send: " + msg);
 			session.send(msg);
 		});
+	}
+
+	Query getquery(int qid) {
+		for (Query q : queries) {
+			if (q.qid == qid) {
+				return q;
+			}
+		}
+		return null;
+	}
+
+	String queriesListString() {
+		JSONObject js = new JSONObject();
+		js.put("type", "queriesList");
+		js.put("logId", name);
+		List<Integer> qids = new ArrayList<>();
+		for (Query q : queries) {
+			qids.add(q.qid);
+		}
+		js.put("queriesId", qids);
+		return js.toString();
 	}
 }

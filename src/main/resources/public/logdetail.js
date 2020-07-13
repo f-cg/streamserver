@@ -1,14 +1,14 @@
-var querydisplayTemplate=`
+var querydisplayTemplate = `
 		<div class="querydisplay">
 		</div>
 `
-var querydisplaycontrolTemplate=`
+var querydisplaycontrolTemplate = `
 		<div class="querydisplaycontrol">
 			<form action="reallogdetail_submit" method="get" accept-charset="utf-8">
 			</form>
 		</div>
 `
-var queryTemplate=`
+var queryTemplate = `
 	    <div id="{{query_id}}" class="query">
 		    <label class="querylabel" onmouseout="recover(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
             ${querydisplayTemplate}
@@ -28,13 +28,84 @@ ws.onmessage = msg => processMsg(msg);
 ws.onclose = () => alert("WebSocket connection closed");
 
 function pullResult() {
-    ws.send(JSON.stringify({"type": "queryList", "logId": logId}));
+    ws.send(JSON.stringify({"type": "queriesList", "logId": logId}));
 }
 
-function processMsg(msg) { // Update chat-panel and list of connected users
+var Queries = []
+
+/**
+ * TODO
+ *
+ */
+function insertQuery() {
+}
+
+/**
+ * Update html doms when queriesList received.
+ *
+ */
+function updateQueriesList(qids) {
+    print("update " + Queries + " using " + qids);
+    var i = 0, j = 0;
+    while (i < Queries.length && j < qids.length) {
+        if (Queries[i].qid == qids[j]) {
+            i++;
+            j++;
+        }
+        else if (Queries[i].qid < qids[j]) {
+            // delete Queries[i]
+            let child = id("q" + Queries[i].qid);
+            child.parentNode.removeChild(child);
+            Queries.splice(i, 1);
+            print("delete q" + Queries[i].qid);
+        }
+        else if (Queries[i].qid > qids[j]) {
+            // insert qids[j]
+            Queries.splice(i, 0, {qid: qids[j]});
+            j++;
+            let view = {
+                query_id: 'q' + qids[j]
+            }
+            let rendered = Mustache.render(queryTemplate, view);
+            let big = id("q" + Queries[i].qid);
+            id("queries").insertBefore(rendered, big);
+            print("insert q" + qids[j]);
+        }
+    }
+    while (i < Queries.length) {
+        // delete Queries[i]
+        let child = id("q" + Queries[i].qid);
+        child.parentNode.removeChild(child);
+        Queries.splice(i, 1);
+        print("delete q" + Queries[i].qid);
+    }
+    print("j " + j + " qids.length:" + qids.length);
+    while (j < qids.length) {
+        // append qids[j]
+        Queries.splice(i, 0, {qid: qids[j]});
+        let view = {
+            query_id: 'q' + qids[j]
+        }
+        let rendered = Mustache.render(queryTemplate, view);
+        id('queries').insertAdjacentHTML('beforeend', rendered);
+        print("append q" + qids[j]);
+        j++;
+    }
+    print("Queries" + Queries);
+}
+
+/**
+ * Process the message according to its type attribute. 
+ *
+ */
+function processMsg(msg) {
     print(msg.data);
     let json = JSON.parse(msg.data);
-    if (json.type == "queryData") {
+    if (json.type == "queriesList") {
+        let qids = json["queriesId"];
+        print("qids:" + qids);
+        updateQueriesList(qids);
+    } else if (json.type == "queryData") {
         drawQueryData(json['queryId'], json['data']);
     } else if (json.type == 'queryMeta') {
         Metas[json["queryId"]] = json;
@@ -52,17 +123,18 @@ function registerQuery() {
 }
 
 function drawQueryData(qid, data) {
-    let view = {
-        query_id:'query'+qid,
-        title: Metas[qid].querySql
-    }
-    print('draw query '+qid);
-    let querynode = id('query' + qid);
-    if (querynode == null) {
-        let rendered = Mustache.render(queryTemplate, view);
-        // id('queries').appendChild(querynode);
-        id('queries').insertAdjacentHTML('beforeend',rendered);
-    }
+    // let view = {
+    //     query_id: 'q' + qid,
+    //     title: Metas[qid].querySql
+    // }
+    print('draw query ' + qid);
+    let querynode = id('q' + qid);
+    querynode.title = Metas[qid].querySql;
+    // if (querynode == null) {
+    //     let rendered = Mustache.render(queryTemplate, view);
+    //     // id('queries').appendChild(querynode);
+    //     id('queries').insertAdjacentHTML('beforeend', rendered);
+    // }
 
     let fieldNames = Metas[qid].fieldNames;
     print(fieldNames);
@@ -74,7 +146,7 @@ function drawQueryData(qid, data) {
 
     let seriesTypesDict = seriesTypes.map(s => ({'type': s}));
 
-    let myChart = echarts.init(id('query' + qid).getElementsByClassName('querydisplay')[0]);
+    let myChart = echarts.init(id('q' + qid).getElementsByClassName('querydisplay')[0]);
     let option = {
         legend: {},
         tooltip: {},
