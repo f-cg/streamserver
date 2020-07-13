@@ -18,7 +18,6 @@ var queryTemplate = `
 
 var DEBUG = true;
 var id = idx => document.getElementById(idx);
-var Metas = {};
 
 let logId = id("log-id").innerHTML.trim()
 console.log(logId)
@@ -38,6 +37,10 @@ var Queries = []
  *
  */
 function insertQuery() {
+}
+
+function getQuery(qid) {
+    return Queries.find(query => query.qid == qid);
 }
 
 /**
@@ -94,6 +97,16 @@ function updateQueriesList(qids) {
     print("Queries" + Queries);
 }
 
+function updateMetas(json) {
+    query = getQuery(json.queryId);
+    if (query != null) {
+        query.fieldNames = json.fieldNames;
+        query.querySql = json.querySql;
+    } else {
+        console.warn("Meta cannot update: not query's qid is: " + json.queryId);
+    }
+}
+
 /**
  * Process the message according to its type attribute. 
  *
@@ -108,7 +121,7 @@ function processMsg(msg) {
     } else if (json.type == "queryData") {
         drawQueryData(json['queryId'], json['data']);
     } else if (json.type == 'queryMeta') {
-        Metas[json["queryId"]] = json;
+        updateMetas(json);
     }
 }
 
@@ -123,20 +136,11 @@ function registerQuery() {
 }
 
 function drawQueryData(qid, data) {
-    // let view = {
-    //     query_id: 'q' + qid,
-    //     title: Metas[qid].querySql
-    // }
     print('draw query ' + qid);
     let querynode = id('q' + qid);
-    querynode.getElementsByClassName("querylabel")[0].title = Metas[qid].querySql;
-    // if (querynode == null) {
-    //     let rendered = Mustache.render(queryTemplate, view);
-    //     // id('queries').appendChild(querynode);
-    //     id('queries').insertAdjacentHTML('beforeend', rendered);
-    // }
+    querynode.getElementsByClassName("querylabel")[0].title = getQuery(qid).querySql;
 
-    let fieldNames = Metas[qid].fieldNames;
+    let fieldNames = getQuery(qid).fieldNames;
     print(fieldNames);
 
     // user configurations
