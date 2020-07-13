@@ -10,7 +10,7 @@ var querydisplaycontrolTemplate = `
 `
 var queryTemplate = `
 	    <div id="{{query_id}}" class="query">
-		    <label class="querylabel" onmouseout="recover(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
+		    <label class="querylabel" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
             ${querydisplayTemplate}
             ${querydisplaycontrolTemplate}
 	</div>
@@ -129,7 +129,7 @@ function drawQueryData(qid, data) {
     // }
     print('draw query ' + qid);
     let querynode = id('q' + qid);
-    querynode.title = Metas[qid].querySql;
+    querynode.getElementsByClassName("querylabel")[0].title = Metas[qid].querySql;
     // if (querynode == null) {
     //     let rendered = Mustache.render(queryTemplate, view);
     //     // id('queries').appendChild(querynode);
