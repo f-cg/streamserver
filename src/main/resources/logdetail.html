@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <link rel="stylesheet" href="/logdetail.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <p id="log-id">
@@ -20,8 +21,29 @@
     </button>
     <div id="debug">
     </div>
-    <script src="/echarts.min.js"></script>
+
+    <nav id="context-menu" class="context-menu">
+        <ul class="context-menu__items">
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link" data-action="bar"><i class="fa fa-eye"></i> bar </a>
+            </li>
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link" data-action="line"><i class="fa fa-edit"></i> line </a>
+            </li>
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link" data-action="pie"><i class="fa fa-times"></i> pie</a>
+            </li>
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link" data-action="scatter"><i class="fa fa-times"></i> scatter</a>
+            </li>
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link" data-action="effectScatter"><i class="fa fa-times"></i> effectScatter</a>
+            </li>
+        </ul>
+    </nav>
+    <script src="/echarts.js"></script>
     <script src="/mustache.min.js"></script>
     <script src="/logdetail.js"></script>
+    <script src="/rightclick.js"></script>
 </body>
 </html>

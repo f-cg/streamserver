@@ -1,7 +1,7 @@
-.querydisplay {
+.chart-display {
     width: 600px;
     height: 400px;
 }
-.querylabel {
+.query-label {
 	background-color: pink;
 }

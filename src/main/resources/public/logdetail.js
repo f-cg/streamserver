@@ -1,18 +1,39 @@
-var querydisplayTemplate = `
-		<div class="querydisplay">
+/**
+ * chart=(display,control)
+ *
+ */
+var chartDisplayTemplate = `
+		<div class="chart-display">
 		</div>
 `
-var querydisplaycontrolTemplate = `
-		<div class="querydisplaycontrol">
+var chartControlTemplate = `
+		<div class="chart-control">
 			<form action="reallogdetail_submit" method="get" accept-charset="utf-8">
 			</form>
 		</div>
 `
+var chartTemplate = `
+<div class="query-chart">
+            ${chartDisplayTemplate}
+            ${chartControlTemplate}
+</div>
+`
+/**
+ * query=(label,charts=[chart])
+ *
+ */
+var queryLableTemplate = `
+		    <label class="query-label" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
+`
+var queryChartsTemplate = `
+<div class="charts">
+{{> chart}}
+</div>
+`
 var queryTemplate = `
 	    <div id="{{query_id}}" class="query">
-		    <label class="querylabel" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
-            ${querydisplayTemplate}
-            ${querydisplaycontrolTemplate}
+        ${queryLableTemplate}
+        ${queryChartsTemplate}
 	</div>
 `
 
@@ -32,11 +53,35 @@ function pullResult() {
 
 var Queries = []
 
-/**
- * TODO
- *
- */
-function insertQuery() {
+function changeSeriesType(itemInContext, newtype) {
+    let name = itemInContext.seriesName != null ? itemInContext.seriesName : itemInContext.dataName
+    console.log(itemInContext);
+    container = itemInContext.api.getDom();
+    console.log(container);
+    // var seriesIndex = null;
+    let qid = Number.parseInt(container.parentNode.parentNode.parentNode.id.slice(1));
+
+    query = getQuery(qid);
+    print("change field " + name + " to type " + newtype);
+    changedFieldIdx = query.fieldNames.indexOf(name);
+    //TODO
+    query.queryCharts[0].customizedOption.option.series[changedFieldIdx-1].type = newtype;
+    drawQuery(qid)
+}
+
+function insertQuery(qid, beforeQid) {
+    let view = {
+        query_id: 'q' + qid,
+    }
+    let rendered = Mustache.render(queryTemplate, view, {chart: chartTemplate});
+    if (beforeQid == null || beforeQid == -1) {
+        id('queries').insertAdjacentHTML('beforeend', rendered);
+        print("append q" + qid);
+    } else {
+        let big = id("q" + beforeQid);
+        id("queries").insertBefore(rendered, big);
+        print("insert q" + qid);
+    }
 }
 
 function getQuery(qid) {
@@ -66,13 +111,7 @@ function updateQueriesList(qids) {
             // insert qids[j]
             Queries.splice(i, 0, {qid: qids[j]});
             j++;
-            let view = {
-                query_id: 'q' + qids[j]
-            }
-            let rendered = Mustache.render(queryTemplate, view);
-            let big = id("q" + Queries[i].qid);
-            id("queries").insertBefore(rendered, big);
-            print("insert q" + qids[j]);
+            insertQuery(qids[j], Queries[i].qid)
         }
     }
     while (i < Queries.length) {
@@ -86,12 +125,7 @@ function updateQueriesList(qids) {
     while (j < qids.length) {
         // append qids[j]
         Queries.splice(i, 0, {qid: qids[j]});
-        let view = {
-            query_id: 'q' + qids[j]
-        }
-        let rendered = Mustache.render(queryTemplate, view);
-        id('queries').insertAdjacentHTML('beforeend', rendered);
-        print("append q" + qids[j]);
+        insertQuery(qids[j]);
         j++;
     }
     print("Queries" + Queries);
@@ -119,7 +153,8 @@ function processMsg(msg) {
         print("qids:" + qids);
         updateQueriesList(qids);
     } else if (json.type == "queryData") {
-        drawQueryData(json['queryId'], json['data']);
+        getQuery(json['queryId']).data = json['data'];
+        drawQuery(json['queryId']);
     } else if (json.type == 'queryMeta') {
         updateMetas(json);
     }
@@ -135,35 +170,46 @@ function registerQuery() {
     }
 }
 
-function drawQueryData(qid, data) {
+function getOrCreateCharts(qid) {
+    let query = getQuery(qid);
+    if (query.queryCharts == null || query.queryCharts == []) {
+        let ec = echarts.init(id('q' + qid).getElementsByClassName('chart-display')[0]);
+        let xAxisType = 'category';
+        let yAxisType = 'value';
+        let seriesTypes = Array(query.fieldNames.length-1).fill('bar');
+        let seriesTypesDict = seriesTypes.map(s => ({'type': s}));
+        let option = {
+            legend: {},
+            tooltip: {},
+            dataset: {
+            },
+            xAxis: {'type': xAxisType},
+            yAxis: {'type': yAxisType},
+            series: seriesTypesDict
+        }
+        query.queryCharts = [{chartInstance: ec, customizedOption: {option: option}}];
+    }
+    return query.queryCharts;
+}
+
+function drawQuery(qid) {
     print('draw query ' + qid);
     let querynode = id('q' + qid);
-    querynode.getElementsByClassName("querylabel")[0].title = getQuery(qid).querySql;
+    let query = getQuery(qid)
+    querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
+    console.log("draw");
 
-    let fieldNames = getQuery(qid).fieldNames;
-    print(fieldNames);
-
-    // user configurations
-    let xAxisType = 'category';
-    let yAxisType = 'value';
-    let seriesTypes = Array(fieldNames.length).fill('bar');
-
-    let seriesTypesDict = seriesTypes.map(s => ({'type': s}));
-
-    let myChart = echarts.init(id('q' + qid).getElementsByClassName('querydisplay')[0]);
-    let option = {
-        legend: {},
-        tooltip: {},
-        dataset: {
-            source: [fieldNames].concat(data)
-        },
-        xAxis: {'type': xAxisType},
-        yAxis: {'type': yAxisType},
-        series: seriesTypesDict
+    let charts = getOrCreateCharts(qid);
+    for (let i = 0; i < charts.length; i++) {
+        console.log("draw chart");
+        let option = charts[i].customizedOption.option;
+        option.dataset = {
+            source: [query.fieldNames].concat(query.data)
+        }
+        console.log(option);
+        print(JSON.stringify(option));
+        charts[i].chartInstance.setOption(option);
     }
-    console.log(option);
-    print(JSON.stringify(option));
-    myChart.setOption(option);
 }
 
 function sampledraw() {
