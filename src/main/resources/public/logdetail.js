@@ -31,10 +31,15 @@ var queryChartsTemplate = `
 </div>
 `
 var queryTemplate = `
+<details open="open">
+<summary>
+collapse/expand
+</summary>
 	    <div id="{{query_id}}" class="query">
         ${queryLableTemplate}
         ${queryChartsTemplate}
 	</div>
+</details>
 `
 
 var DEBUG = true;
@@ -59,7 +64,6 @@ function changeSeriesType(itemInContext, newtype) {
     console.log(itemInContext);
     container = itemInContext.api.getDom();
     console.log(container);
-    // var seriesIndex = null;
     let domChart=container.parentNode;
     let domCharts=container.parentNode.parentNode;
     let domQuery=container.parentNode.parentNode.parentNode;
@@ -70,6 +74,10 @@ function changeSeriesType(itemInContext, newtype) {
     print("change field " + name + " to type " + newtype);
     query.queryCharts[chartIndex].customizedOption.option.series[changedFieldIdx-1].type = newtype;
     drawQuery(qid)
+
+    if(newtype=="make X"){
+        
+    }
 }
 
 function insertQuery(qid, beforeQid) {
@@ -179,8 +187,10 @@ function getOrCreateCharts(qid) {
         let ec = echarts.init(id('q' + qid).getElementsByClassName('chart-display')[0]);
         let xAxisType = 'category';
         let yAxisType = 'value';
-        let seriesTypes = Array(query.fieldNames.length-1).fill('bar');
-        let seriesTypesDict = seriesTypes.map(s => ({'type': s}));
+        let seriesTypesDict = [];
+        for(let i=0;i<query.fieldNames.length-1;i++){
+            seriesTypesDict.push({type:"bar", encode:{x:0, y:i+1}, name: query.fieldNames[i+1]});
+        }
         let option = {
             legend: {},
             tooltip: {},
@@ -207,7 +217,7 @@ function drawQuery(qid) {
         console.log("draw chart");
         let option = charts[i].customizedOption.option;
         option.dataset = {
-            source: [query.fieldNames].concat(query.data)
+            source: query.data
         }
         console.log(option);
         print(JSON.stringify(option));
