@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <link rel="stylesheet" href="/logdetail.css">
     <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/cmn.css">
 </head>
 <body>
     <p id="log-id">
@@ -15,13 +16,15 @@
     <h2>{{queriesHeader}}</h2>
     <div id="queries">
     </div>
-    <textarea id="query-sql" rows="8" cols="40"></textarea>
-    <button type="button" onclick="registerQuery()">
+    <div class="editor-div">
+        <textarea id="query-sql" class="sql-input no-empty" rows="8" cols="40"></textarea>
+        <div class="editor"></div>
+    </div>
+    <button type="button" onsubmit="return validate(this);" onclick="registerQuery()">
         提交
     </button>
     <div id="debug">
     </div>
-
     <nav id="context-menu" class="context-menu">
         <ul class="context-menu__items">
             <li class="context-menu__item">
@@ -39,11 +42,16 @@
             <li class="context-menu__item">
                 <a href="#" class="context-menu__link" data-action="effectScatter"><i class="fa fa-times"></i> effectScatter</a>
             </li>
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link" data-action="make X"><i class="fa fa-times"></i> make X</a>
+            </li>
         </ul>
     </nav>
     <script src="/echarts.js"></script>
     <script src="/mustache.min.js"></script>
     <script src="/logdetail.js"></script>
     <script src="/rightclick.js"></script>
+    <script src="/ace-builds/src-min-noconflict/ace.js" charset="utf-8"></script>
+    <script src="/utils.js" charset="utf-8"></script>
 </body>
 </html>

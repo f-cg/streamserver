@@ -5,6 +5,7 @@
     <title>日志流管理</title>
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link rel="stylesheet" href="/cmn.css">
 </head>
 <body>
     <div>
@@ -18,14 +19,19 @@
         </ol>
     </div>
     <div>
-        <form action="/addlogstream" method="post" accept-charset="utf-8">
-            <textarea name="ddl" rows="8" cols="40"></textarea>
+        <form onsubmit="return validate(this);" action="/addlogstream" method="post" accept-charset="utf-8">
+            <div class="editor-div">
+                <textarea class="sql-input no-empty" rows="3" name="ddl"></textarea>
+                <div class="editor"></div>
+            </div>
             <label for="add-log-name">
                 name:
             </label>
-            <input type="text" name="addname" value="" id="add-log-name">
+            <input type="text" name="addname" value="" id="add-log-name" class="no-empty">
             <input type="submit" value="新增">
         </form>
     </div>
+    <script src="/ace-builds/src-min-noconflict/ace.js" charset="utf-8"></script>
+    <script src="/utils.js" charset="utf-8"></script>
 </body>
 </html>
