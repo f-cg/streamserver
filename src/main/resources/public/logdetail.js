@@ -54,18 +54,21 @@ function pullResult() {
 var Queries = []
 
 function changeSeriesType(itemInContext, newtype) {
+    // current legend&series name
     let name = itemInContext.seriesName != null ? itemInContext.seriesName : itemInContext.dataName
     console.log(itemInContext);
     container = itemInContext.api.getDom();
     console.log(container);
     // var seriesIndex = null;
-    let qid = Number.parseInt(container.parentNode.parentNode.parentNode.id.slice(1));
-
-    query = getQuery(qid);
+    let domChart=container.parentNode;
+    let domCharts=container.parentNode.parentNode;
+    let domQuery=container.parentNode.parentNode.parentNode;
+    let chartIndex=[...domCharts.children].indexOf(domChart);
+    let qid = Number.parseInt(domQuery.id.slice(1));
+    let query = getQuery(qid);
+    let changedFieldIdx = query.fieldNames.indexOf(name);
     print("change field " + name + " to type " + newtype);
-    changedFieldIdx = query.fieldNames.indexOf(name);
-    //TODO
-    query.queryCharts[0].customizedOption.option.series[changedFieldIdx-1].type = newtype;
+    query.queryCharts[chartIndex].customizedOption.option.series[changedFieldIdx-1].type = newtype;
     drawQuery(qid)
 }
 
