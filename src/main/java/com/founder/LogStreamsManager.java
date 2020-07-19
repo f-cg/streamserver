@@ -15,11 +15,18 @@ public class LogStreamsManager {
 		lslist.add(ls);
 	}
 
-	LogStream getls(String logid) {
+	LogStream getls(String logId) {
 		for (LogStream ls : lslist) {
-			if (ls.name.equals(logid))
+			if (ls.name.equals(logId))
 				return ls;
 		}
 		return null;
 	}
+	void dells(String logId) {
+		LogStream ls = getls(logId);
+		if(ls!=null){
+			lslist.remove(ls);
+		}
+	}
+
 }

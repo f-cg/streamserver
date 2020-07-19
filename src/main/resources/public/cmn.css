@@ -17,3 +17,11 @@
     width: 100%;
     height: 400px;
 }
+.delete-button:link {
+    display: none;
+    text-decoration: none;
+}
+.logitem:hover .delete-button {
+    display: initial;/*当鼠标hover时展示*/
+    color: red;
+}

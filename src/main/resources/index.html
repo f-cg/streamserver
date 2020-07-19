@@ -13,7 +13,8 @@
         <ol>
             {{#logs}}
             <li class="logitem">
-                <a href="log/{{logId}}" target="_blank">{{name}}</a>
+                <a href="/log/{{logId}}" class="logitem-log" target="_blank">{{name}}</a>
+                <a href="/delete_log/{{logId}}" class="delete-button">&#10006;</a>
             </li>
             {{/logs}}
         </ol>
@@ -33,5 +34,6 @@
     </div>
     <script src="/ace-builds/src-min-noconflict/ace.js" charset="utf-8"></script>
     <script src="/utils.js" charset="utf-8"></script>
+    <script src="/index.js" charset="utf-8"></script>
 </body>
 </html>
