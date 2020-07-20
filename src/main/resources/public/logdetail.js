@@ -59,11 +59,11 @@ function pullResult() {
 
 var Queries = []
 
-function qdom(qid){
-    return id("q"+qid);
+function qdom(qid) {
+    return id("q" + qid);
 }
 
-function getChartsDom(qid){
+function getChartsDom(qid) {
     return qdom(qid).getElementsByClassName("charts");
 }
 
@@ -212,6 +212,13 @@ function getOrCreateCharts(qid) {
             },
             xAxis: {'type': xAxisType},
             yAxis: {'type': yAxisType},
+            dataZoom: [
+                {   // 这个dataZoom组件，默认控制x轴。
+                    type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                    start: 10,      // 左边在 10% 的位置。
+                    end: 60         // 右边在 60% 的位置。
+                }
+            ],
             series: seriesTypesDict
         }
         query.queryCharts = [{chartInstance: ec, customizedOption: {option: option}}];
