@@ -30,19 +30,23 @@ var queryChartsTemplate = `
 {{> chart}}
 </div>
 `
+var queryChartsAdd = `
+<button type="button">增加图表</button>
+`
 var queryTemplate = `
 <details open="open">
 <summary>
-collapse/expand
+折叠/展开
 </summary>
 	    <div id="{{query_id}}" class="query">
         ${queryLableTemplate}
         ${queryChartsTemplate}
+        ${queryChartsAdd}
 	</div>
 </details>
 `
 
-var DEBUG = true;
+var DEBUG = false;
 var id = idx => document.getElementById(idx);
 
 let logId = id("log-id").innerHTML.trim()
@@ -64,19 +68,19 @@ function changeSeriesType(itemInContext, newtype) {
     console.log(itemInContext);
     container = itemInContext.api.getDom();
     console.log(container);
-    let domChart=container.parentNode;
-    let domCharts=container.parentNode.parentNode;
-    let domQuery=container.parentNode.parentNode.parentNode;
-    let chartIndex=[...domCharts.children].indexOf(domChart);
+    let domChart = container.parentNode;
+    let domCharts = container.parentNode.parentNode;
+    let domQuery = container.parentNode.parentNode.parentNode;
+    let chartIndex = [...domCharts.children].indexOf(domChart);
     let qid = Number.parseInt(domQuery.id.slice(1));
     let query = getQuery(qid);
     let changedFieldIdx = query.fieldNames.indexOf(name);
     print("change field " + name + " to type " + newtype);
-    query.queryCharts[chartIndex].customizedOption.option.series[changedFieldIdx-1].type = newtype;
+    query.queryCharts[chartIndex].customizedOption.option.series[changedFieldIdx - 1].type = newtype;
     drawQuery(qid)
 
-    if(newtype=="make X"){
-        
+    if (newtype == "make X") {
+
     }
 }
 
@@ -93,6 +97,11 @@ function insertQuery(qid, beforeQid) {
         id("queries").insertBefore(rendered, big);
         print("insert q" + qid);
     }
+    let queriesHeader = id("queries-header");
+    if (queriesHeader.innerText == "请新增查询才能创建流") {
+        queriesHeader.innerText = "查询列表";
+    };
+
 }
 
 function getQuery(qid) {
@@ -188,8 +197,8 @@ function getOrCreateCharts(qid) {
         let xAxisType = 'category';
         let yAxisType = 'value';
         let seriesTypesDict = [];
-        for(let i=0;i<query.fieldNames.length-1;i++){
-            seriesTypesDict.push({type:"bar", encode:{x:0, y:i+1}, name: query.fieldNames[i+1]});
+        for (let i = 0; i < query.fieldNames.length - 1; i++) {
+            seriesTypesDict.push({type: "bar", encode: {x: 0, y: i + 1}, name: query.fieldNames[i + 1]});
         }
         let option = {
             legend: {},
