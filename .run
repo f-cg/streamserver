@@ -1,3 +1,4 @@
 #! .*
 cd /home/fcg/code/FounderOffice/streamserver/ && mvn compile exec:java -Dexec.mainClass="com.founder.App"
+cd /home/fcg/code/FounderOffice/streamserver/ && mvn compile
 cd /home/fcg/code/FounderOffice/streamserver/ && mvn compile exec:java -Dexec.mainClass="com.founder.StreamWindowSQLExample"

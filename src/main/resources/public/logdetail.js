@@ -31,10 +31,10 @@ var queryChartsTemplate = `
 </div>
 `
 var queryChartsAdd = `
-<button type="button">增加图表</button>
+<button type="button" onclick="addChart(this);">增加图表</button>
 `
 var queryTemplate = `
-<details open="open" class="query-container" id="{{query_id}}" class="query">
+<details open="open" id="{{query_id}}" class="query">
 <summary class="query-summary">
 折叠/展开 ${queryLableTemplate}
 </summary>
@@ -59,12 +59,15 @@ function pullResult() {
 
 var Queries = []
 
-function qdom(qid) {
-    return id("q" + qid);
+function qdom(qref) {
+    if (typeof qref == 'number')
+        return id("q" + qref);
+    else
+        return qref.closest(".query");
 }
 
 function getChartsDom(qid) {
-    return qdom(qid).getElementsByClassName("charts");
+    return qdom(qid).getElementsByClassName("charts")[0];
 }
 
 function changeSeriesType(itemInContext, newtype) {
@@ -195,32 +198,37 @@ function registerQuery() {
     }
 }
 
+function getDefaultOption(query) {
+    let xAxisType = 'category';
+    let yAxisType = 'value';
+    let seriesTypesDict = [];
+    for (let i = 0; i < query.fieldNames.length - 1; i++) {
+        seriesTypesDict.push({type: "bar", encode: {x: 0, y: i + 1}, name: query.fieldNames[i + 1]});
+    }
+    let option = {
+        legend: {},
+        tooltip: {},
+        dataset: {
+        },
+        xAxis: {'type': xAxisType},
+        yAxis: {'type': yAxisType},
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            }
+        ],
+        series: seriesTypesDict
+    }
+    return option;
+}
+
 function getOrCreateCharts(qid) {
     let query = getQuery(qid);
     if (query.queryCharts == null || query.queryCharts == []) {
         let ec = echarts.init(qdom(qid).getElementsByClassName('chart-display')[0]);
-        let xAxisType = 'category';
-        let yAxisType = 'value';
-        let seriesTypesDict = [];
-        for (let i = 0; i < query.fieldNames.length - 1; i++) {
-            seriesTypesDict.push({type: "bar", encode: {x: 0, y: i + 1}, name: query.fieldNames[i + 1]});
-        }
-        let option = {
-            legend: {},
-            tooltip: {},
-            dataset: {
-            },
-            xAxis: {'type': xAxisType},
-            yAxis: {'type': yAxisType},
-            dataZoom: [
-                {   // 这个dataZoom组件，默认控制x轴。
-                    type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
-                    start: 10,      // 左边在 10% 的位置。
-                    end: 60         // 右边在 60% 的位置。
-                }
-            ],
-            series: seriesTypesDict
-        }
+        let option = getDefaultOption(query);
         query.queryCharts = [{chartInstance: ec, customizedOption: {option: option}}];
     }
     return query.queryCharts;
@@ -244,6 +252,23 @@ function drawQuery(qid) {
         print(JSON.stringify(option));
         charts[i].chartInstance.setOption(option);
     }
+}
+
+function addChart(that) {
+    console.log(that);
+    let queryDom = qdom(that);
+    let charts = queryDom.getElementsByClassName("charts")[0];
+    let view = {
+    }
+    let rendered = Mustache.render(chartTemplate, view);
+    charts.insertAdjacentHTML('beforeend', rendered);
+    charts_displays=charts.getElementsByClassName('chart-display')
+    let ec = echarts.init(charts_displays[charts_displays.length-1]);
+    let qid = Number.parseInt(qdom(that).id.slice(1))
+    let query = getQuery(qid);
+    let option = getDefaultOption(query);
+    query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
+    drawQuery(qid);
 }
 
 function sampledraw() {
@@ -300,7 +325,7 @@ function clickCopy(that) {
 
 function cancelQuery(that) {
     print("cancelQuery");
-    let qid = that.parentNode.parentNode.id.slice(1)
+    let qid = qdom(that).id.slice(1)
     let msg = {
         "type": "cancelQuery",
         "logid": logId,
@@ -308,3 +333,4 @@ function cancelQuery(that) {
     }
     ws.send(JSON.stringify(msg));
 }
+
