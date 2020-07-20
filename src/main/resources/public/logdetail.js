@@ -23,7 +23,7 @@ var chartTemplate = `
  *
  */
 var queryLableTemplate = `
-		    <label class="query-label" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
+		    <label class="query-label" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label> <button class="cancel-button" onclick="cancelQuery(this)">&#10006;</button>
 `
 var queryChartsTemplate = `
 <div class="charts">
@@ -34,19 +34,16 @@ var queryChartsAdd = `
 <button type="button">增加图表</button>
 `
 var queryTemplate = `
-<details open="open">
-<summary>
-折叠/展开
+<details open="open" class="query-container" id="{{query_id}}" class="query">
+<summary class="query-summary">
+折叠/展开 ${queryLableTemplate}
 </summary>
-	    <div id="{{query_id}}" class="query">
-        ${queryLableTemplate}
-        ${queryChartsTemplate}
-        ${queryChartsAdd}
-	</div>
+    ${queryChartsTemplate}
+    ${queryChartsAdd}
 </details>
 `
 
-var DEBUG = false;
+var DEBUG = true;
 var id = idx => document.getElementById(idx);
 
 let logId = id("log-id").innerHTML.trim()
@@ -61,6 +58,14 @@ function pullResult() {
 }
 
 var Queries = []
+
+function qdom(qid){
+    return id("q"+qid);
+}
+
+function getChartsDom(qid){
+    return qdom(qid).getElementsByClassName("charts");
+}
 
 function changeSeriesType(itemInContext, newtype) {
     // current legend&series name
@@ -93,7 +98,7 @@ function insertQuery(qid, beforeQid) {
         id('queries').insertAdjacentHTML('beforeend', rendered);
         print("append q" + qid);
     } else {
-        let big = id("q" + beforeQid);
+        let big = qdom(beforeQid);
         id("queries").insertBefore(rendered, big);
         print("insert q" + qid);
     }
@@ -122,7 +127,7 @@ function updateQueriesList(qids) {
         }
         else if (Queries[i].qid < qids[j]) {
             // delete Queries[i]
-            let child = id("q" + Queries[i].qid);
+            let child = qdom(Queries[i].qid);
             child.parentNode.removeChild(child);
             Queries.splice(i, 1);
             print("delete q" + Queries[i].qid);
@@ -136,7 +141,7 @@ function updateQueriesList(qids) {
     }
     while (i < Queries.length) {
         // delete Queries[i]
-        let child = id("q" + Queries[i].qid);
+        let child = qdom(Queries[i].qid);
         child.parentNode.removeChild(child);
         Queries.splice(i, 1);
         print("delete q" + Queries[i].qid);
@@ -193,7 +198,7 @@ function registerQuery() {
 function getOrCreateCharts(qid) {
     let query = getQuery(qid);
     if (query.queryCharts == null || query.queryCharts == []) {
-        let ec = echarts.init(id('q' + qid).getElementsByClassName('chart-display')[0]);
+        let ec = echarts.init(qdom(qid).getElementsByClassName('chart-display')[0]);
         let xAxisType = 'category';
         let yAxisType = 'value';
         let seriesTypesDict = [];
@@ -216,7 +221,7 @@ function getOrCreateCharts(qid) {
 
 function drawQuery(qid) {
     print('draw query ' + qid);
-    let querynode = id('q' + qid);
+    let querynode = qdom(qid);
     let query = getQuery(qid)
     querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
     console.log("draw");
@@ -284,4 +289,15 @@ function clickCopy(that) {
     document.execCommand('copy');
     document.body.removeChild(dummy);
     that.innerText = '已经复制';
+}
+
+function cancelQuery(that) {
+    print("cancelQuery");
+    let qid = that.parentNode.parentNode.id.slice(1)
+    let msg = {
+        "type": "cancelQuery",
+        "logid": logId,
+        "queryId": qid
+    }
+    ws.send(JSON.stringify(msg));
 }

@@ -25,3 +25,12 @@
     display: initial;/*当鼠标hover时展示*/
     color: red;
 }
+
+.cancel-button {
+    display: none;
+    text-decoration: none;
+}
+summary:hover .cancel-button {
+    display: initial;
+    color: red;
+}

@@ -127,6 +127,12 @@ public class App {
 					LogStream ls = lsm.getls(logid);
 					Query qr = ls.getquery(qid);
 					ctx.send(qr.queryMetaString());
+				} else if (type.equals("cancelQuery")) {
+					System.out.println("cancelQuery");
+					int qid = js.getInt("queryId");
+					LogStream ls = lsm.getls(logid);
+					ls.delquery(qid);
+					ctx.send(ls.queriesListString());
 				}
 			});
 		});

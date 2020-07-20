@@ -127,6 +127,13 @@ public class LogStream {
 		return null;
 	}
 
+	void delquery(int qid) {
+		Query q = getquery(qid);
+		if (q != null) {
+			queries.remove(q);
+		}
+	}
+
 	String queriesListString() {
 		JSONObject js = new JSONObject();
 		js.put("type", "queriesList");
