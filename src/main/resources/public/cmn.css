@@ -34,3 +34,10 @@ summary:hover .cancel-button {
     display: initial;
     color: red;
 }
+.hidden-a:link {
+    display: none;
+    text-decoration: none;
+}
+.hidden-a-toggle:hover .hidden-a{
+    display: initial;/*当鼠标hover时展示*/
+}

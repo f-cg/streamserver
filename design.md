@@ -180,3 +180,7 @@ List customizedOptions=...(只是存放收到的json string)
 3. TODO 添加图
 4. TODO 删除图
 5. 折叠查询
+
+注册日志|选择|删除日志|帮助
+
+新增查询|新增图表|删除查询|帮助|

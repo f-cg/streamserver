@@ -75,9 +75,11 @@ public class App {
 			returnLogPage(ctx);
 		});
 		app.post("/addlogstream", ctx -> {
-			System.out.println(ctx.formParamMap());
+			System.err.println("/addlogstream");
+			System.err.println(ctx.formParamMap());
 			String addname = ctx.formParam("addname", "");
 			String ddl = ctx.formParam("ddl");
+			System.err.println(ddl);
 			if (addname.isEmpty() || ddl.isEmpty()) {
 				returnHtml("error", ctx, "表单某些输入不满足非空要求");
 			} else if (lsm.getls(addname) != null) {
