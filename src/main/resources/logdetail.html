@@ -5,25 +5,58 @@
     <title>日志详情</title>
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link rel="stylesheet" href="/bootstrap-4.5.0-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/logdetail.css">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/cmn.css">
 </head>
 <body>
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-modal">
+            新增查询
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-sql-modal">
+            SQL查询
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-graph-modal">
+            新增图表
+        </button>
+        <button type="button" class="btn btn-secondary">
+            删除查询
+        </button>
+        <button type="button" class="btn btn-secondary">
+            帮助
+        </button>
+    </div>
     <p id="log-id">
         {{logId}}
     </p>
     <h2 id="queries-header">{{queriesHeader}}</h2>
     <div id="queries">
     </div>
-    <h2>新增查询</h2>
-    <div class="editor-div">
-        <textarea id="query-sql" class="sql-input no-empty" rows="8" cols="40"></textarea>
-        <div class="editor"></div>
+    <div class="modal fade" id="add-query-sql-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    新增SQL查询
+                </div>
+                <div class="modal-body">
+                    <div class="editor-div">
+                        <textarea id="query-sql" class="sql-input no-empty" rows="8" cols="40"></textarea>
+                        <div class="editor"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-primary" onsubmit="return validate(this);" onclick="registerQuery()">
+                        确认
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="button" onsubmit="return validate(this);" onclick="registerQuery()">
-        提交
-    </button>
     <div id="debug">
     </div>
     <nav id="context-menu" class="context-menu">
@@ -54,5 +87,8 @@
     <script src="/rightclick.js"></script>
     <script src="/ace-builds/src-min-noconflict/ace.js" charset="utf-8"></script>
     <script src="/utils.js" charset="utf-8"></script>
+    <script src="/jquery.slim.min.js"></script>
+    <script src="/popper.min.js"></script>
+    <script src="/bootstrap-4.5.0-dist/js/bootstrap.min.js"></script>
 </body>
 </html>
