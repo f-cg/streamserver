@@ -38,6 +38,16 @@ summary:hover .cancel-button {
     display: none;
     text-decoration: none;
 }
-.hidden-a-toggle:hover .hidden-a{
+.hidden-a-toggle:hover .hidden-a {
     display: initial;/*当鼠标hover时展示*/
+}
+
+.delete-checkbox-log {
+    display: none;
+}
+
+.delete-selected {
+    position: absolute;
+    top: 0;
+    right: 0;
 }

@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <link rel="stylesheet" href="/bootstrap-4.5.0-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/cmn.css">
+    <link rel="stylesheet" href="/index.css">
 </head>
 <body>
     <div class="btn-group" role="group" aria-label="Basic example">
@@ -16,11 +17,19 @@
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#reg-log-sql-modal">
             SQL注册
         </button>
-        <button type="button" class="btn btn-secondary">
+        <button type="button" class="btn btn-secondary" onclick="$('.delete-checkbox-log, #delete-log-cancel').show();">
             删除日志流
         </button>
         <button type="button" class="btn btn-secondary">
             帮助
+        </button>
+    </div>
+    <div class="btn-group delete-selected" role="group" aria-label="Basic example" id="delete-log-cancel">
+        <button type="button" class="btn btn-secondary" onclick="$('.delete-checkbox-log, #delete-log-cancel').hide();">
+            取消
+        </button>
+        <button type="button" class="btn btn-danger" onclick="delete_selected()">
+            删除选中
         </button>
     </div>
     <div class="modal fade form-popup" id="reg-log-modal">
@@ -100,10 +109,11 @@
             </div>
         </div>
     </div>
-    <ol>
+    <ol class="list-group">
         {{#logs}}
-        <li class="logitem">
-            <a href="/log/{{logId}}" class="logitem-log" target="_blank">{{name}}</a>
+        <li class="logitem list-group-item">
+            <input type="checkbox" class="delete-checkbox-log form-check-input">
+            <a href="/log/{{logId}}" class="logitem-log" target="_blank" logid="{{logId}}">{{name}}</a>
             <a href="/delete_log/{{logId}}" class="delete-button">&#10006;</a>
         </li>
         {{/logs}}

@@ -163,7 +163,7 @@ function regLogCheck() {
 'connector.properties.zookeeper.connect' = '${zookeeper}',
 'connector.properties.bootstrap.servers' = '${servers}',
 'format.type' = 'csv'`
-    }else{
+    } else {
         return falsealert("连接类型未知");
     }
     let field_name_type = getFields();
@@ -242,4 +242,22 @@ function watermarkOptionRefresh() {
     }
     if (selectedIndex >= 0)
         wm.options[selectedIndex].selected = true;
+}
+
+function delete_selected() {
+    let cbs = document.getElementsByClassName("delete-checkbox-log");
+    let todelete = [];
+    for (let i = 0; i < cbs.length; i++) {
+        let cb = cbs[i];
+        if (!cb.checked)
+            continue;
+        let logId = cb.nextElementSibling.attributes["logid"].value;
+        todelete.push(logId);
+    }
+    if (todelete.length == 0) {
+        alert("至少选中1个再删除");
+        return;
+    }
+    todelete = JSON.stringify({"todelete": todelete});
+    window.open("/delete_log_array?todelete=" + todelete, "_self");
 }

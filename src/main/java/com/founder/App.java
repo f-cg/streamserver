@@ -11,6 +11,7 @@ import java.util.Map;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.javalin.Javalin;
@@ -70,6 +71,17 @@ public class App {
 		app.get("/delete_log/:logid", ctx -> {
 			String logId = ctx.pathParam("logid");
 			lsm.dells(logId);
+			ctx.redirect("/");
+		});
+		app.get("/delete_log_array", ctx -> {
+			String logIdsStr = ctx.queryParam("todelete");
+			JSONObject logIdsJson = new JSONObject(logIdsStr);
+			JSONArray todelete = logIdsJson.getJSONArray("todelete");
+			for (int i = 0; i < todelete.length(); i++) {
+				String logId = todelete.optString(i);
+				lsm.dells(logId);
+			}
+			System.err.println(todelete);
 			ctx.redirect("/");
 		});
 		app.post("/addlogstream", ctx -> {
