@@ -70,7 +70,7 @@ public class App {
 		app.get("/delete_log/:logid", ctx -> {
 			String logId = ctx.pathParam("logid");
 			lsm.dells(logId);
-			returnLogPage(ctx);
+			ctx.redirect("/");
 		});
 		app.post("/addlogstream", ctx -> {
 			System.err.println("/addlogstream");
