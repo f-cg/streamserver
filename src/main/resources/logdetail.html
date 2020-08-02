@@ -36,9 +36,6 @@
             帮助
         </button>
     </div>
-    <p id="log-id">
-        {{logId}}
-    </p>
     <h2 id="queries-header">{{queriesHeader}}</h2>
     <div id="queries">
     </div>
@@ -72,6 +69,12 @@
                     日志流详情
                 </div>
                 <div class="modal-body">
+                    <div class="form-group">
+                        <label for="log-name">
+                            日志流名称
+                        </label>
+                        <input type="text" id="log-id" value="{{logId}}" readonly>
+                    </div>
                     <pre><code id="ddl" class="sql">{{ddl}}</code></pre>
                     <div class="form-group">
                         <label>

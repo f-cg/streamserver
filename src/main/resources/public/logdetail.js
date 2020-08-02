@@ -46,7 +46,7 @@ var queryTemplate = `
 var DEBUG = true;
 var id = idx => document.getElementById(idx);
 
-let logId = id("log-id").innerHTML.trim()
+let logId = id("log-id").value.trim()
 console.log(logId)
 //Establish the WebSocket connection and set up event handlers
 let ws = new WebSocket("ws://" + location.hostname + ":" + location.port + "/ws/" + logId);
