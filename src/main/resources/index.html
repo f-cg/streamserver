@@ -112,7 +112,7 @@
     <ol class="list-group">
         {{#logs}}
         <li class="logitem list-group-item">
-            <input type="checkbox" class="delete-checkbox-log form-check-input">
+            <input type="checkbox" class="delete-checkbox-log form-check-input" autocomplete="off">
             <a href="/log/{{logId}}" class="logitem-log" target="_blank" logid="{{logId}}">{{name}}</a>
             <a href="/delete_log/{{logId}}" class="delete-button">&#10006;</a>
         </li>
