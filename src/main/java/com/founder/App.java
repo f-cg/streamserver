@@ -60,13 +60,8 @@ public class App {
 			Map<String, String> model = new HashMap<String, String>();
 			String logId = ctx.pathParam("logid");
 			LogStream ls = lsm.getls(logId);
-			String queriesHeader = "查询列表";
-			if (ls.initddl != null) {
-				queriesHeader = "请新增查询才能创建流";
-			}
 			System.out.println(ctx.path());
 			model.put("logId", logId);
-			model.put("queriesHeader", queriesHeader);
 			model.put("ddl", ls.initddl);
 			model.put("createdTime", ls.createdTime);
 			model.put("executedTime", ls.executedTime);
