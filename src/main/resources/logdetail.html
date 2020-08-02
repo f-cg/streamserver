@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="/logdetail.css">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/cmn.css">
+    <link rel="stylesheet" href="/highlight/styles/default.css">
+    <script src="/highlight/highlight.pack.js"></script>
+    <script>
+    hljs.initHighlightingOnLoad();
+    </script>
 </head>
 <body>
     <div class="btn-group" role="group" aria-label="Basic example">
@@ -23,6 +28,9 @@
         </button>
         <button type="button" class="btn btn-secondary">
             删除查询
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#show-log-details-modal">
+            日志流详情
         </button>
         <button type="button" class="btn btn-secondary">
             帮助
@@ -57,6 +65,38 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="show-log-details-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    日志流详情
+                </div>
+                <div class="modal-body">
+                    <pre><code id="ddl" class="sql">{{ddl}}</code></pre>
+                    <div class="form-group">
+                        <label>
+                            创建时间
+                        </label>
+                        <input type="text" id="createdTime" value="{{createdTime}}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            执行时间
+                        </label>
+                        <input type="text" id="executedTime" value="{{executedTime}}" readonly>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">
+                        OK
+                    </button>
+                    <button type="button" class="btn btn-danger">
+                        删除该日志
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="debug">
     </div>
     <nav id="context-menu" class="context-menu">
@@ -83,12 +123,14 @@
     </nav>
     <script src="/echarts.js"></script>
     <script src="/mustache.min.js"></script>
+    <script src="/ace-builds/src-min-noconflict/ace.js" charset="utf-8"></script>
     <script src="/logdetail.js"></script>
     <script src="/rightclick.js"></script>
-    <script src="/ace-builds/src-min-noconflict/ace.js" charset="utf-8"></script>
     <script src="/utils.js" charset="utf-8"></script>
     <script src="/jquery.slim.min.js"></script>
     <script src="/popper.min.js"></script>
     <script src="/bootstrap-4.5.0-dist/js/bootstrap.min.js"></script>
+    <script charset="utf-8">
+    </script>
 </body>
 </html>

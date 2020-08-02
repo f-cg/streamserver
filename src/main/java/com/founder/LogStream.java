@@ -2,9 +2,11 @@ package com.founder;
 
 import io.javalin.websocket.WsContext;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,6 +56,8 @@ public class LogStream {
 	 */
 	String name;
 	String initddl;
+	String createdTime;
+	String executedTime;
 	StreamExecutionEnvironment env;
 	StreamTableEnvironment tEnv;
 	EnvironmentSettings settings;
@@ -70,10 +74,19 @@ public class LogStream {
 		this.name = name;
 		this.initddl = initddl;
 
+		this.createdTime = this.currentDateString();
+		this.executedTime = "未执行";
+
 		env = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(Constants.parallel);
 		settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
 
 		tEnv = StreamTableEnvironment.create(env, settings);
+	}
+
+	String currentDateString() {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+		Date date = new Date(System.currentTimeMillis());
+		return formatter.format(date);
 	}
 
 	void add_query(String querysql) {
@@ -84,6 +97,7 @@ public class LogStream {
 			System.out.println("add_query sqlUpdate");
 			tEnv.sqlUpdate(initddl);
 			initddl = null;
+			this.executedTime = this.currentDateString();
 		}
 		System.out.println("add_query sqlQuery");
 		Table result = tEnv.sqlQuery(querysql);

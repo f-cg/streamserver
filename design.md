@@ -43,7 +43,18 @@ server-->browser
 
 ## 连接socket后
 
-TODO 返回query列表
+返回log详细信息
+{
+type:logdetails,
+logId:logId,
+ddl:ddl,
+createTime:createTime,
+executeTime:executeTime,
+fieldNames:fieldNames,
+fieldTypes:fieldTypes
+}
+
+返回query列表
 {
 type:queriesList
 logId:logId

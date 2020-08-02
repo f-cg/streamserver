@@ -67,6 +67,9 @@ public class App {
 			System.out.println(ctx.path());
 			model.put("logId", logId);
 			model.put("queriesHeader", queriesHeader);
+			model.put("ddl", ls.initddl);
+			model.put("createdTime", ls.createdTime);
+			model.put("executedTime", ls.executedTime);
 			ctx.render("logdetail.html", model);
 		});
 		app.get("/delete_log/:logid", ctx -> {
