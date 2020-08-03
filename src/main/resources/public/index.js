@@ -245,7 +245,7 @@ function watermarkOptionRefresh() {
 }
 
 function delete_selected() {
-    let cbs = document.getElementsByClassName("delete-checkbox-log");
+    let cbs = document.getElementsByClassName("delete-cb");
     let todelete = [];
     for (let i = 0; i < cbs.length; i++) {
         let cb = cbs[i];

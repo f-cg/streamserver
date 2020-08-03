@@ -26,7 +26,7 @@
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-graph-modal">
             新增图表
         </button>
-        <button type="button" class="btn btn-secondary" onclick="$('.delete-checkbox-log, #delete-log-cancel').show();">
+        <button type="button" class="btn btn-secondary" onclick="$('.delete-cb, #delete-cancel').show();">
             删除查询
         </button>
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#show-log-details-modal">
@@ -37,8 +37,8 @@
             帮助
         </button>
     </div>
-    <div class="btn-group delete-selected" role="group" aria-label="Basic example" id="delete-log-cancel">
-        <button type="button" class="btn btn-secondary" onclick="$('.delete-checkbox-log, #delete-log-cancel').hide();">
+    <div class="btn-group delete-selected" role="group" aria-label="Basic example" id="delete-cancel">
+        <button type="button" class="btn btn-secondary" onclick="$('.delete-cb, #delete-cancel').hide();">
             取消
         </button>
         <button type="button" class="btn btn-danger" onclick="deleteSelectedQueries()">

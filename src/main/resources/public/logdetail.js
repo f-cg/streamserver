@@ -14,7 +14,7 @@ var chartControlTemplate = `
 `
 var chartTemplate = `
 <div class="query-chart">
-<input type="checkbox" class="delete-checkbox-log delete-cb-chart" autocomplete="off">
+<input type="checkbox" class="delete-cb delete-cb-chart" autocomplete="off">
             ${chartDisplayTemplate}
             ${chartControlTemplate}
 </div>
@@ -37,7 +37,7 @@ var queryChartsAdd = `
 var queryTemplate = `
 <details open="open" id="{{query_id}}" class="query">
 <summary class="query-summary">
-<input type="checkbox" class="delete-checkbox-log delete-cb-query" autocomplete="off">
+<input type="checkbox" class="delete-cb delete-cb-query" autocomplete="off">
 折叠/展开 ${queryLableTemplate}
 </summary>
     ${queryChartsTemplate}
@@ -351,11 +351,11 @@ function cancelQuery(that) {
 }
 
 function deleteSelectedQueries() {
-    let selectedQueries = document.querySelectorAll(".delete-checkbox-log.delete-cb-query");
+    let selectedQueries = document.querySelectorAll(".delete-cb.delete-cb-query");
     for (let i = 0; i < selectedQueries.length; i++) {
         cancelQuery(selectedQueries[i]);
     }
-    let selectedCharts = document.querySelectorAll(".delete-checkbox-log.delete-cb-chart");
+    let selectedCharts = document.querySelectorAll(".delete-cb.delete-cb-chart");
     for (let i = 0; i < selectedCharts.length; i++) {
         delChart(selectedCharts[i]);
     }

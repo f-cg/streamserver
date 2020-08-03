@@ -42,7 +42,7 @@ summary:hover .cancel-button {
     display: initial;/*当鼠标hover时展示*/
 }
 
-.delete-checkbox-log {
+.delete-cb {
     display: none;
 }
 
@@ -50,4 +50,5 @@ summary:hover .cancel-button {
     position: absolute;
     top: 0;
     right: 0;
+    display: none;
 }
