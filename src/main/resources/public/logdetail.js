@@ -27,7 +27,7 @@ var queryChartsAdd = `
  *
  */
 var queryLableTemplate = `
-<label class="query-label" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
+<label class="query-label" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询名称</label>
 <button class="cancel-button hovershow-show" onclick="cancelQuery(this)">&#10006;</button>
 ${queryChartsAdd}
 `
@@ -162,6 +162,7 @@ function updateMetas(json) {
     if (query != null) {
         query.fieldNames = json.fieldNames;
         query.querySql = json.querySql;
+        query.queryName = json.queryName;
     } else {
         console.warn("Meta cannot update: not query's qid is: " + json.queryId);
     }
@@ -187,14 +188,15 @@ function processMsg(msg) {
 }
 
 function registerQuery() {
-    let sql = id("query-sql").value;
+    let sql = id("query-sql").value.trim();
+    let qname = id("query-name").value.trim();
     console.log(sql);
-    if (sql.trim().length > 0) {
-        let rq = {"type": "register", "logId": logId, "query": sql};
+    if (sql.length > 0 && qname.length > 0) {
+        let rq = {"type": "register", "logId": logId, "query": sql, "queryName": qname};
         ws.send(JSON.stringify(rq));
         id("query-sql").value = "";
     } else {
-        alert("查询语句为空!");
+        alert("查询语句和查询名称不能为空!");
     }
 }
 
@@ -239,6 +241,7 @@ function drawQuery(qid) {
     let querynode = qdom(qid);
     let query = getQuery(qid)
     querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
+    querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
     console.log("draw");
 
     let charts = getOrCreateCharts(qid);
@@ -322,11 +325,13 @@ function print(info) {
 
 function changelabel(that) {
     // that.style.background = "#faa";
-    that.innerText = "点击复制";
+    that.innerText = "点击复制语句";
 }
 
 function recoverlabel(that) {
-    that.innerText = '查询语句';
+    let qid = Number.parseInt(qdom(that).id.slice(1));
+    let query = getQuery(qid);
+    that.innerText = query.queryName;
 }
 
 function clickCopy(that) {

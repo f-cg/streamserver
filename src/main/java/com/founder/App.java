@@ -132,8 +132,9 @@ public class App {
 				String type = js.getString("type");
 				if (type.equals("register")) {
 					String query = (String) js.get("query");
+					String qname = (String) js.get("queryName");
 					LogStream ls = lsm.getls(logid);
-					ls.add_query(query);
+					ls.add_query(query, qname);
 				} else if (type.equals("queryMeta")) {
 					int qid = js.getInt("queryId");
 					LogStream ls = lsm.getls(logid);

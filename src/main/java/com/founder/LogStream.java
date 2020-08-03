@@ -22,13 +22,15 @@ import org.json.JSONObject;
 class Query {
 	String qsql;
 	int qid;
+	String qname;
 	List<String> fieldNames;
 	ArrayDeque<Object> result = new ArrayDeque<>();
 
-	Query(String qsql, TableSchema schema, int qid) {
+	Query(String qsql, TableSchema schema, int qid, String qname) {
 		this.qsql = qsql;
 		this.fieldNames = Arrays.asList(schema.getFieldNames());
 		this.qid = qid;
+		this.qname = qname;
 	}
 
 	String queryMetaString() {
@@ -36,6 +38,7 @@ class Query {
 		js.put("type", "queryMeta");
 		/* js.put("logid", logid); */
 		js.put("queryId", qid);
+		js.put("queryName", qname);
 		js.put("fieldNames", fieldNames);
 		js.put("querySql", qsql);
 		return js.toString();
@@ -90,7 +93,7 @@ public class LogStream {
 		return formatter.format(date);
 	}
 
-	void add_query(String querysql) {
+	void add_query(String querySql, String queryName) {
 		// sql query
 		// addSink
 		// execute
@@ -101,14 +104,14 @@ public class LogStream {
 			this.executedTime = this.currentDateString();
 		}
 		System.out.println("add_query sqlQuery");
-		Table result = tEnv.sqlQuery(querysql);
+		Table result = tEnv.sqlQuery(querySql);
 		result.printSchema();
 		TableSchema resultSchema = result.getSchema();
 		/* Optional<DataType> f0type = resultSchema.getFieldDataType(0); */
 		/* System.out.println(resultSchema); */
 		/* System.out.println(f0type); */
 		int queryid = queryinc++;
-		Query query = new Query(querysql, resultSchema, queryid);
+		Query query = new Query(querySql, resultSchema, queryid, queryName);
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
 		queries.add(query);
 		broadcast(queriesListString());
