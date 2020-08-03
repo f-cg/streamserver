@@ -192,6 +192,8 @@ function registerQuery() {
         let rq = {"type": "register", "logId": logId, "query": sql};
         ws.send(JSON.stringify(rq));
         id("query-sql").value = "";
+    }else{
+        alert("查询语句为空!");
     }
 }
 
