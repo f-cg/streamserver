@@ -14,6 +14,7 @@ var chartControlTemplate = `
 `
 var chartTemplate = `
 <div class="query-chart">
+<input type="checkbox" class="delete-checkbox-log delete-cb-chart" autocomplete="off">
             ${chartDisplayTemplate}
             ${chartControlTemplate}
 </div>
@@ -36,6 +37,7 @@ var queryChartsAdd = `
 var queryTemplate = `
 <details open="open" id="{{query_id}}" class="query">
 <summary class="query-summary">
+<input type="checkbox" class="delete-checkbox-log delete-cb-query" autocomplete="off">
 折叠/展开 ${queryLableTemplate}
 </summary>
     ${queryChartsTemplate}
@@ -105,11 +107,6 @@ function insertQuery(qid, beforeQid) {
         id("queries").insertBefore(rendered, big);
         print("insert q" + qid);
     }
-    let queriesHeader = id("queries-header");
-    if (queriesHeader.innerText == "请新增查询才能创建流") {
-        queriesHeader.innerText = "查询列表";
-    };
-
 }
 
 function getQuery(qid) {
@@ -262,13 +259,30 @@ function addChart(that) {
     }
     let rendered = Mustache.render(chartTemplate, view);
     charts.insertAdjacentHTML('beforeend', rendered);
-    charts_displays=charts.getElementsByClassName('chart-display')
-    let ec = echarts.init(charts_displays[charts_displays.length-1]);
+    charts_displays = charts.getElementsByClassName('chart-display')
+    let ec = echarts.init(charts_displays[charts_displays.length - 1]);
     let qid = Number.parseInt(qdom(that).id.slice(1))
     let query = getQuery(qid);
     let option = getDefaultOption(query);
     query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
     drawQuery(qid);
+}
+
+function delChartData(qid, cidx) {
+    let query = getQuery(qid);
+    query.queryCharts.splice(cidx, 1);
+}
+
+function delChart(that) {
+    /*
+     * that: query-chart dom or an element inside
+     * */
+    let chart = that.closest(".query-chart")
+    let charts = that.closest(".charts")
+    let qid = Number.parseInt(qdom(that).id.slice(1))
+    let cidx = [...charts.children].indexOf(chart);
+    delChartData(qid, cidx);
+    charts.removeChild(chart);
 }
 
 function sampledraw() {
@@ -334,3 +348,13 @@ function cancelQuery(that) {
     ws.send(JSON.stringify(msg));
 }
 
+function deleteSelectedQueries() {
+    let selectedQueries = document.querySelectorAll(".delete-checkbox-log.delete-cb-query");
+    for (let i = 0; i < selectedQueries.length; i++) {
+        cancelQuery(selectedQueries[i]);
+    }
+    let selectedCharts = document.querySelectorAll(".delete-checkbox-log.delete-cb-chart");
+    for (let i = 0; i < selectedCharts.length; i++) {
+        delChart(selectedCharts[i]);
+    }
+}
