@@ -19,29 +19,30 @@ var chartTemplate = `
             ${chartControlTemplate}
 </div>
 `
+var queryChartsAdd = `
+<button type="button" class="hovershow-show" onclick="addChart(this);">增加图表</button>
+`
 /**
  * query=(label,charts=[chart])
  *
  */
 var queryLableTemplate = `
-		    <label class="query-label" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label> <button class="cancel-button" onclick="cancelQuery(this)">&#10006;</button>
+<label class="query-label" onmouseout="recoverlabel(this);" onmouseenter="changelabel(this);" onclick='clickCopy(this);' title="{{title}}">查询语句</label>
+<button class="cancel-button hovershow-show" onclick="cancelQuery(this)">&#10006;</button>
+${queryChartsAdd}
 `
 var queryChartsTemplate = `
 <div class="charts">
 {{> chart}}
 </div>
 `
-var queryChartsAdd = `
-<button type="button" onclick="addChart(this);">增加图表</button>
-`
 var queryTemplate = `
 <details open="open" id="{{query_id}}" class="query">
-<summary class="query-summary">
+<summary class="query-summary hovershow-hover">
 <input type="checkbox" class="delete-cb delete-cb-query" autocomplete="off">
 折叠/展开 ${queryLableTemplate}
 </summary>
     ${queryChartsTemplate}
-    ${queryChartsAdd}
 </details>
 `
 
@@ -192,7 +193,7 @@ function registerQuery() {
         let rq = {"type": "register", "logId": logId, "query": sql};
         ws.send(JSON.stringify(rq));
         id("query-sql").value = "";
-    }else{
+    } else {
         alert("查询语句为空!");
     }
 }

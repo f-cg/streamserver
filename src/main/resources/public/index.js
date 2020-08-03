@@ -83,7 +83,7 @@ function insertField(that) {
 }
 
 var field_temp = `
-    <div class="hidden-a-toggle field">
+    <div class="hovershow-hover field">
 <input type="text" name="{{filedinput}}">
 <select name="{{fieldtype}}">
 <option value="STRING">
@@ -96,8 +96,8 @@ var field_temp = `
         TIMESTAMP(3)
         </option>
     </select>
-    <a href="javascript:void(0);" onclick="insertField(this);" class="hidden-a"><b>&nbsp;+</b></a>
-    <a href="javascript:void(0);" onclick="removeField(this);" class="hidden-a"><b>&nbsp;- </b></a>
+    <a href="javascript:void(0);" onclick="insertField(this);" class="hovershow-show"><b>&nbsp;+</b></a>
+    <a href="javascript:void(0);" onclick="removeField(this);" class="hovershow-show"><b>&nbsp;- </b></a>
 </div>
 `;
 

@@ -70,7 +70,7 @@
                                 <legend>
                                     字段
                                 </legend>
-                                <div class="hidden-a-toggle field">
+                                <div class="hovershow-hover field">
                                     <input type="text" name="i1">
                                     <select name="t1">
                                         <option value="STRING">
@@ -83,7 +83,7 @@
                                             TIMESTAMP(3)
                                         </option>
                                     </select>
-                                    <a href="javascript:void(0);" onclick="insertField(this);" class="hidden-a"><b>&nbsp;+</b></a>
+                                    <a href="javascript:void(0);" onclick="insertField(this);" class="hovershow-show"><b>&nbsp;+</b></a>
                                 </div>
                             </fieldset>
                             <div class="form-group form-inline">
@@ -110,10 +110,10 @@
     </div>
     <ol class="list-group">
         {{#logs}}
-        <li class="logitem list-group-item">
+        <li class="logitem hovershow-hover list-group-item">
             <input type="checkbox" class="delete-cb form-check-input" autocomplete="off">
             <a href="/log/{{logId}}" class="logitem-log" target="_blank" logid="{{logId}}">{{name}}</a>
-            <a href="/delete_log/{{logId}}" class="delete-button">&#10006;</a>
+            <a href="/delete_log/{{logId}}" class="delete-button hovershow-show">&#10006;</a>
         </li>
         {{/logs}}
     </ol>
