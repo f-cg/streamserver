@@ -27,7 +27,7 @@
             日志流详情
         </button>
         <a href="/" class="btn btn-secondary">日志流列表</a>
-        <button type="button" class="btn btn-secondary">
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#help-modal">
             帮助
         </button>
     </div>
@@ -96,6 +96,50 @@
                         OK
                     </button>
                     <a href="/delete_log/{{logId}}" class="btn btn-danger">删除该日志</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="help-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">帮助</h4>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li>
+                            <b>新增查询：</b>
+                            使用SQL语句新建查询，查询结果会以图表的形式可视化
+                        </li>
+                        <li>
+                            <b>删除查询：</b>
+                            选中多个查询或者多个图表一并删除
+                        </li>
+                        <li>
+                            <b>日志流详情：</b>
+                            显示该日志流的创建语句，创建和执行时间等信息
+                        </li>
+                        <li>
+                            <b>日志流列表：</b>
+                            返回到日志流列表页面
+                        </li>
+                        <li>
+                            点击增加图表可以在同一个查询结果上再创建一个图表进行可视化
+                        </li>
+                        <li>
+                            右键点击图例可以切换图表类型
+                        </li>
+                        <li>
+                            点击红叉可以删除单个图表
+                        </li>
+                    </ul>
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        OK
+                    </button>
                 </div>
             </div>
         </div>

@@ -19,7 +19,7 @@
         <button type="button" class="btn btn-secondary" onclick="$('.delete-cb, #delete-cancel').show();">
             删除日志流
         </button>
-        <button type="button" class="btn btn-secondary">
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#help-modal">
             帮助
         </button>
     </div>
@@ -155,6 +155,41 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="help-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">帮助</h4>
+                </div>
+                <!-- 模态框主体 -->
+                <div class="modal-body">
+                    <ul>
+                        <li>
+                            <b>注册日志流：</b>
+                            从文件系统或Kafka中新建日志流
+                        </li>
+                        <li>
+                            <b>SQL注册：</b>
+                            使用SQL语句新建日志流
+                        </li>
+                        <li>
+                            <b>删除日志流：</b>
+                            选中多个日志流一并删除
+                        </li>
+                        <li>
+                            点击红叉可以删除单个日志流
+                        </li>
+                    </ul>
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        OK
+                    </button>
+                </div>
             </div>
         </div>
     </div>
