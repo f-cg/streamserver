@@ -55,9 +55,10 @@ public class LogStream {
 	 * 每个日志流里可能包含多个查询，每个查询都应该对应一个SocketSink
 	 */
 	String name;
-	String initddl;
+	final String initddl;
 	String createdTime;
 	String executedTime;
+	boolean ddlExecuted = false;
 	StreamExecutionEnvironment env;
 	StreamTableEnvironment tEnv;
 	EnvironmentSettings settings;
@@ -93,10 +94,10 @@ public class LogStream {
 		// sql query
 		// addSink
 		// execute
-		if (initddl != null) {
+		if (!ddlExecuted) {
 			System.out.println("add_query sqlUpdate");
 			tEnv.sqlUpdate(initddl);
-			initddl = null;
+			ddlExecuted = true;
 			this.executedTime = this.currentDateString();
 		}
 		System.out.println("add_query sqlQuery");
