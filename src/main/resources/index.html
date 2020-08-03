@@ -112,7 +112,7 @@
         {{#logs}}
         <li class="logitem hovershow-hover list-group-item">
             <input type="checkbox" class="delete-cb form-check-input" autocomplete="off">
-            <a href="/log/{{logId}}" class="logitem-log" target="_blank" logid="{{logId}}">{{name}}</a>
+            <a href="/log/{{logId}}" class="logitem-log" target="_self" logid="{{logId}}">{{name}}</a>
             <a href="/delete_log/{{logId}}" class="delete-button hovershow-show">&#10006;</a>
         </li>
         {{/logs}}
