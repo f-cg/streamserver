@@ -217,8 +217,8 @@ function getDefaultOption(query) {
         dataZoom: [
             {   // 这个dataZoom组件，默认控制x轴。
                 type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
-                start: 10,      // 左边在 10% 的位置。
-                end: 60         // 右边在 60% 的位置。
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
             }
         ],
         series: seriesTypesDict
@@ -283,6 +283,7 @@ function delChart(that) {
     /*
      * that: query-chart dom or an element inside
      * */
+    console.log("delChart");
     let chart = that.closest(".query-chart")
     let charts = that.closest(".charts")
     let qid = Number.parseInt(qdom(that).id.slice(1))
@@ -357,11 +358,23 @@ function cancelQuery(that) {
 }
 
 function deleteSelectedQueries() {
-    let selectedQueries = document.querySelectorAll(".delete-cb.delete-cb-query");
+    let cbQueries = document.querySelectorAll(".delete-cb-query");
+    let selectedQueries = [];
+    for (let i = 0; i < cbQueries.length; i++) {
+        if (cbQueries[i].checked) {
+            selectedQueries.push(cbQueries[i]);
+        }
+    }
     for (let i = 0; i < selectedQueries.length; i++) {
         cancelQuery(selectedQueries[i]);
     }
-    let selectedCharts = document.querySelectorAll(".delete-cb.delete-cb-chart");
+    let cbCharts = document.querySelectorAll(".delete-cb-chart");
+    let selectedCharts = [];
+    for (let i = 0; i < cbCharts.length; i++) {
+        if (cbCharts[i].checked) {
+            selectedCharts.push(cbCharts[i]);
+        }
+    }
     for (let i = 0; i < selectedCharts.length; i++) {
         delChart(selectedCharts[i]);
     }
