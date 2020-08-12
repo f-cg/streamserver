@@ -12,26 +12,28 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 class SqlResultData {
-	ArrayList<String> fieldNames;
-	ArrayList<String> typeNames;
-	String data;
+	String[] fieldNames;
+	String[] typeNames;
+	ArrayList<String[]> dataMatrix;
 
-	SqlResultData(ArrayList<String> fieldNames, ArrayList<String> typeNames, String data) {
+	SqlResultData(String[] fieldNames, String[] typeNames, ArrayList<String[]> dataMatrix) {
 		this.fieldNames = fieldNames;
 		this.typeNames = typeNames;
-		this.data = data;
+		this.dataMatrix = dataMatrix;
 	}
 
 	public void print() {
-		for (String f: fieldNames) {
-			System.out.print(f+",");
+		for (String f : fieldNames) {
+			System.out.print(f + ",");
 		}
 		System.out.println("");
-		for (String t: typeNames) {
-			System.out.print(t+",");
+		for (String t : typeNames) {
+			System.out.print(t + ",");
 		}
 		System.out.println("");
-		System.out.println(data);
+		for (String[] strings : dataMatrix) {
+			System.out.println(String.join(",", strings));
+		}
 	}
 }
 
@@ -111,28 +113,25 @@ public class ConnectDM {
 	public static SqlResultData getResultSet(ResultSet rs) throws SQLException {
 		// 取得结果集元数据
 		ResultSetMetaData rsmd = rs.getMetaData();
-		ArrayList<String> fieldNames = new ArrayList<String>();
-		ArrayList<String> typeNames = new ArrayList<String>();
-		// 取得结果集所包含的列数
 		int numCols = rsmd.getColumnCount();
+		String[] fieldNames = new String[numCols];
+		String[] typeNames = new String[numCols];
+		// 取得结果集所包含的列数
 		// 显示列标头
 		for (int i = 1; i <= numCols; i++) {
-			fieldNames.add(rsmd.getColumnLabel(i));
-			typeNames.add(rsmd.getColumnTypeName(i));
+			fieldNames[i-1] = rsmd.getColumnLabel(i);
+			typeNames[i-1] = rsmd.getColumnTypeName(i);
 		}
-		StringBuilder data = new StringBuilder();
-		// 显示结果集中所有数据
+		// 结果集中所有数据
+		ArrayList<String[]> dataMatrix = new ArrayList<String[]>();
 		while (rs.next()) {
+			String[] row = new String[numCols];
 			for (int i = 1; i <= numCols; i++) {
-				if (i > 1 && i < numCols) {
-					data.append(",");
-				} else if (i == numCols) {
-					data.append("\n");
-				}
-				data.append(rs.getString(i));
+				row[i-1] = rs.getString(i);
 			}
+			dataMatrix.add(row);
 		}
-		return new SqlResultData(fieldNames, typeNames, data.toString());
+		return new SqlResultData(fieldNames, typeNames, dataMatrix);
 	}
 
 	public static void main(String[] args) throws SQLException {
@@ -143,8 +142,9 @@ public class ConnectDM {
 		dm.connect();
 		// 查询语句
 		String sql = "SELECT * FROM OA.OA_GW_FW";
-		dm.querySql(sql);
+		SqlResultData result = dm.querySql(sql);
 		dm.disConnect();
+		result.print();
 
 	}
 }
