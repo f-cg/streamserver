@@ -1,20 +1,13 @@
 package com.founder;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 
-import org.apache.kafka.common.PartitionInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -49,87 +42,9 @@ public class App {
 		returnHtml("error", ctx, msg);
 	}
 
-	public static boolean execCmd(String[] binArgs, String sucessId) throws IOException {
-		String line;
-		Process process = new ProcessBuilder(binArgs).start();
-		BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		while ((line = br.readLine()) != null) {
-			System.out.println(line);
-			if (line.contains(sucessId)) {
-				System.out.println(binArgs[0] + " executed successfully");
-				return true;
-			}
-		}
-		System.out.println(binArgs[0] + " executing failed");
-		return false;
-	}
-
-	public static boolean createTopics(String... topics) throws IOException {
-		String workingDir = System.getProperty("user.dir");
-		String kafkaDir = workingDir + "/kafka_2.12-2.5.0";
-		String sucessId = "Created topic";
-		String topicBin = String.format("%s/bin/kafka-topics.sh", kafkaDir);
-		String[] topicBinArgs = { topicBin, "--create", "--bootstrap-server", "localhost:9092",
-				"--replication-factor", "1", "--partitions", "1", "--topic", "topic_here" };
-		int topicIdx = topicBinArgs.length - 1;
-
-		KafkaReceiver consumer = new KafkaReceiver();
-		Map<String, List<PartitionInfo>> oldTopics = consumer.getTopics();
-		for (String topic : topics) {
-			if (oldTopics.containsKey(topic)) {
-				continue;
-			}
-			topicBinArgs[topicIdx] = topic;
-			System.out.println(String.join(" ", topicBinArgs));
-			if (!execCmd(topicBinArgs, sucessId)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static boolean execKafka() throws IOException {
-		String workingDir = System.getProperty("user.dir");
-		String kafkaDir = workingDir + "/kafka_2.12-2.5.0";
-
-		String zookeeperBin = String.format("%s/bin/zookeeper-server-start.sh", kafkaDir);
-		String zookeeperArg = String.format("%s/config/zookeeper.properties", kafkaDir);
-		if (!execCmd(new String[] { zookeeperBin, zookeeperArg },
-				"org.apache.zookeeper.server.ContainerManager")) {
-			return false;
-		}
-
-		String kafkaBin = String.format("%s/bin/kafka-server-start.sh", kafkaDir);
-		String kafkaArg = String.format("%s/config/server.properties", kafkaDir);
-		if (!execCmd(new String[] { kafkaBin, kafkaArg }, "started (kafka.server.KafkaServer)")) {
-			return false;
-		}
-
-		return createTopics("BIZLOG");
-	}
-
-	public static void stopKafka() {
-		String workingDir = System.getProperty("user.dir");
-		String kafkaDir = workingDir + "/kafka_2.12-2.5.0";
-		String zookeeperBin = String.format("%s/bin/zookeeper-server-stop.sh", kafkaDir);
-		String zookeeperArg = String.format("%s/config/zookeeper.properties", kafkaDir);
-		try {
-			new ProcessBuilder(zookeeperBin, zookeeperArg).start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String kafkaBin = String.format("%s/bin/kafka-server-stop.sh", kafkaDir);
-		String kafkaArg = String.format("%s/config/server.properties", kafkaDir);
-		try {
-			new ProcessBuilder(kafkaBin, kafkaArg).start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static void main(String[] args) throws Exception {
-		if (!execKafka()) {
-			stopKafka();
+		if (!ExecKafka.execKafka()) {
+			ExecKafka.stopKafka();
 			return;
 		}
 		DM2Kafka.startExamples();
@@ -141,6 +56,7 @@ public class App {
 		JavalinRenderer.register(JavalinMustache.INSTANCE, ".html");
 		Javalin app = Javalin.create(config -> {
 			config.addStaticFiles("/public");
+			/* config.showJavalinBanner = false; */
 		}).start(Constants.JAVALINWEBPORT);
 		uniserver.start();
 		app.get("/", ctx -> {
