@@ -41,6 +41,10 @@ public class ConnectDM {
 	// 定义连接对象
 	Connection conn = null;
 
+	ConnectDM() throws SQLException {
+		this.loadJdbcDriver();
+	}
+
 	/*
 	 * 加载 JDBC 驱动程序
 	 */
@@ -119,15 +123,15 @@ public class ConnectDM {
 		// 取得结果集所包含的列数
 		// 显示列标头
 		for (int i = 1; i <= numCols; i++) {
-			fieldNames[i-1] = rsmd.getColumnLabel(i);
-			typeNames[i-1] = rsmd.getColumnTypeName(i);
+			fieldNames[i - 1] = rsmd.getColumnLabel(i);
+			typeNames[i - 1] = rsmd.getColumnTypeName(i);
 		}
 		// 结果集中所有数据
 		ArrayList<String[]> dataMatrix = new ArrayList<String[]>();
 		while (rs.next()) {
 			String[] row = new String[numCols];
 			for (int i = 1; i <= numCols; i++) {
-				row[i-1] = rs.getString(i);
+				row[i - 1] = rs.getString(i);
 			}
 			dataMatrix.add(row);
 		}
@@ -136,8 +140,6 @@ public class ConnectDM {
 
 	public static void main(String[] args) throws SQLException {
 		ConnectDM dm = new ConnectDM();
-		// 加载驱动程序
-		dm.loadJdbcDriver();
 		// 连接 DM 数据库
 		dm.connect();
 		// 查询语句
@@ -145,6 +147,5 @@ public class ConnectDM {
 		SqlResultData result = dm.querySql(sql);
 		dm.disConnect();
 		result.print();
-
 	}
 }
