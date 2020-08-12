@@ -8,11 +8,13 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 
+import org.apache.kafka.common.PartitionInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -62,6 +64,30 @@ public class App {
 		return false;
 	}
 
+	public static boolean createTopics(String... topics) throws IOException {
+		String workingDir = System.getProperty("user.dir");
+		String kafkaDir = workingDir + "/kafka_2.12-2.5.0";
+		String sucessId = "Created topic";
+		String topicBin = String.format("%s/bin/kafka-topics.sh", kafkaDir);
+		String[] topicBinArgs = { topicBin, "--create", "--bootstrap-server", "localhost:9092",
+				"--replication-factor", "1", "--partitions", "1", "--topic", "topic_here" };
+		int topicIdx = topicBinArgs.length - 1;
+
+		KafkaReceiver consumer = new KafkaReceiver();
+		Map<String, List<PartitionInfo>> oldTopics = consumer.getTopics();
+		for (String topic : topics) {
+			if (oldTopics.containsKey(topic)) {
+				continue;
+			}
+			topicBinArgs[topicIdx] = topic;
+			System.out.println(String.join(" ", topicBinArgs));
+			if (!execCmd(topicBinArgs, sucessId)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static boolean execKafka() throws IOException {
 		String workingDir = System.getProperty("user.dir");
 		String kafkaDir = workingDir + "/kafka_2.12-2.5.0";
@@ -79,15 +105,7 @@ public class App {
 			return false;
 		}
 
-		String topicBin = String.format("%s/bin/kafka-topics.sh", kafkaDir);
-		String[] topicBinArgs = { topicBin, "--create", "--bootstrap-server", "localhost:9092",
-				"--replication-factor", "1", "--partitions", "1", "--topic", "operationlog" };
-		System.out.println(String.join(" ", topicBinArgs));
-		if (!execCmd(topicBinArgs, "Created topic")) {
-			return false;
-		}
-
-		return true;
+		return createTopics("BIZLOG");
 	}
 
 	public static void stopKafka() {
@@ -114,7 +132,12 @@ public class App {
 			stopKafka();
 			return;
 		}
-		System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("/tmp/print.txt")), true));
+		DM2Kafka.startExamples();
+		/* System.out.println("System.out has been set to /tmp/print.txt"); */
+		/*
+		 * System.setOut(new PrintStream(new BufferedOutputStream(new
+		 * FileOutputStream("/tmp/print.txt")), true));
+		 */
 		JavalinRenderer.register(JavalinMustache.INSTANCE, ".html");
 		Javalin app = Javalin.create(config -> {
 			config.addStaticFiles("/public");
