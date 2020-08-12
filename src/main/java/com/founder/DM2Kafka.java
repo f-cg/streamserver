@@ -22,6 +22,29 @@ public class DM2Kafka extends Thread {
 		this.kf.sendMatrix(dataMatrix);
 	}
 
+	public String genCreateSql(String fieldNames[], String typeNames[]) {
+		String createSql = "CREATE TABLE " + topic + " (\n";
+		for (int i = 0; i < fieldNames.length; i++) {
+			String f = fieldNames[i];
+			String t = typeNames[i];
+			if (t.equals("VARCHAR") || t.equals("CLOB")) {
+				t = "STRING";
+				if (f.equals(orderBy)) {
+					t = "TIMESTAMP(3)";
+				}
+			}
+			createSql += f + " " + t + ",\n";
+		}
+		createSql += "WATERMARK FOR " + orderBy + " AS " + orderBy + "\n";
+		createSql += ") WITH (\n" + "'connector.type' = 'kafka',\n" + "'connector.version' = 'universal',\n";
+		createSql += "'connector.topic' = '" + topic + "',\n";
+		createSql += "'connector.properties.zookeeper.connect' = 'localhost:2181',\n"
+				+ "'connector.properties.bootstrap.servers' = 'localhost:9092',\n"
+				+ "'format.type' = 'csv'\n" + ")";
+
+		return createSql;
+	}
+
 	@Override
 	public void run() {
 		String lastTime = null;
@@ -53,6 +76,8 @@ public class DM2Kafka extends Thread {
 				if (idx == -1) {
 					System.err.println("Cannot find " + orderBy + " in the field names");
 				}
+				String createSql = genCreateSql(result.fieldNames, result.typeNames);
+				System.out.println(createSql);
 				if (result.dataMatrix.size() > 0) {
 					lastTime = result.dataMatrix.get(result.dataMatrix.size() - 1)[idx];
 					this.send2Kafka(result.dataMatrix);
