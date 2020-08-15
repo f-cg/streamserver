@@ -15,8 +15,8 @@ public class Constants {
 	public static final String dmJDBC = "dm.jdbc.driver.DmDriver";
 	public static final boolean EXECPRINT = false;
 	public static final boolean DMRESULTPRINT = false;
-	public static final boolean KFSENDPRINT = false;
-	public static final boolean DMLINEPRINT = false;
+	public static final boolean KFSENDPRINT = true;
+	public static final boolean DMLINEPRINT = true;
 	public static final boolean HTTPPATHPRINT = true;
 	public static final String BIZLOGDDL = "CREATE TABLE BIZLOG (\n" + "BIZID INT,\n" + "DATAID STRING,\n"
 			+ "OPERATIONNAME STRING,\n" + "OPERATIONDESC STRING,\n" + "OPERATIONUSERID STRING,\n"
@@ -29,10 +29,30 @@ public class Constants {
 			+ ")\n";
 	public static final String BIZLOGNAME = "BIZLOG";
 	public static final String BIZLOG_QUERY1 = "SELECT CAST(TUMBLE_START(OPERATIONTIME, INTERVAL '10' MINUTE) AS STRING) window_start,\n"
-			+ "COUNT(*) operation_count\n" + "FROM BIZLOG\n" + "WHERE OPERATIONNAME='公文起草'\n"
+			+ "COUNT(*) operation_count\n" + "FROM BIZLOG\n" + "WHERE OPERATIONNAME='新增'\n"
 			+ "GROUP BY TUMBLE(OPERATIONTIME, INTERVAL '10' MINUTE)\n";
 	public static final String BIZLOG_QUERY1_NAME = "最近10分钟新增次数";
 
-	public static final String[][] LOGS = new String[][] { { BIZLOGNAME, BIZLOGDDL } };
+	public static final String DMSQL1 = "select BIZID, DATAID, OPERATIONNAME, OPERATIONDESC, OPERATIONUSERID, OPERATIONTIME, OPERATIONUSERNAME, DUTY\n"
+			+ "from OA.ZT_BIZOBJECTLOG, UIM.APP_USER\n"
+			+ "where OPERATIONUSERID=LOGINNAME and OPERATIONNAME='新增'\n" + "order by OPERATIONTIME";
+	public static final String[][] LOGS = new String[][] { { BIZLOGNAME, DMSQL1 } };
 	public static final String[][] QUERIES = new String[][] { { BIZLOGNAME, BIZLOG_QUERY1, BIZLOG_QUERY1_NAME } };
+
+	public static void main(String[] args) {
+		System.out.println("LOGS:");
+		for (String[] log : LOGS) {
+			for (String litem : log) {
+				System.out.println(litem);
+			}
+		}
+		System.out.println("\n");
+		System.out.println("QUERIES:");
+		for (String[] query : QUERIES) {
+			for (String qitem : query) {
+				System.out.println(qitem);
+			}
+		}
+		System.out.println("\n");
+	}
 }

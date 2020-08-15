@@ -102,7 +102,6 @@ public class App {
 			return;
 		}
 		this.CtrlC();
-		DM2Kafka.startExamples();
 		/* System.out.println("System.out has been set to /tmp/print.txt"); */
 		/*
 		 * System.setOut(new PrintStream(new BufferedOutputStream(new

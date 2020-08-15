@@ -2,27 +2,77 @@ package com.founder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DM2Kafka extends Thread {
-	String selectSql;
-	String whereCond;
-	String orderBy;
-	String topic;
-	KafkaSender kf;
+	String sql;
+	/* int whereStartIdx; */
+	/* int whereEndIdx; */
+	private String orderBy;
+	private int orderByColIdx;
+	private String topic;
+	private KafkaSender kf;
+	private String fieldNames[];
+	private String typeNames[];
+	private String wrapSelect;
+	private SqlResultData result;
+	private Pattern orderByPatt = Pattern.compile("order[\\s]+by[\\s]+([\\w]+)[\\W]*", Pattern.CASE_INSENSITIVE);
+	/*
+	 * Pattern wherePatt = Pattern.compile("[\\W]+where[\\s]",
+	 * Pattern.CASE_INSENSITIVE);
+	 */
 
-	DM2Kafka(String selectSql, String whereCond, String orderBy, String topic) {
-		this.selectSql = selectSql;
-		this.whereCond = whereCond;
-		this.orderBy = orderBy;
+	private boolean parseSql() {
+		Matcher m;
+		m = orderByPatt.matcher(sql);
+		m.find();
+		this.orderBy = m.group(m.groupCount());
+		/* whereStartIdx = m.start() - 1; */
+		/* whereEndIdx = whereStartIdx; */
+		/* } */
+		/* m = wherePatt.matcher(sql); */
+		/* while (m.find()) { */
+		/* whereIdx = m.end(); */
+		/* } */
+
+		return true;
+	}
+
+	private void genWrapSelect() {
+		this.wrapSelect = "select " + String.join(",", fieldNames);
+	}
+
+	private String newSql(String whereCond) {
+		if (whereCond != null)
+			return this.wrapSelect + " from (\n" + this.sql + "\n) where " + orderBy + " > '" + whereCond
+					+ "'";
+		else
+			return this.sql;
+	}
+
+	private void firstPullInit() {
+		this.fieldNames = result.fieldNames;
+		this.typeNames = result.typeNames;
+		this.orderByColIdx = Utils.findIndex(result.fieldNames, orderBy);
+		if (this.orderByColIdx == -1) {
+			System.err.println("Cannot find " + orderBy + " in the field names");
+		}
+		this.genWrapSelect();
+	}
+
+	DM2Kafka(String sql, String topic) {
+		this.sql = sql;
 		this.topic = topic;
 		this.kf = new KafkaSender(topic);
+		this.parseSql();
 	}
 
 	private void send2Kafka(ArrayList<String[]> dataMatrix) {
 		this.kf.sendMatrix(dataMatrix);
 	}
 
-	public String genCreateSql(String fieldNames[], String typeNames[]) {
+	public String genCreateSql() {
 		String createSql = "CREATE TABLE " + topic + " (\n";
 		for (int i = 0; i < fieldNames.length; i++) {
 			String f = fieldNames[i];
@@ -36,70 +86,61 @@ public class DM2Kafka extends Thread {
 			createSql += f + " " + t + ",\n";
 		}
 		createSql += "WATERMARK FOR " + orderBy + " AS " + orderBy + "\n";
+
 		createSql += ") WITH (\n" + "'connector.type' = 'kafka',\n" + "'connector.version' = 'universal',\n";
 		createSql += "'connector.topic' = '" + topic + "',\n";
+
 		createSql += "'connector.properties.zookeeper.connect' = 'localhost:2181',\n"
 				+ "'connector.properties.bootstrap.servers' = 'localhost:9092',\n"
 				+ "'format.type' = 'csv'\n" + ")";
-
 		return createSql;
+	}
+
+	private void getResult(String exeSql) throws SQLException {
+		ConnectDM dm;
+		dm = new ConnectDM();
+		dm.connect();
+		result = dm.querySql(exeSql);
+		dm.disConnect();
+		result.print();
+	}
+
+	public void firstRun() {
+		try {
+			getResult(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		this.firstPullInit();
 	}
 
 	@Override
 	public void run() {
 		String lastTime = null;
-		while (true) {
-			String whereSql = "";
-			if (lastTime != null) {
-				if (whereCond != "") {
-					whereSql = "where " + this.whereCond + " and " + orderBy + ">'" + lastTime
-							+ "'";
-				} else {
-					whereSql = "where " + orderBy + "=" + lastTime;
+		try {
+			while (true) {
+				try {
+					sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-			} else {// 尚未得到过数据
-				if (whereCond != "") {
-					whereSql = "where " + this.whereCond;
-				}
-			}
-			String orderBySql = "order by " + orderBy;
-			String sql = String.join("\n", new String[] { selectSql, whereSql, orderBySql });
-			System.out.println(sql);
-			ConnectDM dm;
-			try {
-				dm = new ConnectDM();
-				dm.connect();
-				SqlResultData result = dm.querySql(sql);
-				dm.disConnect();
-				result.print();
-				int idx = Utils.findIndex(result.fieldNames, orderBy);
-				if (idx == -1) {
-					System.err.println("Cannot find " + orderBy + " in the field names");
-				}
-				String createSql = genCreateSql(result.fieldNames, result.typeNames);
-				System.out.println(createSql);
+				getResult(newSql(lastTime));
 				if (result.dataMatrix.size() > 0) {
-					lastTime = result.dataMatrix.get(result.dataMatrix.size() - 1)[idx];
+					lastTime = result.dataMatrix
+							.get(result.dataMatrix.size() - 1)[this.orderByColIdx];
 					this.send2Kafka(result.dataMatrix);
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
 			}
-			try {
-				sleep(10000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+			return;
 		}
 	}
 
 	public static void startExamples() {
-		String selectSql = "select BIZID, DATAID, OPERATIONNAME, OPERATIONDESC, OPERATIONUSERID, OPERATIONTIME, OPERATIONUSERNAME, DUTY\n"
-				+ "from OA.ZT_BIZOBJECTLOG, UIM.APP_USER";
-		String whereCond = "OPERATIONUSERID=LOGINNAME";
-		String orderBy = "OPERATIONTIME";
 		String topic = "BIZLOG";
-		DM2Kafka dmk = new DM2Kafka(selectSql, whereCond, orderBy, topic);
+		DM2Kafka dmk = new DM2Kafka(Constants.DMSQL1, topic);
+		dmk.firstRun();
 		dmk.start();
 	}
 

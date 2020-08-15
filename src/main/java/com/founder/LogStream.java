@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -64,12 +65,18 @@ class Query extends Thread {
 	}
 }
 
+enum LogStreamType {
+	DMKF, KF, FS;
+}
+
 public class LogStream {
 	/*
 	 * 每个日志流里可能包含多个查询，每个查询都应该对应一个SocketSink
 	 */
+	LogStreamType lsType;
 	String name;
 	final String initddl;
+	String DMSql;
 	String createdTime;
 	String executedTime;
 	boolean ddlExecuted = false;
@@ -80,15 +87,21 @@ public class LogStream {
 	List<WsContext> wss = new LinkedList<>();
 	Integer queryinc = 1;
 	List<Query> queries = new LinkedList<>();
-
-	LogStream() {
-		this(null, null);
-	}
+	DM2Kafka dm2kafka;
 
 	LogStream(String name, String initddl) {
 		this.name = name;
-		this.initddl = initddl;
-
+		this.lsType = checkLogStreamType(initddl);
+		if (lsType == LogStreamType.DMKF) {
+			this.DMSql = initddl;
+			dm2kafka = new DM2Kafka(initddl, name);
+			dm2kafka.firstRun();
+			String createSql = this.dm2kafka.genCreateSql();
+			this.initddl = createSql;
+			dm2kafka.start();
+		} else {
+			this.initddl = initddl;
+		}
 		this.createdTime = this.currentDateString();
 		this.executedTime = "未执行";
 
@@ -96,6 +109,22 @@ public class LogStream {
 		settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
 
 		tEnv = StreamTableEnvironment.create(env, settings);
+		System.err.println("LogStream constructed!");
+	}
+
+	LogStreamType checkLogStreamType(String ddl) {
+		Pattern FS = Pattern.compile("'connector.type'[\\s]*=[\\s]*'filesystem'", Pattern.CASE_INSENSITIVE);
+		Pattern KF = Pattern.compile("'connector.type'[\\s]*=[\\s]*'kafka'", Pattern.CASE_INSENSITIVE);
+		Pattern DMKF = Pattern.compile("[\\s]*select[\\s]+", Pattern.CASE_INSENSITIVE);
+		if (FS.matcher(ddl).find()) {
+			return LogStreamType.FS;
+		} else if (KF.matcher(ddl).find()) {
+			return LogStreamType.KF;
+		} else if (DMKF.matcher(ddl).find()) {
+			return LogStreamType.DMKF;
+		} else {
+			return LogStreamType.DMKF;
+		}
 	}
 
 	String currentDateString() {
