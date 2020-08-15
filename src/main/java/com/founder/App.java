@@ -22,9 +22,6 @@ public class App {
 	static LogStreamsManager lsm = new LogStreamsManager();
 	static UniServer uniserver = new UniServer(lsm);
 
-	public static void addLog() {
-	}
-
 	public static void returnLogPage(Context ctx) throws IOException {
 		StringWriter html = new StringWriter();
 		LogPage logpage = new LogPage(lsm);
@@ -40,6 +37,33 @@ public class App {
 
 	public static void returnError(Context ctx, String msg) {
 		returnHtml("error", ctx, msg);
+	}
+
+	/**
+	 * 注册日志流
+	 *
+	 * @param name logid
+	 * @param ddl  DDL
+	 * @return 已经存在返回false,否则返回true
+	 */
+	public static boolean addLog(String name, String ddl) {
+		System.err.println("addLog");
+		if (lsm.getls(name) != null) {
+			return false;
+		} else {
+			System.err.println("new LogStream");
+			LogStream ls = new LogStream(name, ddl);
+			lsm.add(ls);
+			return true;
+		}
+	}
+
+	/**
+	 * 注册查询
+	 */
+	public static void registerQuery(String logid, String query, String qname) {
+		LogStream ls = lsm.getls(logid);
+		ls.add_query(query, qname);
 	}
 
 	private static void printHttpPath(Context ctx) {
@@ -104,13 +128,10 @@ public class App {
 			System.err.println(ddl);
 			if (addname.isEmpty() || ddl.isEmpty()) {
 				returnHtml("error", ctx, "表单某些输入不满足非空要求");
-			} else if (lsm.getls(addname) != null) {
-				returnHtml("error", ctx, "已经存在名为[" + addname + "]的日志流，请换一个名字");
+			} else if (addLog(addname, ddl)) {
+				ctx.redirect("/log/" + addname);
 			} else {
-				LogStream ls = new LogStream(addname, ddl);
-				lsm.add(ls);
-				String logid = ctx.formParam("addname");
-				ctx.redirect("/log/" + logid);
+				returnHtml("error", ctx, "已经存在名为[" + addname + "]的日志流，请换一个名字");
 			}
 		});
 		app.ws("/ws/:logid", ws -> {
@@ -145,8 +166,7 @@ public class App {
 				if (type.equals("register")) {
 					String query = (String) js.get("query");
 					String qname = (String) js.get("queryName");
-					LogStream ls = lsm.getls(logid);
-					ls.add_query(query, qname);
+					registerQuery(logid, query, qname);
 				} else if (type.equals("queryMeta")) {
 					int qid = js.getInt("queryId");
 					LogStream ls = lsm.getls(logid);
