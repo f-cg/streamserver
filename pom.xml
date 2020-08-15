@@ -49,20 +49,13 @@ under the License.
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
-		<repository>
-		    <id>ProjectRepo</id>
-		    <name>ProjectRepo</name>
-		    <url>file://${project.basedir}/libs</url>
-		  <releases><enabled>true</enabled><updatePolicy>always</updatePolicy></releases>
-		      <snapshots><enabled>true</enabled><updatePolicy>always</updatePolicy></snapshots>
-	</repository>
 	</repositories>
 
 	<dependencies>
 		<dependency>
-    <groupId>dm.jdbc</groupId>
-    <artifactId>driver</artifactId>
-    <version>1.0.1</version>
+    <groupId>com.dameng</groupId>
+    <artifactId>Dm8JdbcDriver16</artifactId>
+    <version>8.1.1.49</version>
 </dependency>
 		<!-- Apache Flink dependencies -->
 		<!-- These dependencies are provided, because they should not be packaged into the JAR file. -->
