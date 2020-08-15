@@ -65,6 +65,18 @@ public class App {
 		ls.add_query(query, qname);
 	}
 
+	/**
+	 * 启动web server之前准备一些实例
+	 */
+	public void prepare() {
+		for (String[] LOG : Constants.LOGS) {
+			addLog(LOG[0], LOG[1]);
+		}
+		for (String[] QUERY : Constants.QUERIES) {
+			registerQuery(QUERY[0], QUERY[1], QUERY[2]);
+		}
+	}
+
 	private void printHttpPath(Context ctx) {
 		if (Constants.HTTPPATHPRINT)
 			System.out.println(ctx.path());
@@ -102,6 +114,7 @@ public class App {
 			/* config.showJavalinBanner = false; */
 		}).start(Constants.JAVALINWEBPORT);
 		uniserver.start();
+		prepare();
 		app_web.get("/", ctx -> {
 			printHttpPath(ctx);
 			/* ctx.result("index"); */

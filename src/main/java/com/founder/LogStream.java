@@ -19,18 +19,20 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.json.JSONObject;
 
-class Query {
+class Query extends Thread {
 	String qsql;
 	int qid;
 	String qname;
 	List<String> fieldNames;
 	ArrayDeque<Object> result = new ArrayDeque<>();
+	StreamTableEnvironment tEnv;
 
-	Query(String qsql, TableSchema schema, int qid, String qname) {
+	Query(String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv) {
 		this.qsql = qsql;
 		this.fieldNames = Arrays.asList(schema.getFieldNames());
 		this.qid = qid;
 		this.qname = qname;
+		this.tEnv = tEnv;
 	}
 
 	String queryMetaString() {
@@ -50,6 +52,15 @@ class Query {
 		js.put("queryId", qid);
 		js.put("data", result);
 		return js.toString();
+	}
+
+	@Override
+	public void run() {
+		try {
+			this.tEnv.execute("Streaming Window SQL Job");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
 
@@ -98,7 +109,6 @@ public class LogStream {
 		// addSink
 		// execute
 		if (!ddlExecuted) {
-			System.out.println("add_query sqlUpdate");
 			tEnv.sqlUpdate(initddl);
 			ddlExecuted = true;
 			this.executedTime = this.currentDateString();
@@ -111,7 +121,7 @@ public class LogStream {
 		/* System.out.println(resultSchema); */
 		/* System.out.println(f0type); */
 		int queryid = queryinc++;
-		Query query = new Query(querySql, resultSchema, queryid, queryName);
+		Query query = new Query(querySql, resultSchema, queryid, queryName, tEnv);
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
 		queries.add(query);
 		broadcast(queriesListString());
@@ -119,11 +129,7 @@ public class LogStream {
 		SocketSink sink = new SocketSink(name, queryid);
 		resultDs.addSink(sink);
 		/* sinks.put(queryid, sink); */
-		try {
-			tEnv.execute("Streaming Window SQL Job");
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		query.start();
 	}
 
 	void register(String ddl) {
