@@ -17,25 +17,25 @@ import io.javalin.plugin.rendering.JavalinRenderer;
 import io.javalin.plugin.rendering.template.JavalinMustache;
 
 public class App {
-	static MustacheFactory mf = new DefaultMustacheFactory();
-	static int LOGID = 0;
-	static LogStreamsManager lsm = new LogStreamsManager();
-	static UniServer uniserver = new UniServer(lsm);
+	MustacheFactory mf = new DefaultMustacheFactory();
+	int LOGID = 0;
+	LogStreamsManager lsm = new LogStreamsManager();
+	UniServer uniserver = new UniServer(lsm);
 
-	public static void returnLogPage(Context ctx) throws IOException {
+	public void returnLogPage(Context ctx) throws IOException {
 		StringWriter html = new StringWriter();
 		LogPage logpage = new LogPage(lsm);
 		mf.compile("index.html").execute(html, logpage).flush();
 		ctx.html(html.toString());
 	}
 
-	public static void returnHtml(String name, Context ctx, String msg) {
+	public void returnHtml(String name, Context ctx, String msg) {
 		Map<String, String> model = new HashMap<String, String>();
 		model.put("message", msg);
 		ctx.render(name + ".html", model);
 	}
 
-	public static void returnError(Context ctx, String msg) {
+	public void returnError(Context ctx, String msg) {
 		returnHtml("error", ctx, msg);
 	}
 
@@ -46,8 +46,7 @@ public class App {
 	 * @param ddl  DDL
 	 * @return 已经存在返回false,否则返回true
 	 */
-	public static boolean addLog(String name, String ddl) {
-		System.err.println("addLog");
+	public boolean addLog(String name, String ddl) {
 		if (lsm.getls(name) != null) {
 			return false;
 		} else {
@@ -61,17 +60,17 @@ public class App {
 	/**
 	 * 注册查询
 	 */
-	public static void registerQuery(String logid, String query, String qname) {
+	public void registerQuery(String logid, String query, String qname) {
 		LogStream ls = lsm.getls(logid);
 		ls.add_query(query, qname);
 	}
 
-	private static void printHttpPath(Context ctx) {
+	private void printHttpPath(Context ctx) {
 		if (Constants.HTTPPATHPRINT)
 			System.out.println(ctx.path());
 	}
 
-	public static void main(String[] args) throws Exception {
+	public void run() throws Exception {
 		if (!ExecKafka.execKafka()) {
 			ExecKafka.stopKafka();
 			return;
@@ -83,17 +82,17 @@ public class App {
 		 * FileOutputStream("/tmp/print.txt")), true));
 		 */
 		JavalinRenderer.register(JavalinMustache.INSTANCE, ".html");
-		Javalin app = Javalin.create(config -> {
+		Javalin app_web = Javalin.create(config -> {
 			config.addStaticFiles("/public");
 			/* config.showJavalinBanner = false; */
 		}).start(Constants.JAVALINWEBPORT);
 		uniserver.start();
-		app.get("/", ctx -> {
+		app_web.get("/", ctx -> {
 			printHttpPath(ctx);
 			/* ctx.result("index"); */
 			returnLogPage(ctx);
 		});
-		app.get("/log/:logid", ctx -> {
+		app_web.get("/log/:logid", ctx -> {
 			printHttpPath(ctx);
 			Map<String, String> model = new HashMap<String, String>();
 			String logId = ctx.pathParam("logid");
@@ -104,12 +103,12 @@ public class App {
 			model.put("executedTime", ls.executedTime);
 			ctx.render("logdetail.html", model);
 		});
-		app.get("/delete_log/:logid", ctx -> {
+		app_web.get("/delete_log/:logid", ctx -> {
 			String logId = ctx.pathParam("logid");
 			lsm.dells(logId);
 			ctx.redirect("/");
 		});
-		app.get("/delete_log_array", ctx -> {
+		app_web.get("/delete_log_array", ctx -> {
 			String logIdsStr = ctx.queryParam("todelete");
 			JSONObject logIdsJson = new JSONObject(logIdsStr);
 			JSONArray todelete = logIdsJson.getJSONArray("todelete");
@@ -120,7 +119,7 @@ public class App {
 			System.err.println(todelete);
 			ctx.redirect("/");
 		});
-		app.post("/addlogstream", ctx -> {
+		app_web.post("/addlogstream", ctx -> {
 			printHttpPath(ctx);
 			System.err.println(ctx.formParamMap());
 			String addname = ctx.formParam("addname", "");
@@ -134,7 +133,7 @@ public class App {
 				returnHtml("error", ctx, "已经存在名为[" + addname + "]的日志流，请换一个名字");
 			}
 		});
-		app.ws("/ws/:logid", ws -> {
+		app_web.ws("/ws/:logid", ws -> {
 			ws.onConnect(ctx -> {
 				System.out.println(ctx.matchedPath());
 				// 添加该连接到相应日志流的连接列表里
@@ -181,5 +180,10 @@ public class App {
 				}
 			});
 		});
+	}
+
+	public static void main(String[] args) throws Exception {
+		App app = new App();
+		app.run();
 	}
 }
