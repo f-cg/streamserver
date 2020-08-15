@@ -1,43 +1,12 @@
 package com.founder;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-
-class SqlResultData {
-	String[] fieldNames;
-	String[] typeNames;
-	ArrayList<String[]> dataMatrix;
-
-	SqlResultData(String[] fieldNames, String[] typeNames, ArrayList<String[]> dataMatrix) {
-		this.fieldNames = fieldNames;
-		this.typeNames = typeNames;
-		this.dataMatrix = dataMatrix;
-	}
-
-	public void print() {
-		if (!Constants.DMRESULTPRINT)
-			return;
-		for (String f : fieldNames) {
-			System.out.print(f + ",");
-		}
-		System.out.println("");
-		for (String t : typeNames) {
-			System.out.print(t + ",");
-		}
-		System.out.println("");
-		for (String[] strings : dataMatrix) {
-			System.out.println(String.join(",", strings));
-		}
-	}
-}
 
 public class ConnectDM {
 	// 定义连接对象
@@ -91,7 +60,7 @@ public class ConnectDM {
 	}
 
 	/*
-	 * 查询产品信息表
+	 * 执行SQL语句返回结果对象
 	 * 
 	 * @throws SQLException 异常
 	 */
@@ -110,9 +79,9 @@ public class ConnectDM {
 	}
 
 	/*
-	 * 显示结果集
+	 * 结果集转为结果对象
 	 * 
-	 * @param rs 结果集对象
+	 * @param rs 结果集
 	 * 
 	 * @throws SQLException 异常
 	 */
