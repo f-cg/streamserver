@@ -42,6 +42,11 @@ public class App {
 		returnHtml("error", ctx, msg);
 	}
 
+	private static void printHttpPath(Context ctx) {
+		if (Constants.HTTPPATHPRINT)
+			System.out.println(ctx.path());
+	}
+
 	public static void main(String[] args) throws Exception {
 		if (!ExecKafka.execKafka()) {
 			ExecKafka.stopKafka();
@@ -60,15 +65,15 @@ public class App {
 		}).start(Constants.JAVALINWEBPORT);
 		uniserver.start();
 		app.get("/", ctx -> {
-			System.out.println(ctx.path());
+			printHttpPath(ctx);
 			/* ctx.result("index"); */
 			returnLogPage(ctx);
 		});
 		app.get("/log/:logid", ctx -> {
+			printHttpPath(ctx);
 			Map<String, String> model = new HashMap<String, String>();
 			String logId = ctx.pathParam("logid");
 			LogStream ls = lsm.getls(logId);
-			System.out.println(ctx.path());
 			model.put("logId", logId);
 			model.put("ddl", ls.initddl);
 			model.put("createdTime", ls.createdTime);
@@ -92,7 +97,7 @@ public class App {
 			ctx.redirect("/");
 		});
 		app.post("/addlogstream", ctx -> {
-			System.err.println("/addlogstream");
+			printHttpPath(ctx);
 			System.err.println(ctx.formParamMap());
 			String addname = ctx.formParam("addname", "");
 			String ddl = ctx.formParam("ddl");

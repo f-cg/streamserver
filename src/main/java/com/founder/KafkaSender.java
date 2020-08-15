@@ -39,7 +39,7 @@ public class KafkaSender {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println(line);
+			println(line);
 
 			// 创建 ProducerRecord 可以指定 topic、partition、key、value，其中 partition 和 key 是可选的
 
@@ -62,10 +62,15 @@ public class KafkaSender {
 				e.printStackTrace();
 			}
 			String line = String.join(",", row);
-			System.out.println(line);
+			println(line);
 			ProducerRecord<String, String> record = new ProducerRecord<>(this.topic, line);
 			producer.send(record);
 		}
+	}
+
+	private void println(String line) {
+		if (Constants.KFSENDPRINT)
+			System.out.println("KafkaSender send: " + line);
 	}
 
 	public void sendMatrix(ArrayList<String[]> dataMatrix) {

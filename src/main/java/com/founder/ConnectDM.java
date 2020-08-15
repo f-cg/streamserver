@@ -23,6 +23,8 @@ class SqlResultData {
 	}
 
 	public void print() {
+		if (!Constants.DMRESULTPRINT)
+			return;
 		for (String f : fieldNames) {
 			System.out.print(f + ",");
 		}

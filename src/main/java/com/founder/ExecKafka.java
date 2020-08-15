@@ -18,7 +18,7 @@ public class ExecKafka {
 		Process process = new ProcessBuilder(binArgs).start();
 		BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		while ((line = br.readLine()) != null) {
-			System.out.println(line);
+			println(line);
 			if (line.contains(sucessId)) {
 				System.out.println(binArgs[0] + " executed successfully");
 				return true;
@@ -26,6 +26,11 @@ public class ExecKafka {
 		}
 		System.out.println(binArgs[0] + " executing failed");
 		return false;
+	}
+
+	private static void println(String line) {
+		if (Constants.EXECPRINT)
+			System.out.println(line);
 	}
 
 	public static boolean createTopics(String... topics) throws IOException {

@@ -13,4 +13,9 @@ public class Constants {
 	public static final String dmUserName = "FOUNDER";
 	public static final String dmPassword = "fdOAondameng";
 	public static final String dmJDBC = "dm.jdbc.driver.DmDriver";
+	public static final boolean EXECPRINT = false;
+	public static final boolean DMRESULTPRINT = false;
+	public static final boolean KFSENDPRINT = false;
+	public static final boolean DMLINEPRINT = false;
+	public static final boolean HTTPPATHPRINT = true;
 }
