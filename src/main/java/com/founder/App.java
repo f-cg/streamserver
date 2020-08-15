@@ -70,11 +70,26 @@ public class App {
 			System.out.println(ctx.path());
 	}
 
+	private class ExitHandler extends Thread {
+		public ExitHandler() {
+			super("Exit Handler");
+		}
+
+		public void run() {
+			ExecKafka.stopKafka();
+		}
+	}
+
+	public void CtrlC() {
+		Runtime.getRuntime().addShutdownHook(new ExitHandler());
+	}
+
 	public void run() throws Exception {
 		if (!ExecKafka.execKafka()) {
 			ExecKafka.stopKafka();
 			return;
 		}
+		this.CtrlC();
 		DM2Kafka.startExamples();
 		/* System.out.println("System.out has been set to /tmp/print.txt"); */
 		/*
