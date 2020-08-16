@@ -23,7 +23,6 @@ public class Query extends Thread {
 	String caseField = null;
 	String[] eventsFields = null;
 	String timeField = null;
-	ArrayList<FrequentPattern<String>> freqpatt;
 	final QueryType qtype;
 
 	Query(String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv) {
@@ -64,11 +63,7 @@ public class Query extends Thread {
 		JSONObject js = new JSONObject();
 		js.put("type", "queryData");
 		js.put("queryId", qid);
-		if (qtype == QueryType.FlinkSQL) {
-			js.put("data", result);
-		} else {
-			js.put("data", freqpatt);
-		}
+		js.put("data", result);
 		return js.toString();
 	}
 

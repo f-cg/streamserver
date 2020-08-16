@@ -4,6 +4,7 @@ import io.javalin.websocket.WsContext;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -104,6 +105,7 @@ public class LogStream {
 		System.err.println("before broadcast");
 		broadcast(queriesListString());
 		broadcast(query.queryMetaString());
+		refreshFrequentPatterns(queryid);
 	}
 
 	void addQuery(String querySql, String queryName) {
@@ -154,9 +156,9 @@ public class LogStream {
 		return null;
 	}
 
-	ArrayList<FrequentPattern<String>> getFrequentPatterns(int qid) {
+	private void refreshFrequentPatterns(int qid) {
 		if (lsType != LogStreamType.DMKF) {
-			return null;
+			return;
 		}
 		Query query = getquery(qid);
 		String eventsSeqSql = dm2kafka.newFreqPattSql(query.caseField, query.eventsFields, query.timeField);
@@ -170,17 +172,25 @@ public class LogStream {
 			for (String[] row : result.dataMatrix) {
 				seqs.add(new ArrayList<>(Arrays.asList(row[0].split("->"))));
 			}
-			query.freqpatt = pfs.run(seqs);
-			query.freqpatt.sort(new Comparator<FrequentPattern<String>>() {
+			ArrayList<FrequentPattern<String>> freqpatt = pfs.run(seqs);
+			freqpatt.sort(new Comparator<FrequentPattern<String>>() {
 				@Override
 				public int compare(FrequentPattern<String> p1, FrequentPattern<String> p2) {
 					return p1.frequence - p2.frequence;
 				}
 			});
-			return query.freqpatt;
+			ArrayDeque<Object> resultFreq = new ArrayDeque<Object>();
+			for (FrequentPattern<String> p : freqpatt) {
+				ArrayList<Object> row = new ArrayList<Object>();
+				row.add(String.join("->", p.pattern));
+				row.add(p.frequence);
+				resultFreq.add(row);
+			}
+			query.result = resultFreq;
+			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return;
 		}
 	}
 

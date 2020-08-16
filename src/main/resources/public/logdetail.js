@@ -2,6 +2,28 @@
  * chart=(display,control)
  *
  */
+var tableTemplate = `
+<div class="table-responsive">
+<table class="table">
+    <thead>
+        {{#headers}}
+             {{#.}}
+            <th>{{.}}</th>
+             {{/.}}
+        {{/headers}}
+     </thead>
+     <tbody>
+         {{#items}}
+             <tr>
+                 {{#.}}
+                     <td>{{.}}</td>
+                 {{/.}}
+           </tr>
+         {{/items}}
+     </tbody>
+</table>
+</div>
+`
 var chartDisplayTemplate = `
 		<div class="chart-display">
 		</div>
@@ -89,10 +111,6 @@ function changeSeriesType(itemInContext, newtype) {
     print("change field " + name + " to type " + newtype);
     query.queryCharts[chartIndex].customizedOption.option.series[changedFieldIdx - 1].type = newtype;
     drawQuery(qid)
-
-    if (newtype == "make X") {
-
-    }
 }
 
 function insertQuery(qid, beforeQid) {
@@ -159,12 +177,18 @@ function updateQueriesList(qids) {
 
 function updateMetas(json) {
     query = getQuery(json.queryId);
-    if (query != null) {
+    if (query == null) {
+        console.warn("Meta cannot update: not query's qid is: " + json.queryId);
+        return;
+    }
+    query.qtype = json.qtype;
+    query.queryName = json.queryName;
+    if (json.qtype == "FlinkSQL") {
         query.fieldNames = json.fieldNames;
         query.querySql = json.querySql;
-        query.queryName = json.queryName;
-    } else {
-        console.warn("Meta cannot update: not query's qid is: " + json.queryId);
+    } else if (json.type == "FrequentPattern") {
+        query.caseField = json.caseField;
+        query.eventsFields = json.eventsFields;
     }
 }
 
@@ -240,6 +264,22 @@ function drawQuery(qid) {
     print('draw query ' + qid);
     let querynode = qdom(qid);
     let query = getQuery(qid)
+    if (query.qtype == "FrequentPattern") {
+        print("FrequentPattern draw");
+        print(query.data);
+        let view = {
+            items: query.data,
+            headers: [
+                ['事件序列', '频次']
+            ]
+        }
+        let rendered = Mustache.render(tableTemplate, view);
+        console.log(query);
+        let chart0 = qdom(qid).getElementsByClassName('chart-display')[0];
+        console.log(rendered);
+        chart0.innerHTML = rendered;
+        return;
+    }
     querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
     querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
     console.log("draw");
@@ -259,6 +299,11 @@ function drawQuery(qid) {
 
 function addChart(that) {
     console.log(that);
+    let qid = Number.parseInt(qdom(that).id.slice(1))
+    let query = getQuery(qid);
+    if (query.qtype == "FrequentPattern") {
+        return;
+    }
     let queryDom = qdom(that);
     let charts = queryDom.getElementsByClassName("charts")[0];
     let view = {
@@ -267,8 +312,6 @@ function addChart(that) {
     charts.insertAdjacentHTML('beforeend', rendered);
     charts_displays = charts.getElementsByClassName('chart-display')
     let ec = echarts.init(charts_displays[charts_displays.length - 1]);
-    let qid = Number.parseInt(qdom(that).id.slice(1))
-    let query = getQuery(qid);
     let option = getDefaultOption(query);
     query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
     drawQuery(qid);
