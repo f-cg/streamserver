@@ -1,30 +1,36 @@
-# 接口数据结构定义
+接口数据结构定义
+---------------
 
 websocket 交互：json格式
 连接后自动发送数据给浏览器
-停止发送，继续发送
+-停止发送，继续发送
 
 明明规范：Java和javascript采用pascalCase和TitleCase命名法，html里的class和id都用kebab-case
 
-## 日志流管理
+日志流管理
+==========
 
-TODO 注销日志流
-{
-'type':'cancelLog'
-'logid': logid
-}
+GET POST通信
 
-## 查询管理
+删除日志流
+/delete_log/:logid
+/delete_log_array {'todelete':[logid...]}
+
+查询管理
+========
+
+websocket通信
 
 browser --> server
 注册查询
 {
-'type':'registerQuery'
-'logId': logid
-'query':'querysentence'
+'type':'register'
+'logId':logId
+'query':sql
+'queryName':qname
 }
 
-TODO 注销查询
+注销查询
 {
 'type':'cancelQuery'
 'logid': logid
@@ -36,101 +42,58 @@ server-->browser
 返回数据(或者失败)
 {
 'type':'queryData'
-'logId':logId
 'queryId':queryId
-'data':{}|ERR(TODO)
+'data':[[],[],...]
 }
 
-## 连接socket后
+后台渲染
+=======
 
-返回log详细信息
-{
-type:logdetails,
+log详细信息
 logId:logId,
 ddl:ddl,
 createTime:createTime,
 executeTime:executeTime,
-fieldNames:fieldNames,
-fieldTypes:fieldTypes
-}
+-fieldNames:fieldNames,
+-fieldTypes:fieldTypes
 
-返回query列表
+返回query列表（连接socket后1）
 {
 type:queriesList
 logId:logId
 queriesId:[]
 }
 
-请求每个query的元信息
-{
-type:queryMeta
-logId:
-queryId:
-}
-
-返回某个query的元信息
+返回某个query的元信息（连接socket后1）
 {
 type:queryMeta
 qtype:FlinkSQL|FrequentPattern
 logId:
 queryId:
+queryName:
+
 fieldNames:[field1,...]
 querySql:sql
+|
 caseField
 eventsFields:[]
 }
 
-## 自定义的query display选项
+浏览器数据结构
+=============
 
-### 浏览器行为
-
-queryId, chartId都是只增不减,后台在维护queries和chartOptions的时候要采用List结构而非Array
-
-push customized option
-
-```javascript
-{
-type:pushCustomizedOption,
-logId:
-queryId:
-chartId:
-customizedOption:
-}
-pull customized option
-{
-type:pullCustomizedOption,
-logId:
-queryId:
-chartId:
-}
-```
-
-### 服务器行为
-
-return customized option
-
-```javascript
-{
-type:returnCustomizedOption,
-logId:
-queryId:
-chartId:
-customizedOption:
-}
-```
-
-## 浏览器数据结构
-
-```javascript
 Queries=[
  {
-  qid:
-  fieldNames:[field1,...],
-  querySql:sql,
-  data:data
+  qid:,
+  qtype:FlinkSQL|FrequentPattern,
+  fieldNames:[field1,...], (for FrequentPattern)
+  querySql:,
+  data:data,
   queryCharts:[
             {
-               cid:cid,
+               cid:,
+               ctype:graph|table,
+               (for graph)
                chartInstance:,
                customizedOption:{option:option}
             },...
@@ -148,11 +111,10 @@ option={
 }
 
 source=[[f1,f2,f3],[v1,v2,v3],[v1,v2,v3]]
-```
 
-## 浏览器dom树
+浏览器dom树
+===========
 
-```text
 queries:
     query:
         query-label
@@ -160,44 +122,33 @@ queries:
             chart:
                 chart-display
                 chart-control
-```
 
-\<qId\>是html中query的id,命名采用q+queryId, 由于连接socket后首先返回querylist,所以是有序的(js按实际创建顺序)
+<qId>是html中query的id,命名采用q+queryId, 由于连接socket后首先返回querylist,所以是有序的(js按实际创建顺序)
 
-### 服务器数据结构
-
-可以用LinkedList
-对应Query的
-List customizedOptions=...(只是存放收到的json string)
-
-## 总结
+总结
 
 浏览器向服务器发送的数据类型：
 注册注销日志，注册注销查询
 
-{
-'command':'pull|stoppull|cancel'
-'queryid':Id
-}
-
-## 界面
+界面功能
+=====
 
 日志管理界面
 
 1. 添加日志流
-2. TODO 删除日志流
+2. 删除日志流
 
 查询管理界面功能列表
 
 1. 选择每个系列的是否可见以及图表样式。
 2. TODO 选择哪个域作x轴(先要实现非时间域作为x轴的后台)
-3. TODO 添加图
-4. TODO 删除图
+3. 添加图
+4. 删除图
 5. 折叠查询
 
 注册日志|SQL注册|多选|删除所选|帮助
 
-新增查询|SQL查询|新增图表|多选|删除所选|帮助|
+新增查询|SQL查询|新增图表|多选|删除所选|频繁模式|帮助|
 
 删除所选 全选 全不选 固定悬浮在右上角
 
@@ -206,7 +157,3 @@ List customizedOptions=...(只是存放收到的json string)
 文件流： 文件 -> 查询 CREATE TABLE ...
 Kafka流： Kafka -> 查询 CREATE TABLE ...
 DM数据流：DM.Kafka -> 查询 SELECT ...
-
-select: columns从获取的查询结果里得到列名
-
-orderBy 列名 即时间列
