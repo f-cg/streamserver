@@ -62,7 +62,7 @@ public class App {
 	 */
 	public void registerQuery(String logid, String query, String qname) {
 		LogStream ls = lsm.getls(logid);
-		ls.add_query(query, qname);
+		ls.addQuery(query, qname);
 	}
 
 	/**

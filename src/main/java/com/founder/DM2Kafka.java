@@ -51,6 +51,14 @@ public class DM2Kafka extends Thread {
 			return this.sql;
 	}
 
+	public String newFreqPattSql(String caseID, String[] eventsFields, String timeField) {
+		String eventsFieldsAsOne = String.join(" ||',' || ", eventsFields);
+		String eventSeq = "listagg(" + eventsFieldsAsOne + ",'->') WITHIN GROUP (ORDER BY " + timeField
+				+ ") EVENTSSEQ";
+		String selectFreqPattSql = "select " + eventSeq + "\nfrom (\n" + sql + "\n)\ngroup by " + caseID;
+		return selectFreqPattSql;
+	}
+
 	private void firstPullInit() {
 		this.fieldNames = result.fieldNames;
 		this.typeNames = result.typeNames;

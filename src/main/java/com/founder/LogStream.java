@@ -2,10 +2,11 @@ package com.founder;
 
 import io.javalin.websocket.WsContext;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,51 +20,6 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.json.JSONObject;
-
-class Query extends Thread {
-	String qsql;
-	int qid;
-	String qname;
-	List<String> fieldNames;
-	ArrayDeque<Object> result = new ArrayDeque<>();
-	StreamTableEnvironment tEnv;
-
-	Query(String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv) {
-		this.qsql = qsql;
-		this.fieldNames = Arrays.asList(schema.getFieldNames());
-		this.qid = qid;
-		this.qname = qname;
-		this.tEnv = tEnv;
-	}
-
-	String queryMetaString() {
-		JSONObject js = new JSONObject();
-		js.put("type", "queryMeta");
-		/* js.put("logid", logid); */
-		js.put("queryId", qid);
-		js.put("queryName", qname);
-		js.put("fieldNames", fieldNames);
-		js.put("querySql", qsql);
-		return js.toString();
-	}
-
-	String queryDataString() {
-		JSONObject js = new JSONObject();
-		js.put("type", "queryData");
-		js.put("queryId", qid);
-		js.put("data", result);
-		return js.toString();
-	}
-
-	@Override
-	public void run() {
-		try {
-			this.tEnv.execute("Streaming Window SQL Job");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-}
 
 enum LogStreamType {
 	DMKF, KF, FS;
@@ -88,6 +44,7 @@ public class LogStream {
 	Integer queryinc = 1;
 	List<Query> queries = new LinkedList<>();
 	DM2Kafka dm2kafka;
+	private static final Pattern PP = Pattern.compile("^PATTERN");
 
 	LogStream(String name, String initddl) {
 		this.name = name;
@@ -133,10 +90,30 @@ public class LogStream {
 		return formatter.format(date);
 	}
 
-	void add_query(String querySql, String queryName) {
+	/**
+	 * @param querySql PATTERN\ncaseKey\nvalueKey1,valueKey2
+	 */
+	void addQueryFreq(String querySql, String queryName) {
+		String[] lines = querySql.split("\n");
+		String caseKey = lines[1];
+		String[] eventsKeys = lines[2].split(",");
+		String timeField = lines[3];
+		int queryid = queryinc++;
+		Query query = new Query(caseKey, eventsKeys, timeField, queryid, queryName);
+		queries.add(query);
+		System.err.println("before broadcast");
+		broadcast(queriesListString());
+		broadcast(query.queryMetaString());
+	}
+
+	void addQuery(String querySql, String queryName) {
 		// sql query
 		// addSink
 		// execute
+		if (PP.matcher(querySql).find()) {
+			addQueryFreq(querySql, queryName);
+			return;
+		}
 		if (!ddlExecuted) {
 			tEnv.sqlUpdate(initddl);
 			ddlExecuted = true;
@@ -161,9 +138,6 @@ public class LogStream {
 		query.start();
 	}
 
-	void register(String ddl) {
-	}
-
 	void broadcast(String msg) {
 		wss.stream().filter(ct -> ct.session.isOpen()).forEach(session -> {
 			System.out.println("session_send: " + msg);
@@ -178,6 +152,36 @@ public class LogStream {
 			}
 		}
 		return null;
+	}
+
+	ArrayList<FrequentPattern<String>> getFrequentPatterns(int qid) {
+		if (lsType != LogStreamType.DMKF) {
+			return null;
+		}
+		Query query = getquery(qid);
+		String eventsSeqSql = dm2kafka.newFreqPattSql(query.caseField, query.eventsFields, query.timeField);
+		try {
+			ConnectDM dm = new ConnectDM();
+			dm.connect();
+			SqlResultData result = dm.querySql(eventsSeqSql);
+			dm.disConnect();
+			PrefixSpan<String> pfs = new PrefixSpan<String>(0.1);
+			ArrayList<ArrayList<String>> seqs = new ArrayList<ArrayList<String>>();
+			for (String[] row : result.dataMatrix) {
+				seqs.add(new ArrayList<>(Arrays.asList(row[0].split("->"))));
+			}
+			query.freqpatt = pfs.run(seqs);
+			query.freqpatt.sort(new Comparator<FrequentPattern<String>>() {
+				@Override
+				public int compare(FrequentPattern<String> p1, FrequentPattern<String> p2) {
+					return p1.frequence - p2.frequence;
+				}
+			});
+			return query.freqpatt;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	void delquery(int qid) {

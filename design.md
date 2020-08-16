@@ -71,10 +71,13 @@ queryId:
 返回某个query的元信息
 {
 type:queryMeta
+qtype:FlinkSQL|FrequentPattern
 logId:
 queryId:
 fieldNames:[field1,...]
 querySql:sql
+caseField
+eventsFields:[]
 }
 
 ## 自定义的query display选项
@@ -197,3 +200,13 @@ List customizedOptions=...(只是存放收到的json string)
 新增查询|SQL查询|新增图表|多选|删除所选|帮助|
 
 删除所选 全选 全不选 固定悬浮在右上角
+
+定期执行SQL->SqlResult->kafka事件流 之后如何处理该事件流和上面一样
+
+文件流： 文件 -> 查询 CREATE TABLE ...
+Kafka流： Kafka -> 查询 CREATE TABLE ...
+DM数据流：DM.Kafka -> 查询 SELECT ...
+
+select: columns从获取的查询结果里得到列名
+
+orderBy 列名 即时间列

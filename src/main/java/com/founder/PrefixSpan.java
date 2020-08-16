@@ -12,11 +12,11 @@ import java.util.LinkedHashMap;
 /**
  * input: [[T,...],[],] output:[{patt, freq}]
  */
-class FrequentPatterns<T> {
+class FrequentPattern<T> {
 	ArrayList<T> pattern;
 	int frequence;
 
-	FrequentPatterns(ArrayList<T> patt, int freq) {
+	FrequentPattern(ArrayList<T> patt, int freq) {
 		this.pattern = patt;
 		this.frequence = freq;
 	}
@@ -37,7 +37,7 @@ public class PrefixSpan<T> {
 	double minSupDefault;
 	ArrayList<ArrayList<T>> seqs;
 	/* FrequentPatterns<T> freqpatt; */
-	ArrayList<FrequentPatterns<T>> results;
+	ArrayList<FrequentPattern<T>> results;
 
 	PrefixSpan(double minsup) {
 		this.minSupDefault = minsup;
@@ -48,7 +48,7 @@ public class PrefixSpan<T> {
 	}
 
 	private void frequentRec(ArrayList<T> patt, ArrayList<ProjectedIndex> projectedIndices) {
-		FrequentPatterns<T> freqpatt = new FrequentPatterns<T>(patt, projectedIndices.size());
+		FrequentPattern<T> freqpatt = new FrequentPattern<T>(patt, projectedIndices.size());
 		this.results.add(freqpatt);
 		LinkedHashMap<T, ArrayList<ProjectedIndex>> occurs = new LinkedHashMap<T, ArrayList<ProjectedIndex>>();
 		for (ProjectedIndex projectedIndex : projectedIndices) {
@@ -76,11 +76,11 @@ public class PrefixSpan<T> {
 		}
 	}
 
-	ArrayList<FrequentPatterns<T>> run(ArrayList<ArrayList<T>> seqs, double minSupRate) {
+	ArrayList<FrequentPattern<T>> run(ArrayList<ArrayList<T>> seqs, double minSupRate) {
 		this.minSupDefault = minSupRate;
 		this.minSup = (int) (seqs.size() * minSupRate);
 		this.seqs = seqs;
-		this.results = new ArrayList<FrequentPatterns<T>>();
+		this.results = new ArrayList<FrequentPattern<T>>();
 		ArrayList<ProjectedIndex> projectedIndices = new ArrayList<ProjectedIndex>();
 		for (int i = 0; i < seqs.size(); i++) {
 			projectedIndices.add(new ProjectedIndex(i, -1));
@@ -90,7 +90,7 @@ public class PrefixSpan<T> {
 		return this.results;
 	}
 
-	ArrayList<FrequentPatterns<T>> run(ArrayList<ArrayList<T>> seqs) {
+	ArrayList<FrequentPattern<T>> run(ArrayList<ArrayList<T>> seqs) {
 		return this.run(seqs, this.minSupDefault);
 	}
 
@@ -103,7 +103,7 @@ public class PrefixSpan<T> {
 		}
 	}
 
-	private void printFrequentPatterns(FrequentPatterns<T> frequentPatterns) {
+	private void printFrequentPatterns(FrequentPattern<T> frequentPatterns) {
 		System.out.print("freq:" + frequentPatterns.frequence);
 		System.out.print("; patterns:");
 		for (T e : frequentPatterns.pattern) {
@@ -113,7 +113,7 @@ public class PrefixSpan<T> {
 	}
 
 	void printResults() {
-		for (FrequentPatterns<T> frequentPatterns : results) {
+		for (FrequentPattern<T> frequentPatterns : results) {
 			this.printFrequentPatterns(frequentPatterns);
 		}
 	}
@@ -153,9 +153,9 @@ public class PrefixSpan<T> {
 	}
 
 	void sortResults() {
-		this.results.sort(new Comparator<FrequentPatterns<T>>() {
+		this.results.sort(new Comparator<FrequentPattern<T>>() {
 			@Override
-			public int compare(FrequentPatterns<T> f1, FrequentPatterns<T> f2) {
+			public int compare(FrequentPattern<T> f1, FrequentPattern<T> f2) {
 				if (f1.frequence != f2.frequence)
 					return f1.frequence - f2.frequence;
 				else {
