@@ -123,7 +123,7 @@ function insertQuery(qid, beforeQid) {
         print("append q" + qid);
     } else {
         let big = qdom(beforeQid);
-        id("queries").insertBefore(rendered, big);
+        big.insertAdjacentHTML('beforebegin', rendered);
         print("insert q" + qid);
     }
 }
