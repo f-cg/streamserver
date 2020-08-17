@@ -224,6 +224,21 @@ function registerQuery() {
     }
 }
 
+function registerFPQuery() {
+    let caseField = id("case-field").value.trim();
+    let eventsField = id("events-field").value.trim();
+    let timeField = id("time-field").value.trim();
+    let qname = id("fp-query-name").value.trim();
+    if (caseField.length > 0 && timeField.length > 0 && eventsField.length > 0 && qname.length > 0) {
+        let sql = ["PATTERN", caseField, eventsField, timeField].join("\n");
+        console.log(sql);
+        let rq = {"type": "register", "logId": logId, "query": sql, "queryName": qname};
+        ws.send(JSON.stringify(rq));
+    } else {
+        alert("字段以及查询名称不能为空!");
+    }
+}
+
 function getDefaultOption(query) {
     let xAxisType = 'category';
     let yAxisType = 'value';

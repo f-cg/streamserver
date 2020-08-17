@@ -26,7 +26,7 @@
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#show-log-details-modal">
             日志流详情
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal">
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-frequent-patterion-modal">
             频繁模式
         </button>
         <button type="button" class="btn btn-secondary" data-toggle="modal">
@@ -113,6 +113,49 @@
                     <a href="/delete_log/{{logId}}" class="btn btn-danger">注销日志流</a>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">
                         断开(暂停)日志流
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="add-query-frequent-patterion-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    新增频繁模式查询
+                </div>
+                <div class="modal-body">
+                    <div class="form-group form-inline">
+                        <label for="case-field">
+                            分组字段
+                        </label>
+                        <input type="text" name="case-field" value="" id="case-field">
+                    </div>
+                    <div class="form-group form-inline">
+                        <label for="events-field">
+                            事件字段
+                        </label>
+                        <input type="text" name="events-field" value="" id="events-field">
+                    </div>
+                    <div class="form-group form-inline">
+                        <label for="time-field">
+                            时间顺序字段
+                        </label>
+                        <input type="text" name="time-field" value="" id="time-field">
+                    </div>
+                    <div class="form-group form-inline">
+                        <label for="query-name">
+                            查询名称
+                        </label>
+                        <input type="text" name="fp-query-name" value="" id="fp-query-name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerFPQuery()">
+                        确认
                     </button>
                 </div>
             </div>
