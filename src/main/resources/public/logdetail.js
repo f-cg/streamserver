@@ -168,7 +168,7 @@ function updateQueriesList(qids) {
     print("j " + j + " qids.length:" + qids.length);
     while (j < qids.length) {
         // append qids[j]
-        Queries.splice(i, 0, {qid: qids[j]});
+        Queries.push({qid: qids[j]});
         insertQuery(qids[j]);
         j++;
     }
