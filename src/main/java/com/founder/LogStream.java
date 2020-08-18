@@ -4,7 +4,6 @@ import io.javalin.websocket.WsContext;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -179,7 +178,7 @@ public class LogStream {
 					return p1.frequence - p2.frequence;
 				}
 			});
-			ArrayDeque<Object> resultFreq = new ArrayDeque<Object>();
+			ArrayList<Object> resultFreq = new ArrayList<Object>();
 			for (FrequentPattern<String> p : freqpatt) {
 				ArrayList<Object> row = new ArrayList<Object>();
 				row.add(String.join("->", p.pattern));

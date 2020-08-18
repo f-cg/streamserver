@@ -18,7 +18,7 @@ public class Query extends Thread {
 	int qid;
 	String qname;
 	List<String> fieldNames;
-	ArrayDeque<Object> result = new ArrayDeque<>();
+	ArrayList<Object> result = new ArrayList<>();
 	StreamTableEnvironment tEnv;
 	String caseField = null;
 	String[] eventsFields = null;

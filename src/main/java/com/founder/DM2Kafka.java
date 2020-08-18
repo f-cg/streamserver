@@ -46,7 +46,7 @@ public class DM2Kafka extends Thread {
 	private String newSql(String whereCond) {
 		if (whereCond != null)
 			return this.wrapSelect + " from (\n" + this.sql + "\n) where " + orderBy + " > '" + whereCond
-					+ "'";
+					+ "' order by " + orderBy;
 		else
 			return this.sql;
 	}
