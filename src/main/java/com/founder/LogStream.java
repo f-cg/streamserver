@@ -99,7 +99,7 @@ public class LogStream {
 		String[] eventsKeys = lines[2].split(",");
 		String timeField = lines[3];
 		int queryid = queryinc++;
-		Query query = new Query(caseKey, eventsKeys, timeField, queryid, queryName, qtype);
+		Query query = new Query(querySql, caseKey, eventsKeys, timeField, queryid, queryName, qtype);
 		queries.add(query);
 		System.err.println("before broadcast");
 		broadcast(queriesListString());

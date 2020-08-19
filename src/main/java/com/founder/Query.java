@@ -33,13 +33,22 @@ public class Query extends Thread {
 		this.tEnv = tEnv;
 	}
 
-	Query(String caseKey, String[] eventsKeys, String timeField, int qid, String qname, QueryType qtype) {
+	Query(String qsql, String caseKey, String[] eventsKeys, String timeField, int qid, String qname, QueryType qtype) {
 		this.qtype = qtype;
+		this.qsql = qsql;
 		this.caseField = caseKey;
 		this.eventsFields = eventsKeys;
 		this.timeField = timeField;
 		this.qid = qid;
 		this.qname = qname;
+		if (qtype == QueryType.FrequentPattern) {
+			this.fieldNames = Arrays.asList(new String[] { "事件序列", "频次" });
+		} else if (qtype == QueryType.Predict) {
+			this.fieldNames = Arrays.asList(new String[] { "事件序列", "预测", "概率" });
+		} else {
+			System.err.println("no such query type"+qtype);
+			System.exit(1);
+		}
 	}
 
 	String queryMetaString() {
@@ -48,12 +57,18 @@ public class Query extends Thread {
 		js.put("qtype", qtype);
 		js.put("queryId", qid);
 		js.put("queryName", qname);
+		js.put("fieldNames", fieldNames);
+		js.put("querySql", qsql);
 		if (qtype == QueryType.FlinkSQL) {
-			js.put("fieldNames", fieldNames);
-			js.put("querySql", qsql);
 		} else if (qtype == QueryType.FrequentPattern) {
 			js.put("caseField", caseField);
 			js.put("eventsFields", eventsFields);
+		} else if (qtype == QueryType.Predict) {
+			js.put("caseField", caseField);
+			js.put("eventsFields", eventsFields);
+		} else {
+			System.err.println("no such query type"+qtype);
+			System.exit(1);
 		}
 		return js.toString();
 	}

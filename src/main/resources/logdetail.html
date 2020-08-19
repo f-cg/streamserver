@@ -207,6 +207,44 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="add-chart-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    选择图表类型
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="chart-type">
+                                图表类型
+                            </label>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="chart-type" id="chart-type-graph">
+                                    图
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="chart-type" id="chart-type-table">
+                                    表
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="addChart(this)">
+                        确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="help-modal">
         <div class="modal-dialog">
             <div class="modal-content">

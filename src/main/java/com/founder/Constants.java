@@ -18,6 +18,7 @@ public class Constants {
 	public static final boolean KFSENDPRINT = true;
 	public static final boolean DMLINEPRINT = true;
 	public static final boolean HTTPPATHPRINT = true;
+
 	public static final String BIZLOGDDL = "CREATE TABLE BIZLOG (\n" + "BIZID INT,\n" + "DATAID STRING,\n"
 			+ "OPERATIONNAME STRING,\n" + "OPERATIONDESC STRING,\n" + "OPERATIONUSERID STRING,\n"
 			+ "OPERATIONTIME TIMESTAMP(3),\n" + "OPERATIONUSERNAME STRING,\n" + "DUTY STRING,\n"
@@ -27,23 +28,32 @@ public class Constants {
 			+ "'connector.properties.zookeeper.connect' = 'localhost:2181',\n"
 			+ "'connector.properties.bootstrap.servers' = 'localhost:9092',\n" + "'format.type' = 'csv'\n"
 			+ ")\n";
-	public static final String BIZLOGNAME = "BIZLOG";
-	public static final String BIZLOG_QUERY1 = "SELECT CAST(TUMBLE_START(OPERATIONTIME, INTERVAL '10' MINUTE) AS STRING) window_start,\n"
-			+ "COUNT(*) operation_count\n" + "FROM BIZLOG\n" + "WHERE OPERATIONNAME='新增'\n"
-			+ "GROUP BY TUMBLE(OPERATIONTIME, INTERVAL '10' MINUTE)\n";
-	public static final String BIZLOG_QUERY1_NAME = "最近10分钟新增次数";
-	public static final String BIZLOG_QUERY2 = "PATTERN\nDATAID\nOPERATIONNAME\nOPERATIONTIME";
-	public static final String BIZLOG_QUERY2_NAME = "Frequent Patterns";
-	public static final String BIZLOG_QUERY3 = "PREDICT\nDATAID\nOPERATIONNAME\nOPERATIONTIME";
-	public static final String BIZLOG_QUERY3_NAME = "Predict Event";
 
+	// 该表来自 OA.ZT_BIZOBJECTLOG 和 UIM.APP_USER，记录了用户操作日志
 	public static final String DMSQL1 = "select BIZID, DATAID, OPERATIONNAME, OPERATIONDESC, OPERATIONUSERID, OPERATIONTIME, OPERATIONUSERNAME, DUTY\n"
 			+ "from OA.ZT_BIZOBJECTLOG, UIM.APP_USER\n" + "where OPERATIONUSERID=LOGINNAME\n"
 			+ "order by OPERATIONTIME";
+	public static final String BIZLOGNAME = "BIZLOG";
+
+	// 普通flink语句查询
+	public static final String BIZLOG_QUERY_FLINK1 = "SELECT CAST(TUMBLE_START(OPERATIONTIME, INTERVAL '10' MINUTE) AS STRING) window_start,\n"
+			+ "COUNT(*) 操作次数\n" + "FROM BIZLOG\n" + "WHERE OPERATIONNAME='新增'\n"
+			+ "GROUP BY TUMBLE(OPERATIONTIME, INTERVAL '10' MINUTE)\n";
+	public static final String BIZLOG_QUERY_FLINK1_NAME = "最近10分钟新增次数";
+	// 频繁模式 单一字段
+	public static final String BIZLOG_QUERY_FREQUENT1 = "PATTERN\nDATAID\nOPERATIONNAME\nOPERATIONTIME";
+	public static final String BIZLOG_QUERY_FREQUENT1_NAME = "频繁的操作序列";
+	// 事件预测 单一字段
+	public static final String BIZLOG_QUERY_PREDICT1 = "PREDICT\nDATAID\nOPERATIONNAME\nOPERATIONTIME";
+	public static final String BIZLOG_QUERY_PREDICT1_NAME = "操作序列预测";
+
+	// 日志流定义列表
 	public static final String[][] LOGS = new String[][] { { BIZLOGNAME, DMSQL1 } };
-	public static final String[][] QUERIES = new String[][] { { BIZLOGNAME, BIZLOG_QUERY1, BIZLOG_QUERY1_NAME },
-			{ BIZLOGNAME, BIZLOG_QUERY2, BIZLOG_QUERY2_NAME },
-			{ BIZLOGNAME, BIZLOG_QUERY3, BIZLOG_QUERY3_NAME } };
+	// 查询定义列表
+	public static final String[][] QUERIES = new String[][] {
+			{ BIZLOGNAME, BIZLOG_QUERY_FLINK1, BIZLOG_QUERY_FLINK1_NAME },
+			{ BIZLOGNAME, BIZLOG_QUERY_FREQUENT1, BIZLOG_QUERY_FREQUENT1_NAME },
+			{ BIZLOGNAME, BIZLOG_QUERY_PREDICT1, BIZLOG_QUERY_PREDICT1_NAME } };
 
 	public static void main(String[] args) {
 		System.out.println("LOGS:");

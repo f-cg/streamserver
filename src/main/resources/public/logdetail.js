@@ -194,12 +194,17 @@ function updateMetas(json) {
     }
     query.qtype = json.qtype;
     query.queryName = json.queryName;
-    if (json.qtype == "FlinkSQL") {
-        query.fieldNames = json.fieldNames;
-        query.querySql = json.querySql;
-    } else if (json.type == "FrequentPattern") {
+    query.fieldNames = json.fieldNames;
+    query.querySql = json.querySql;
+    if (json.qtype == QueryType.FlinkSQL) {
+    } else if (json.qtype == QueryType.FrequentPattern) {
         query.caseField = json.caseField;
         query.eventsFields = json.eventsFields;
+    } else if (json.qtype == QueryType.Predict) {
+        query.caseField = json.caseField;
+        query.eventsFields = json.eventsFields;
+    } else {
+        console.error("no such query " + json.qtype);
     }
 }
 
@@ -219,6 +224,8 @@ function processMsg(msg) {
         drawQuery(json['queryId']);
     } else if (json.type == 'queryMeta') {
         updateMetas(json);
+    } else {
+        console.error("no such message type " + json.type);
     }
 }
 
@@ -309,9 +316,19 @@ function getOrCreateCharts(qid) {
     return query.queryCharts;
 }
 
+function renderTable(qid) {
+    let query = getQuery(qid);
+    let view = {
+        items: query.data,
+        headers: [
+            query.fieldNames
+        ]
+    }
+    let rendered = Mustache.render(tableTemplate, view);
+    return rendered;
+}
+
 function drawChart(qid, cid) {
-    //// TODO:  <19-08-20, yourname> fieldNames to every query //
-    console.log("draw chart");
     let query = getQuery(qid);
     let chart = getOrCreateCharts(qid)[cid];
     if (chart.ctype == ChartType.graph) {
@@ -319,63 +336,26 @@ function drawChart(qid, cid) {
         option.dataset = {
             source: query.data
         }
-        console.log(option);
         print(JSON.stringify(option));
         chart.chartInstance.setOption(option);
-    }else if (chart.ctype == ChartType.table) {
+    } else if (chart.ctype == ChartType.table) {
+        let chartDom = qdom(qid).getElementsByClassName('chart-display')[cid];
+        chartDom.innerHTML = renderTable(qid);
+    } else {
+        console.error("no such chart type " + chart.ctype);
     }
 }
 
 function drawQuery(qid) {
     print('draw query ' + qid);
     let querynode = qdom(qid);
-    let query = getQuery(qid)
 
     querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
     querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
-    console.log("draw");
 
     let charts = getOrCreateCharts(qid);
-    if (query.qtype == "FrequentPattern") {
-        print("FrequentPattern draw");
-        print(query.data);
-        let view = {
-            items: query.data,
-            headers: [
-                ['事件序列', '频次']
-            ]
-        }
-        let rendered = Mustache.render(tableTemplate, view);
-        console.log(query);
-        let chart0 = qdom(qid).getElementsByClassName('chart-display')[0];
-        console.log(rendered);
-        chart0.innerHTML = rendered;
-        return;
-    } else if (query.qtype == "Predict") {
-        print("Predict draw");
-        print(query.data);
-        let view = {
-            items: query.data,
-            headers: [
-                ['事件序列', '预测', '概率']
-            ]
-        }
-        let rendered = Mustache.render(tableTemplate, view);
-        console.log(query);
-        let chart0 = qdom(qid).getElementsByClassName('chart-display')[0];
-        console.log(rendered);
-        chart0.innerHTML = rendered;
-        return;
-    }
     for (let i = 0; i < charts.length; i++) {
-        console.log("draw chart");
-        let option = charts[i].customizedOption.option;
-        option.dataset = {
-            source: query.data
-        }
-        console.log(option);
-        print(JSON.stringify(option));
-        charts[i].chartInstance.setOption(option);
+        drawChart(qid, i);
     }
 }
 
@@ -391,7 +371,6 @@ function addChartClicked(that) {
     $("#add-chart-modal").modal("show");
 }
 function addChart(that) {
-    console.log(chartToAdd);
     if (id("chart-type-graph").checked) {
         chartToAdd.ctype = ChartType.graph;
     } else if (id("chart-type-table").checked) {
@@ -399,13 +378,12 @@ function addChart(that) {
     } else {
         return;
     }
-    let ctype = chartToAdd.ctype;
     let qid = chartToAdd.qid;
     let query = getQuery(qid);
     let queryDom = qdom(qid);
     let charts = queryDom.getElementsByClassName("charts")[0];
     if (query.qtype == QueryType.FlinkSQL) {
-        if (ctype == ChartType.graph) {
+        if (chartToAdd.ctype == ChartType.graph) {
             let view = {
             }
             let rendered = Mustache.render(chartTemplate, view);
@@ -413,19 +391,22 @@ function addChart(that) {
             charts_displays = charts.getElementsByClassName('chart-display')
             let ec = echarts.init(charts_displays[charts_displays.length - 1]);
             let option = getDefaultOption(query);
-            query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
-            drawQuery(qid);
-        } else if (ctype == ChartType.table) {
+            query.queryCharts.push({ctype: ChartType.graph, chartInstance: ec, customizedOption: {option: option}});
+            drawChart(qid, query.queryCharts.length - 1)
+        } else if (chartToAdd.ctype == ChartType.table) {
             let view = {
                 items: query.data,
                 headers: [
                     query.fieldNames
                 ]
             }
+            query.queryCharts.push({ctype: ChartType.table});
             let rendered = Mustache.render(tableTemplate, view);
             charts.insertAdjacentHTML('beforeend', rendered);
-            // query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
+        } else {
+            console.error("no such ctype" + chartToAdd.ctype);
         }
+
     } else if (query.qtype == QueryType.FrequentPattern || query.qtype == QueryType.Predict) {
         return;
     } else {
