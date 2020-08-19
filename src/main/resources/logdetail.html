@@ -23,6 +23,9 @@
         <button type="button" class="btn btn-secondary" onclick="$('.delete-cb, #delete-cancel').show();">
             删除查询
         </button>
+        <button type="button" class="btn btn-secondary" onclick="collapseAll();" id="collapse-all">
+            折叠全部
+        </button>
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#show-log-details-modal">
             日志流详情
         </button>
@@ -35,9 +38,9 @@
         <button type="button" class="btn btn-secondary" data-toggle="modal">
             异常模式
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal">
-            节点分析
-        </button>
+        <!-- <button type="button" class="btn btn-secondary" data-toggle="modal"> -->
+        <!--     节点分析 -->
+        <!-- </button> -->
         <a href="/" class="btn btn-secondary">日志流列表</a>
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#help-modal">
             帮助
@@ -253,6 +256,7 @@
                 </div>
                 <div class="modal-body">
                     <ul>
+                        所有的查询以图或表的形式展现在该页面，方便对比。
                         <li>
                             <b>新增查询：</b>
                             使用SQL语句新建查询，查询结果会以图表的形式可视化
@@ -262,18 +266,30 @@
                             选中多个查询或者多个图表一并删除
                         </li>
                         <li>
+                            <b>折叠/打开全部：</b>
+                            将全部查询折叠或打开
+                        </li>
+                        <li>
                             <b>日志流详情：</b>
                             显示该日志流的创建语句，创建和执行时间等信息
+                        </li>
+                        <li>
+                            <b>频繁模式：</b>
+                            创建用于发掘频繁模式的查询，其中事件字段可以是多个，用逗号分隔
+                        </li>
+                        <li>
+                            <b>事件预测：</b>
+                            创建用于序列预测的查询，其中事件字段可以是多个，用逗号分隔
                         </li>
                         <li>
                             <b>日志流列表：</b>
                             返回到日志流列表页面
                         </li>
                         <li>
-                            点击增加图表可以在同一个查询结果上再创建一个图表进行可视化
+                            点击增加图表可以在同一个查询结果上再创建一个图或表进行可视化
                         </li>
                         <li>
-                            右键点击图例可以切换图表类型
+                            右键点击图例可以切换图类型
                         </li>
                         <li>
                             点击红叉可以删除单个图表

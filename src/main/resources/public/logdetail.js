@@ -432,6 +432,20 @@ function delChart(that) {
     charts.removeChild(chart);
 }
 
+function collapseAll() {
+    let collapse = id("collapse-all");
+    let ifopen = collapse.innerHTML.trim() == "打开全部"
+    let alldetails = document.getElementsByTagName("details");
+    for (let i = 0; i < alldetails.length; i++) {
+        alldetails[i].open = ifopen;
+    }
+    if (ifopen) {
+        collapse.innerHTML = "折叠全部";
+    } else {
+        collapse.innerHTML = "打开全部";
+    }
+}
+
 function sampledraw() {
     // 指定图表的配置项和数据
     var option = {
