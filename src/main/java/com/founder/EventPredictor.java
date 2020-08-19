@@ -10,11 +10,30 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+
+class EventProb {
+	List<String> happened;
+	String pred;
+	double prob;
+
+	EventProb(List<String> happened, String pred, double prob) {
+		this.happened = happened;
+		this.pred = pred;
+		this.prob = prob;
+	}
+}
 
 public class EventPredictor {
 	private static final String COMMA_DELIMITER = ",";
+	private static final String NOPRED = "无";
+	private static final int GOODSIZE = 40;
+	private static final int SMALLSIZE = 10;
+	private static final int TOOSMALLSIZE = 2;
 	HashMap<String, HashMap<String, Integer>> trainMap;
 
 	EventPredictor() {
@@ -92,7 +111,7 @@ public class EventPredictor {
 		return res;
 	}
 
-	public String predict_one(List<String> test_seq) {
+	public EventProb predictOneWithProb(List<String> test_seq) {
 		StringBuilder query = new StringBuilder();
 		if (test_seq.size() == 0) {
 			query = new StringBuilder("root");
@@ -101,9 +120,9 @@ public class EventPredictor {
 				query.append(line);
 			}
 		}
-		System.out.println("query: " + query);
+		/* System.out.println("query: " + query); */
 		Integer total = 0;
-		String pred = "无";
+		String pred = NOPRED;
 		double prob = 0.0;
 		if (trainMap.containsKey(query.toString())) {
 			HashMap<String, Integer> all_con = trainMap.get(query.toString());
@@ -118,11 +137,63 @@ public class EventPredictor {
 				}
 			}
 		}
-		return pred;
+		return new EventProb(test_seq, pred, prob);
+	}
+
+	public String predictOne(List<String> test_seq) {
+		return predictOneWithProb(test_seq).pred;
+	}
+
+	public List<EventProb> predictWithProb(List<List<String>> seqs) {
+		List<EventProb> results = new ArrayList<EventProb>();
+		for (List<String> list : seqs) {
+			results.add(predictOneWithProb(list));
+		}
+		return results;
+	}
+
+	public List<EventProb> predictBeautifulWithProb(List<List<String>> seqs) {
+		seqs = (ArrayList) seqs.stream().distinct().collect(Collectors.toList());
+		List<EventProb> results = predictWithProb(seqs);
+		results.sort(new Comparator<EventProb>() {
+			@Override
+			public int compare(EventProb ep0, EventProb ep1) {
+				double diff = ep1.prob - ep0.prob;
+				if (diff > 0)
+					return 1;
+				else if (diff < 0)
+					return -1;
+				else
+					return 0;
+			}
+		});
+		if (results.size() < SMALLSIZE) {
+			return results;
+		}
+		List<EventProb> goodResults = results.stream().filter(ep -> ep.pred != NOPRED)
+				.collect(Collectors.toList());
+		if (goodResults.size() < TOOSMALLSIZE)
+			return results;
+		else if (goodResults.size() < GOODSIZE)
+			return goodResults;
+		return goodResults.subList(0, GOODSIZE);
+	}
+
+	public List<String> predictBeautiful(List<List<String>> test_seqs) {
+		List<EventProb> result = predictBeautifulWithProb(test_seqs);
+		ArrayList<String> simpleResult = new ArrayList<>();
+		for (EventProb eventProb : result) {
+			simpleResult.add(eventProb.pred);
+		}
+		return simpleResult;
 	}
 
 	public void train(List<List<String>> trainData) {
 		HashMap<String, List<String>> seq = GroupCases(trainData);
+		ConvertToTrain(seq);
+	}
+
+	public void trainGrouped(HashMap<String, List<String>> seq) {
 		ConvertToTrain(seq);
 	}
 
@@ -131,6 +202,6 @@ public class EventPredictor {
 		List<String> test_seq = Arrays.asList("1");
 		List<List<String>> raw_cases = ep.ReadCSV("/home/fcg/Downloads/Model/data/helpdesk.csv");
 		ep.train(raw_cases);
-		System.out.println("predicted:" + ep.predict_one(test_seq));
+		System.out.println("predicted:" + ep.predictOne(test_seq));
 	}
 }

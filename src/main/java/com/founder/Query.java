@@ -1,6 +1,5 @@
 package com.founder;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +9,7 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.json.JSONObject;
 
 enum QueryType {
-	FlinkSQL, FrequentPattern;
+	FlinkSQL, FrequentPattern, Predict;
 }
 
 public class Query extends Thread {
@@ -34,8 +33,8 @@ public class Query extends Thread {
 		this.tEnv = tEnv;
 	}
 
-	Query(String caseKey, String[] eventsKeys, String timeField, int qid, String qname) {
-		qtype = QueryType.FrequentPattern;
+	Query(String caseKey, String[] eventsKeys, String timeField, int qid, String qname, QueryType qtype) {
+		this.qtype = qtype;
 		this.caseField = caseKey;
 		this.eventsFields = eventsKeys;
 		this.timeField = timeField;

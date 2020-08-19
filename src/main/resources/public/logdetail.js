@@ -294,6 +294,21 @@ function drawQuery(qid) {
         console.log(rendered);
         chart0.innerHTML = rendered;
         return;
+    } else if (query.qtype == "Predict") {
+        print("Predict draw");
+        print(query.data);
+        let view = {
+            items: query.data,
+            headers: [
+                ['事件序列', '预测', '概率']
+            ]
+        }
+        let rendered = Mustache.render(tableTemplate, view);
+        console.log(query);
+        let chart0 = qdom(qid).getElementsByClassName('chart-display')[0];
+        console.log(rendered);
+        chart0.innerHTML = rendered;
+        return;
     }
     querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
     querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;

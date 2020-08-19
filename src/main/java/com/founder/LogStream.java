@@ -45,6 +45,7 @@ public class LogStream {
 	List<Query> queries = new LinkedList<>();
 	DM2Kafka dm2kafka;
 	private static final Pattern PP = Pattern.compile("^PATTERN");
+	private static final Pattern PR = Pattern.compile("^PREDICT");
 
 	LogStream(String name, String initddl) {
 		this.name = name;
@@ -93,18 +94,18 @@ public class LogStream {
 	/**
 	 * @param querySql PATTERN\ncaseKey\nvalueKey1,valueKey2
 	 */
-	void addQueryFreq(String querySql, String queryName) {
+	void addQueryFreqPred(String querySql, String queryName, QueryType qtype) {
 		String[] lines = querySql.split("\n");
 		String caseKey = lines[1];
 		String[] eventsKeys = lines[2].split(",");
 		String timeField = lines[3];
 		int queryid = queryinc++;
-		Query query = new Query(caseKey, eventsKeys, timeField, queryid, queryName);
+		Query query = new Query(caseKey, eventsKeys, timeField, queryid, queryName, qtype);
 		queries.add(query);
 		System.err.println("before broadcast");
 		broadcast(queriesListString());
 		broadcast(query.queryMetaString());
-		refreshFrequentPatterns(queryid);
+		refreshFreqPred(queryid, qtype);
 	}
 
 	void addQuery(String querySql, String queryName) {
@@ -112,7 +113,10 @@ public class LogStream {
 		// addSink
 		// execute
 		if (PP.matcher(querySql).find()) {
-			addQueryFreq(querySql, queryName);
+			addQueryFreqPred(querySql, queryName, QueryType.FrequentPattern);
+			return;
+		} else if (PR.matcher(querySql).find()) {
+			addQueryFreqPred(querySql, queryName, QueryType.Predict);
 			return;
 		}
 		if (!ddlExecuted) {
@@ -155,6 +159,14 @@ public class LogStream {
 		return null;
 	}
 
+	private void refreshFreqPred(int qid, QueryType qtype) {
+		if (qtype == QueryType.FrequentPattern) {
+			refreshFrequentPatterns(qid);
+		} else {
+			refreshPredict(qid);
+		}
+	}
+
 	private void refreshFrequentPatterns(int qid) {
 		if (lsType != LogStreamType.DMKF) {
 			return;
@@ -187,6 +199,45 @@ public class LogStream {
 				resultFreq.add(row);
 			}
 			query.result = resultFreq;
+			return;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private void refreshPredict(int qid) {
+		if (lsType != LogStreamType.DMKF) {
+			return;
+		}
+		Query query = getquery(qid);
+		String eventsSeqSql = dm2kafka.newPredSql(query.caseField, query.eventsFields, query.timeField);
+		try {
+			ConnectDM dm = new ConnectDM();
+			dm.connect();
+			SqlResultData result = dm.querySql(eventsSeqSql);
+			dm.disConnect();
+			List<List<String>> seqs = new ArrayList<>();
+			for (String[] row : result.dataMatrix) {
+				if (Utils.isGoodStringArray(row))
+					seqs.add(new ArrayList<>(Arrays.asList(row)));
+			}
+			EventPredictor epr = new EventPredictor();
+			epr.train(seqs);
+			for (List<String> seq : seqs) {
+				seq.remove(0);
+			}
+			List<EventProb> eventProbs = epr.predictBeautifulWithProb(seqs);
+			System.err.println("predicted size:" + eventProbs.size());
+			ArrayList<Object> resultPred = new ArrayList<Object>();
+			for (EventProb p : eventProbs) {
+				ArrayList<Object> row = new ArrayList<Object>();
+				row.add(String.join("->", p.happened));
+				row.add(p.pred);
+				row.add(p.prob);
+				resultPred.add(row);
+			}
+			query.result = resultPred;
 			return;
 		} catch (SQLException e) {
 			e.printStackTrace();

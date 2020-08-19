@@ -1,7 +1,5 @@
 package com.founder;
 
-import java.util.regex.Pattern;
-
 /**
  * Constants
  */
@@ -36,13 +34,16 @@ public class Constants {
 	public static final String BIZLOG_QUERY1_NAME = "最近10分钟新增次数";
 	public static final String BIZLOG_QUERY2 = "PATTERN\nDATAID\nOPERATIONNAME\nOPERATIONTIME";
 	public static final String BIZLOG_QUERY2_NAME = "Frequent Patterns";
+	public static final String BIZLOG_QUERY3 = "PREDICT\nDATAID\nOPERATIONNAME\nOPERATIONTIME";
+	public static final String BIZLOG_QUERY3_NAME = "Predict Event";
 
 	public static final String DMSQL1 = "select BIZID, DATAID, OPERATIONNAME, OPERATIONDESC, OPERATIONUSERID, OPERATIONTIME, OPERATIONUSERNAME, DUTY\n"
-			+ "from OA.ZT_BIZOBJECTLOG, UIM.APP_USER\n"
-			+ "where OPERATIONUSERID=LOGINNAME and OPERATIONNAME='新增'\n" + "order by OPERATIONTIME";
+			+ "from OA.ZT_BIZOBJECTLOG, UIM.APP_USER\n" + "where OPERATIONUSERID=LOGINNAME\n"
+			+ "order by OPERATIONTIME";
 	public static final String[][] LOGS = new String[][] { { BIZLOGNAME, DMSQL1 } };
 	public static final String[][] QUERIES = new String[][] { { BIZLOGNAME, BIZLOG_QUERY1, BIZLOG_QUERY1_NAME },
-			{ BIZLOGNAME, BIZLOG_QUERY2, BIZLOG_QUERY2_NAME } };
+			{ BIZLOGNAME, BIZLOG_QUERY2, BIZLOG_QUERY2_NAME },
+			{ BIZLOGNAME, BIZLOG_QUERY3, BIZLOG_QUERY3_NAME } };
 
 	public static void main(String[] args) {
 		System.out.println("LOGS:");
