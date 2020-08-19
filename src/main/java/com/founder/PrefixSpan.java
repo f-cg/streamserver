@@ -35,16 +35,24 @@ class ProjectedIndex {
 public class PrefixSpan<T> {
 	private int minSup = 2;
 	double minSupDefault;
+	int minLenDefault;
+	int sortLenDefault;
 	ArrayList<ArrayList<T>> seqs;
 	/* FrequentPatterns<T> freqpatt; */
 	ArrayList<FrequentPattern<T>> results;
 
-	PrefixSpan(double minsup) {
+	PrefixSpan(double minsup, int minlen, int sortlen) {
 		this.minSupDefault = minsup;
+		this.minLenDefault = minlen;
+		this.sortLenDefault = sortlen;
+	}
+
+	PrefixSpan(double minsup) {
+		this(minsup, 1, 0);
 	}
 
 	PrefixSpan() {
-		this.minSupDefault = 0.1;
+		this(0.1);
 	}
 
 	private void frequentRec(ArrayList<T> patt, ArrayList<ProjectedIndex> projectedIndices) {
@@ -87,6 +95,7 @@ public class PrefixSpan<T> {
 		}
 		ArrayList<T> initPattern = new ArrayList<T>();
 		frequentRec(initPattern, projectedIndices);
+		sortResults();
 		return this.results;
 	}
 
@@ -152,16 +161,26 @@ public class PrefixSpan<T> {
 		return seqs;
 	}
 
-	void sortResults() {
+	private void sortResults() {
 		this.results.sort(new Comparator<FrequentPattern<T>>() {
 			@Override
 			public int compare(FrequentPattern<T> f1, FrequentPattern<T> f2) {
-				if (f1.frequence != f2.frequence)
-					return f1.frequence - f2.frequence;
-				else {
-					int len1 = f1.pattern.size();
-					int len2 = f2.pattern.size();
-					return len1 - len2;
+				int len1 = f1.pattern.size();
+				int len2 = f2.pattern.size();
+				// 如果两个都在sortlen一边，则按频率从大到小排序
+				if ((len1 - sortLenDefault) * (len2 - sortLenDefault) > 0) {
+					if (f1.frequence != f2.frequence) {
+						return -(f1.frequence - f2.frequence);
+					} else {
+						return -(len1 - len2);
+					}
+					// 否则两个在sortlen两边，则按长度从大到小排序
+				} else {
+					if (len1 != len2) {
+						return -(len1 - len2);
+					} else {
+						return -(f1.frequence - f2.frequence);
+					}
 				}
 			}
 		});

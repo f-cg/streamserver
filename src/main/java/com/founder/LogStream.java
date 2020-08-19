@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -185,12 +184,6 @@ public class LogStream {
 					seqs.add(new ArrayList<>(Arrays.asList(row[0].split("->"))));
 			}
 			ArrayList<FrequentPattern<String>> freqpatt = pfs.run(seqs);
-			freqpatt.sort(new Comparator<FrequentPattern<String>>() {
-				@Override
-				public int compare(FrequentPattern<String> p1, FrequentPattern<String> p2) {
-					return p1.frequence - p2.frequence;
-				}
-			});
 			ArrayList<Object> resultFreq = new ArrayList<Object>();
 			for (FrequentPattern<String> p : freqpatt) {
 				ArrayList<Object> row = new ArrayList<Object>();
