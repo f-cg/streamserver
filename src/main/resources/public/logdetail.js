@@ -3,7 +3,7 @@
  *
  */
 var tableTemplate = `
-<div>
+<div class="table-container">
 <table class="table">
     <thead>
         {{#headers}}
@@ -42,7 +42,7 @@ var chartTemplate = `
 </div>
 `
 var queryChartsAdd = `
-<button type="button" class="hovershow-show" onclick="addChart(this);">增加图表</button>
+<button type="button" class="hovershow-show" onclick="addChartClicked(this);">增加图表</button>
 `
 /**
  * query=(label,charts=[chart])
@@ -70,6 +70,17 @@ var queryTemplate = `
 
 var DEBUG = true;
 var id = idx => document.getElementById(idx);
+
+var QueryType = {
+    FlinkSQL: "FlinkSQL",
+    FrequentPattern: "FrequentPattern",
+    Predict: "Predict",
+}
+
+var ChartType = {
+    graph: "graph",
+    table: "table",
+}
 
 let logId = id("log-id").value.trim()
 console.log(logId)
@@ -282,18 +293,49 @@ function getDefaultOption(query) {
 
 function getOrCreateCharts(qid) {
     let query = getQuery(qid);
-    if (query.queryCharts == null || query.queryCharts == []) {
-        let ec = echarts.init(qdom(qid).getElementsByClassName('chart-display')[0]);
-        let option = getDefaultOption(query);
-        query.queryCharts = [{chartInstance: ec, customizedOption: {option: option}}];
+    if (query.qtype == QueryType.FlinkSQL) {
+        if (query.queryCharts == null || query.queryCharts == []) {
+            let ec = echarts.init(qdom(qid).getElementsByClassName('chart-display')[0]);
+            let option = getDefaultOption(query);
+            query.queryCharts = [{ctype: "graph", chartInstance: ec, customizedOption: {option: option}}];
+        }
+    } else if (query.qtype == QueryType.FrequentPattern || query.qtype == QueryType.Predict) {
+        if (query.queryCharts == null || query.queryCharts == []) {
+            query.queryCharts = [{ctype: "table"}];
+        }
+    } else {
+        console.error("no such query type!");
     }
     return query.queryCharts;
+}
+
+function drawChart(qid, cid) {
+    //// TODO:  <19-08-20, yourname> fieldNames to every query //
+    console.log("draw chart");
+    let query = getQuery(qid);
+    let chart = getOrCreateCharts(qid)[cid];
+    if (chart.ctype == ChartType.graph) {
+        let option = chart.customizedOption.option;
+        option.dataset = {
+            source: query.data
+        }
+        console.log(option);
+        print(JSON.stringify(option));
+        chart.chartInstance.setOption(option);
+    }else if (chart.ctype == ChartType.table) {
+    }
 }
 
 function drawQuery(qid) {
     print('draw query ' + qid);
     let querynode = qdom(qid);
     let query = getQuery(qid)
+
+    querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
+    querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
+    console.log("draw");
+
+    let charts = getOrCreateCharts(qid);
     if (query.qtype == "FrequentPattern") {
         print("FrequentPattern draw");
         print(query.data);
@@ -325,11 +367,6 @@ function drawQuery(qid) {
         chart0.innerHTML = rendered;
         return;
     }
-    querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
-    querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
-    console.log("draw");
-
-    let charts = getOrCreateCharts(qid);
     for (let i = 0; i < charts.length; i++) {
         console.log("draw chart");
         let option = charts[i].customizedOption.option;
@@ -342,24 +379,58 @@ function drawQuery(qid) {
     }
 }
 
-function addChart(that) {
+var chartToAdd = {
+    qid: null,
+    ctype: null
+}
+
+function addChartClicked(that) {
     console.log(that);
     let qid = Number.parseInt(qdom(that).id.slice(1))
-    let query = getQuery(qid);
-    if (query.qtype == "FrequentPattern") {
+    chartToAdd.qid = qid;
+    $("#add-chart-modal").modal("show");
+}
+function addChart(that) {
+    console.log(chartToAdd);
+    if (id("chart-type-graph").checked) {
+        chartToAdd.ctype = ChartType.graph;
+    } else if (id("chart-type-table").checked) {
+        chartToAdd.ctype = ChartType.table;
+    } else {
         return;
     }
-    let queryDom = qdom(that);
+    let ctype = chartToAdd.ctype;
+    let qid = chartToAdd.qid;
+    let query = getQuery(qid);
+    let queryDom = qdom(qid);
     let charts = queryDom.getElementsByClassName("charts")[0];
-    let view = {
+    if (query.qtype == QueryType.FlinkSQL) {
+        if (ctype == ChartType.graph) {
+            let view = {
+            }
+            let rendered = Mustache.render(chartTemplate, view);
+            charts.insertAdjacentHTML('beforeend', rendered);
+            charts_displays = charts.getElementsByClassName('chart-display')
+            let ec = echarts.init(charts_displays[charts_displays.length - 1]);
+            let option = getDefaultOption(query);
+            query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
+            drawQuery(qid);
+        } else if (ctype == ChartType.table) {
+            let view = {
+                items: query.data,
+                headers: [
+                    query.fieldNames
+                ]
+            }
+            let rendered = Mustache.render(tableTemplate, view);
+            charts.insertAdjacentHTML('beforeend', rendered);
+            // query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
+        }
+    } else if (query.qtype == QueryType.FrequentPattern || query.qtype == QueryType.Predict) {
+        return;
+    } else {
+        console.error("no such query type!" + query.qtype);
     }
-    let rendered = Mustache.render(chartTemplate, view);
-    charts.insertAdjacentHTML('beforeend', rendered);
-    charts_displays = charts.getElementsByClassName('chart-display')
-    let ec = echarts.init(charts_displays[charts_displays.length - 1]);
-    let option = getDefaultOption(query);
-    query.queryCharts.push({chartInstance: ec, customizedOption: {option: option}});
-    drawQuery(qid);
 }
 
 function delChartData(qid, cidx) {
