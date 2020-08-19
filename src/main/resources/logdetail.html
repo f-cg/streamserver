@@ -29,6 +29,9 @@
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-frequent-patterion-modal">
             频繁模式
         </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-predict-modal">
+            事件预测
+        </button>
         <button type="button" class="btn btn-secondary" data-toggle="modal">
             异常模式
         </button>
@@ -155,6 +158,49 @@
                         取消
                     </button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerFPQuery()">
+                        确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="add-query-predict-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    新增事件预测查询
+                </div>
+                <div class="modal-body">
+                    <div class="form-group form-inline">
+                        <label for="case-field-predict">
+                            分组字段
+                        </label>
+                        <input type="text" name="case-field-predict" value="" id="case-field-predict" required>
+                    </div>
+                    <div class="form-group form-inline">
+                        <label for="events-field-predict">
+                            事件字段
+                        </label>
+                        <input type="text" name="events-field-predict" value="" id="events-field-predict" required>
+                    </div>
+                    <div class="form-group form-inline">
+                        <label for="time-field-predict">
+                            时间顺序字段
+                        </label>
+                        <input type="text" name="time-field-predict" value="" id="time-field-predict" required>
+                    </div>
+                    <div class="form-group form-inline">
+                        <label for="pd-query-name">
+                            查询名称
+                        </label>
+                        <input type="text" name="pd-query-name" value="" id="pd-query-name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerPDQuery()">
                         确认
                     </button>
                 </div>

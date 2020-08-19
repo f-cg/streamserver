@@ -3,7 +3,7 @@
  *
  */
 var tableTemplate = `
-<div class="table-responsive">
+<div>
 <table class="table">
     <thead>
         {{#headers}}
@@ -221,6 +221,21 @@ function registerQuery() {
         id("query-sql").value = "";
     } else {
         alert("查询语句和查询名称不能为空!");
+    }
+}
+
+function registerPDQuery() {
+    let caseField = id("case-field-predict").value.trim();
+    let eventsField = id("events-field-predict").value.trim();
+    let timeField = id("time-field-predict").value.trim();
+    let qname = id("pd-query-name").value.trim();
+    if (caseField.length > 0 && timeField.length > 0 && eventsField.length > 0 && qname.length > 0) {
+        let sql = ["PREDICT", caseField, eventsField, timeField].join("\n");
+        console.log(sql);
+        let rq = {"type": "register", "logId": logId, "query": sql, "queryName": qname};
+        ws.send(JSON.stringify(rq));
+    } else {
+        alert("字段以及查询名称不能为空!");
     }
 }
 
