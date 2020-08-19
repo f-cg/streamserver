@@ -24,4 +24,14 @@ public class Utils {
 		}
 		return -1;
 	}
+
+	public static boolean isGoodStringArray(String[] arr) {
+		if (arr == null)
+			return false;
+		for (String string : arr) {
+			if (string == null)
+				return false;
+		}
+		return true;
+	}
 }

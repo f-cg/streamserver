@@ -169,7 +169,8 @@ public class LogStream {
 			PrefixSpan<String> pfs = new PrefixSpan<String>(0.1);
 			ArrayList<ArrayList<String>> seqs = new ArrayList<ArrayList<String>>();
 			for (String[] row : result.dataMatrix) {
-				seqs.add(new ArrayList<>(Arrays.asList(row[0].split("->"))));
+				if (Utils.isGoodStringArray(row))
+					seqs.add(new ArrayList<>(Arrays.asList(row[0].split("->"))));
 			}
 			ArrayList<FrequentPattern<String>> freqpatt = pfs.run(seqs);
 			freqpatt.sort(new Comparator<FrequentPattern<String>>() {
