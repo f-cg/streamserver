@@ -29,7 +29,7 @@ public class KafkaSender {
 	}
 
 	KafkaSender(String topic) {
-		this(topic, 1000);
+		this(topic, Constants.KAFKA_SENDER_TIME_INTERVAL);
 	}
 
 	public void send(ArrayList<String> arrayList, int timeInterval) {
