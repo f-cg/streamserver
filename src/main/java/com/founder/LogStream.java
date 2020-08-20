@@ -177,7 +177,7 @@ public class LogStream {
 			dm.connect();
 			SqlResultData result = dm.querySql(eventsSeqSql);
 			dm.disConnect();
-			PrefixSpan<String> pfs = new PrefixSpan<String>(0.1);
+			PrefixSpan<String> pfs = new PrefixSpan<String>(0.05, 0, 1);
 			ArrayList<ArrayList<String>> seqs = new ArrayList<ArrayList<String>>();
 			for (String[] row : result.dataMatrix) {
 				if (Utils.isGoodStringArray(row))
