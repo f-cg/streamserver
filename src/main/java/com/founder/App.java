@@ -1,9 +1,16 @@
 package com.founder;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
@@ -96,7 +103,78 @@ public class App {
 		Runtime.getRuntime().addShutdownHook(new ExitHandler());
 	}
 
+	public void getUserConfig() {
+		File file = new File("connectinfo");
+		String filepath = file.getAbsoluteFile().toPath().toString();
+		Scanner scanner = new Scanner(System.in);
+		if (file.exists()) {
+			System.out.println("发现上次保存配置，是否从" + filepath + "中加载? y/N");
+			if (scanner.hasNextLine() && scanner.nextLine().strip().equals("y")) {
+				try {
+					List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+					if (lines.size() >= 3) {
+						Constants.dmUrl = lines.get(0);
+						Constants.dmUserName = lines.get(1);
+						Constants.dmPassword = lines.get(2);
+						System.out.println("已加载");
+						scanner.close();
+						return;
+					}
+				} catch (IOException e) {
+					System.err.println("加载connecinfo错误");
+				}
+			}
+		}
+
+		String str;
+		while (true) {
+			System.out.println("请输入达梦数据库IP:PORT，示例：162.105.146.37:5326");
+			if (scanner.hasNextLine()) {
+				str = scanner.nextLine().strip();
+				if (str.length() > 0) {
+					Constants.dmUrl = "jdbc:dm://" + str.strip();
+					break;
+				}
+			}
+		}
+		while (true) {
+			System.out.println("请输入达梦数据库用户名");
+			if (scanner.hasNextLine()) {
+				str = scanner.nextLine().strip();
+				if (str.length() > 0) {
+					Constants.dmUserName = str.strip();
+					break;
+				}
+			}
+		}
+		while (true) {
+			System.out.println("请输入达梦数据库用户" + Constants.dmUserName + "的密码");
+			if (scanner.hasNextLine()) {
+				str = scanner.nextLine().strip();
+				if (str.length() > 0) {
+					Constants.dmPassword = str.strip();
+					break;
+				}
+			}
+		}
+		scanner.close();
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fileWriter);
+			bw.write(String.join("\n",
+					new String[] { Constants.dmUrl, Constants.dmUserName, Constants.dmPassword }));
+			bw.close();
+			System.out.println("这些信息保存在了" + filepath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void run() throws Exception {
+		getUserConfig();
 		if (!ExecKafka.execKafka()) {
 			ExecKafka.stopKafka();
 			return;
