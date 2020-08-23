@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.plugin.rendering.JavalinRenderer;
+import org.apache.flink.streaming.connectors.kafka.KafkaTableSourceSinkFactory;
 import io.javalin.plugin.rendering.template.JavalinMustache;
 
 public class App {
@@ -109,7 +110,7 @@ public class App {
 		Scanner scanner = new Scanner(System.in);
 		if (file.exists()) {
 			System.out.println("发现上次保存配置，是否从" + filepath + "中加载? y/N");
-			if (scanner.hasNextLine() && scanner.nextLine().strip().equals("y")) {
+			if (scanner.hasNextLine() && scanner.nextLine().trim().equals("y")) {
 				try {
 					List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 					if (lines.size() >= 3) {
@@ -130,9 +131,9 @@ public class App {
 		while (true) {
 			System.out.println("请输入达梦数据库IP:PORT，示例：162.105.146.37:5326");
 			if (scanner.hasNextLine()) {
-				str = scanner.nextLine().strip();
+				str = scanner.nextLine().trim();
 				if (str.length() > 0) {
-					Constants.dmUrl = "jdbc:dm://" + str.strip();
+					Constants.dmUrl = "jdbc:dm://" + str.trim();
 					break;
 				}
 			}
@@ -140,9 +141,9 @@ public class App {
 		while (true) {
 			System.out.println("请输入达梦数据库用户名");
 			if (scanner.hasNextLine()) {
-				str = scanner.nextLine().strip();
+				str = scanner.nextLine().trim();
 				if (str.length() > 0) {
-					Constants.dmUserName = str.strip();
+					Constants.dmUserName = str.trim();
 					break;
 				}
 			}
@@ -150,9 +151,9 @@ public class App {
 		while (true) {
 			System.out.println("请输入达梦数据库用户" + Constants.dmUserName + "的密码");
 			if (scanner.hasNextLine()) {
-				str = scanner.nextLine().strip();
+				str = scanner.nextLine().trim();
 				if (str.length() > 0) {
-					Constants.dmPassword = str.strip();
+					Constants.dmPassword = str.trim();
 					break;
 				}
 			}
