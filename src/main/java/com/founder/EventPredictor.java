@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +33,18 @@ public class EventPredictor {
 	private static final int GOODSIZE = 40;
 	private static final int SMALLSIZE = 10;
 	private static final int TOOSMALLSIZE = 2;
+	int minLenDefault;
+	int sortLenDefault;
 	HashMap<String, HashMap<String, Integer>> trainMap;
 
-	EventPredictor() {
+	EventPredictor(int minlen, int sortlen) {
 		trainMap = new HashMap<>();
+		this.minLenDefault = minlen;
+		this.sortLenDefault = sortlen;
+	}
+
+	EventPredictor() {
+		this(1, 0);
 	}
 
 	private List<List<String>> ReadCSV(String url) {
@@ -153,20 +160,9 @@ public class EventPredictor {
 	}
 
 	public List<EventProb> predictBeautifulWithProb(List<List<String>> seqs) {
-		seqs = (ArrayList) seqs.stream().distinct().collect(Collectors.toList());
+		seqs = (ArrayList<List<String>>) seqs.stream().distinct().collect(Collectors.toList());
 		List<EventProb> results = predictWithProb(seqs);
-		results.sort(new Comparator<EventProb>() {
-			@Override
-			public int compare(EventProb ep0, EventProb ep1) {
-				double diff = ep1.prob - ep0.prob;
-				if (diff > 0)
-					return 1;
-				else if (diff < 0)
-					return -1;
-				else
-					return 0;
-			}
-		});
+		this.sortResults(results);
 		if (results.size() < SMALLSIZE) {
 			return results;
 		}
@@ -186,6 +182,31 @@ public class EventPredictor {
 			simpleResult.add(eventProb.pred);
 		}
 		return simpleResult;
+	}
+
+	private void sortResults(List<EventProb> seqs) {
+		seqs.sort(new Comparator<EventProb>() {
+			@Override
+			public int compare(EventProb p1, EventProb p2) {
+				int len1 = p1.happened.size();
+				int len2 = p2.happened.size();
+				// 如果两个都在sortlen一边，则按频率从大到小排序
+				if ((len1 - sortLenDefault) * (len2 - sortLenDefault) > 0) {
+					if (p1.prob != p2.prob) {
+						return -(int) Math.signum(p1.prob - p2.prob);
+					} else {
+						return -(len1 - len2);
+					}
+					// 否则两个在sortlen两边，则按长度从大到小排序
+				} else {
+					if (len1 != len2) {
+						return -(len1 - len2);
+					} else {
+						return -(int) Math.signum(p1.prob - p2.prob);
+					}
+				}
+			}
+		});
 	}
 
 	public void train(List<List<String>> trainData) {
