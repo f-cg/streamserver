@@ -55,7 +55,6 @@ ${queryChartsAdd}
 `
 var queryChartsTemplate = `
 <div class="charts">
-{{> chart}}
 </div>
 `
 var queryTemplate = `

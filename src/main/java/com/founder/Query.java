@@ -8,6 +8,10 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.json.JSONObject;
 
+enum ChartType {
+	graph, table;
+}
+
 enum QueryType {
 	FlinkSQL, FrequentPattern, Predict;
 }
@@ -23,18 +27,26 @@ public class Query extends Thread {
 	String[] eventsFields = null;
 	String timeField = null;
 	final QueryType qtype;
+	final ChartType defaultctype;
 
-	Query(String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv) {
+	Query(String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv,
+			ChartType defaultctype) {
 		qtype = QueryType.FlinkSQL;
 		this.qsql = qsql;
 		this.fieldNames = Arrays.asList(schema.getFieldNames());
 		this.qid = qid;
 		this.qname = qname;
 		this.tEnv = tEnv;
+		if (defaultctype != null)
+			this.defaultctype = defaultctype;
+		else
+			this.defaultctype = ChartType.graph;
 	}
 
-	Query(String qsql, String caseKey, String[] eventsKeys, String timeField, int qid, String qname, QueryType qtype) {
+	Query(String qsql, String caseKey, String[] eventsKeys, String timeField, int qid, String qname,
+			QueryType qtype, ChartType defaultctype) {
 		this.qtype = qtype;
+		this.defaultctype = defaultctype;
 		this.qsql = qsql;
 		this.caseField = caseKey;
 		this.eventsFields = eventsKeys;
@@ -46,7 +58,7 @@ public class Query extends Thread {
 		} else if (qtype == QueryType.Predict) {
 			this.fieldNames = Arrays.asList(new String[] { "事件序列", "预测", "概率" });
 		} else {
-			System.err.println("no such query type"+qtype);
+			System.err.println("no such query type" + qtype);
 			System.exit(1);
 		}
 	}
@@ -55,6 +67,7 @@ public class Query extends Thread {
 		JSONObject js = new JSONObject();
 		js.put("type", "queryMeta");
 		js.put("qtype", qtype);
+		js.put("defaultctype", defaultctype);
 		js.put("queryId", qid);
 		js.put("queryName", qname);
 		js.put("fieldNames", fieldNames);
@@ -67,7 +80,7 @@ public class Query extends Thread {
 			js.put("caseField", caseField);
 			js.put("eventsFields", eventsFields);
 		} else {
-			System.err.println("no such query type"+qtype);
+			System.err.println("no such query type" + qtype);
 			System.exit(1);
 		}
 		return js.toString();

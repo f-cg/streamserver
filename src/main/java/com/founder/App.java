@@ -21,7 +21,6 @@ import org.json.JSONObject;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.plugin.rendering.JavalinRenderer;
-import org.apache.flink.streaming.connectors.kafka.KafkaTableSourceSinkFactory;
 import io.javalin.plugin.rendering.template.JavalinMustache;
 
 public class App {
@@ -68,9 +67,9 @@ public class App {
 	/**
 	 * 注册查询
 	 */
-	public void registerQuery(String logid, String query, String qname) {
+	public void registerQuery(String logid, String query, String qname, String defaultctype) {
 		LogStream ls = lsm.getls(logid);
-		ls.addQuery(query, qname);
+		ls.addQuery(query, qname, defaultctype);
 	}
 
 	/**
@@ -81,7 +80,7 @@ public class App {
 			addLog(LOG[0], LOG[1]);
 		}
 		for (String[] QUERY : Constants.QUERIES) {
-			registerQuery(QUERY[0], QUERY[1], QUERY[2]);
+			registerQuery(QUERY[0], QUERY[1], QUERY[2], null);
 		}
 	}
 
@@ -269,9 +268,9 @@ public class App {
 				JSONObject js = new JSONObject(msg);
 				String type = js.getString("type");
 				if (type.equals("register")) {
-					String query = (String) js.get("query");
-					String qname = (String) js.get("queryName");
-					registerQuery(logid, query, qname);
+					String query = js.getString("query");
+					String qname = js.getString("queryName");
+					registerQuery(logid, query, qname, js.optString("defaultctype"));
 				} else if (type.equals("queryMeta")) {
 					int qid = js.getInt("queryId");
 					LogStream ls = lsm.getls(logid);

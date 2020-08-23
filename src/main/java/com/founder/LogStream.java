@@ -93,13 +93,14 @@ public class LogStream {
 	/**
 	 * @param querySql PATTERN\ncaseKey\nvalueKey1,valueKey2
 	 */
-	void addQueryFreqPred(String querySql, String queryName, QueryType qtype) {
+	void addQueryFreqPred(String querySql, String queryName, QueryType qtype, ChartType defaultChartType) {
 		String[] lines = querySql.split("\n");
 		String caseKey = lines[1];
 		String[] eventsKeys = lines[2].split(",");
 		String timeField = lines[3];
 		int queryid = queryinc++;
-		Query query = new Query(querySql, caseKey, eventsKeys, timeField, queryid, queryName, qtype);
+		Query query = new Query(querySql, caseKey, eventsKeys, timeField, queryid, queryName, qtype,
+				defaultChartType);
 		queries.add(query);
 		System.err.println("before broadcast");
 		broadcast(queriesListString());
@@ -107,16 +108,34 @@ public class LogStream {
 		refreshFreqPred(queryid, qtype);
 	}
 
-	void addQuery(String querySql, String queryName) {
+	void addQuery(String querySql, String queryName, String defaultctype) {
 		// sql query
 		// addSink
 		// execute
 		if (PP.matcher(querySql).find()) {
-			addQueryFreqPred(querySql, queryName, QueryType.FrequentPattern);
+			ChartType defaultChartType;
+			if (defaultctype == null || defaultctype == "table") {
+				defaultChartType = ChartType.table;
+			} else {
+				defaultChartType = ChartType.graph;
+			}
+			addQueryFreqPred(querySql, queryName, QueryType.FrequentPattern, defaultChartType);
 			return;
 		} else if (PR.matcher(querySql).find()) {
-			addQueryFreqPred(querySql, queryName, QueryType.Predict);
+			ChartType defaultChartType;
+			if (defaultctype == null || defaultctype == "table") {
+				defaultChartType = ChartType.table;
+			} else {
+				defaultChartType = ChartType.graph;
+			}
+			addQueryFreqPred(querySql, queryName, QueryType.Predict, defaultChartType);
 			return;
+		}
+		ChartType defaultChartType;
+		if (defaultctype == null || defaultctype == "graph") {
+			defaultChartType = ChartType.graph;
+		} else {
+			defaultChartType = ChartType.table;
 		}
 		if (!ddlExecuted) {
 			tEnv.sqlUpdate(initddl);
@@ -131,7 +150,7 @@ public class LogStream {
 		/* System.out.println(resultSchema); */
 		/* System.out.println(f0type); */
 		int queryid = queryinc++;
-		Query query = new Query(querySql, resultSchema, queryid, queryName, tEnv);
+		Query query = new Query(querySql, resultSchema, queryid, queryName, tEnv, defaultChartType);
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
 		queries.add(query);
 		broadcast(queriesListString());
