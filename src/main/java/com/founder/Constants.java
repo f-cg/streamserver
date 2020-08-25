@@ -56,8 +56,9 @@ public class Constants {
 	// 复杂事件
 	public static final String BIZLOG_QUERY_CEP1 = " SELECT *\n" + "FROM BIZLOG\n" + "MATCH_RECOGNIZE (\n"
 			+ "PARTITION BY DATAID\n" + "ORDER BY OPERATIONTIME\n" + "MEASURES\n"
-			+ "A.OPERATIONTIME AS 新增时间,\n" + "C.OPERATIONTIME AS 删除时间\n" + "ONE ROW PER MATCH\n" + "PATTERN (A C)\n"
-			+ "DEFINE\n" + "A AS OPERATIONNAME = '新增',\n" + "C AS OPERATIONNAME = '删除'\n" + ") AS T";
+			+ "A.OPERATIONTIME AS 新增时间,\n" + "C.OPERATIONTIME AS 删除时间\n" + "ONE ROW PER MATCH\n"
+			+ "PATTERN (A C)\n" + "DEFINE\n" + "A AS OPERATIONNAME = '新增',\n"
+			+ "C AS OPERATIONNAME = '删除'\n" + ") AS T";
 	public static final String BIZLOG_QUERY_CEP1_NAME = "新增又删除的事件";
 
 	// 日志流定义列表
