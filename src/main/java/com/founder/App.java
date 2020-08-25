@@ -175,6 +175,7 @@ public class App {
 	}
 
 	public void run() throws Exception {
+		Constants.load();
 		getUserConfig();
 		if (!ExecKafka.execKafka()) {
 			ExecKafka.stopKafka();

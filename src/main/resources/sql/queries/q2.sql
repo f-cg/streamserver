@@ -1,0 +1,9 @@
+-- 频繁模式 单一字段
+BIZLOG
+----
+PATTERN
+DATAID
+OPERATIONNAME
+OPERATIONTIME
+----
+频繁的操作序列

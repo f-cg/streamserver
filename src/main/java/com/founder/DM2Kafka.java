@@ -177,8 +177,7 @@ public class DM2Kafka extends Thread {
 	}
 
 	public static void startExamples() {
-		String topic = "BIZLOG";
-		DM2Kafka dmk = new DM2Kafka(Constants.DMSQL1, topic);
+		DM2Kafka dmk = new DM2Kafka(Constants.LOGS[0][1], Constants.LOGS[0][0]);
 		dmk.firstRun();
 		dmk.start();
 	}

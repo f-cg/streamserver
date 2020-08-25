@@ -1,0 +1,9 @@
+-- 事件预测 两个字段
+BIZLOG
+----
+PREDICT
+DATAID
+OPERATIONNAME,DUTY
+OPERATIONTIME
+----
+用户角色和操作序列预测
