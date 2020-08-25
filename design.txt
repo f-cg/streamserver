@@ -85,8 +85,8 @@ eventsFields:[]
 Queries=[
  {
   qid:,
-  qtype:FlinkSQL|FrequentPattern,
-  fieldNames:[field1,...], (for FrequentPattern)
+  qtype:FlinkSQL|FrequentPattern|Predict,
+  fieldNames:[field1,...],
   querySql:,
   data:data,
   queryCharts:[
