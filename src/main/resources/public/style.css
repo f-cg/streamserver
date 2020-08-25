@@ -42,7 +42,7 @@
     background-color: #06a;
 }
 details > summary {
-    width: 200px;
+    width: 100%;
     padding: 4px;
     border: none;
     background-color: #eee;
