@@ -86,6 +86,7 @@ Queries=[
  {
   qid:,
   qtype:FlinkSQL|FrequentPattern,
+  defaultctype:graph|table,
   fieldNames:[field1,...], (for FrequentPattern)
   querySql:,
   data:data,

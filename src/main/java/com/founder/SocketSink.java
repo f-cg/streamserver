@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 
-import com.esotericsoftware.kryo.util.ObjectMap;
+/* import com.esotericsoftware.kryo.util.ObjectMap; */
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;

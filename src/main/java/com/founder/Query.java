@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+/* import org.apache.flink.table.api.bridge.java.StreamTableEnvironment; */
 import org.json.JSONObject;
 
 enum ChartType {
@@ -22,21 +23,21 @@ public class Query extends Thread {
 	String qname;
 	List<String> fieldNames;
 	ArrayList<Object> result = new ArrayList<>();
-	StreamTableEnvironment tEnv;
+	StreamExecutionEnvironment env;
 	String caseField = null;
 	String[] eventsFields = null;
 	String timeField = null;
 	final QueryType qtype;
 	final ChartType defaultctype;
 
-	Query(String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv,
+	Query(String qsql, TableSchema schema, int qid, String qname, StreamExecutionEnvironment env,
 			ChartType defaultctype) {
 		qtype = QueryType.FlinkSQL;
 		this.qsql = qsql;
 		this.fieldNames = Arrays.asList(schema.getFieldNames());
 		this.qid = qid;
 		this.qname = qname;
-		this.tEnv = tEnv;
+		this.env = env;
 		if (defaultctype != null)
 			this.defaultctype = defaultctype;
 		else
@@ -97,7 +98,7 @@ public class Query extends Thread {
 	@Override
 	public void run() {
 		try {
-			this.tEnv.execute("Streaming Window SQL Job");
+			this.env.execute("Streaming Window SQL Job");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

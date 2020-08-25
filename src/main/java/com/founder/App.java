@@ -58,8 +58,9 @@ public class App {
 			return false;
 		} else {
 			System.err.println("new LogStream");
-			LogStream ls = new LogStream(name, ddl);
-			lsm.add(ls);
+			LogStream ls = new LogStream();
+			System.err.println("after LogStream");
+			/* lsm.add(ls); */
 			return true;
 		}
 	}
@@ -174,12 +175,12 @@ public class App {
 	}
 
 	public void run() throws Exception {
-		getUserConfig();
-		if (!ExecKafka.execKafka()) {
-			ExecKafka.stopKafka();
-			return;
-		}
-		this.CtrlC();
+		/* getUserConfig(); */
+		/* if (!ExecKafka.execKafka()) { */
+		/*         ExecKafka.stopKafka(); */
+		/*         return; */
+		/* } */
+		/* this.CtrlC(); */
 		/* System.out.println("System.out has been set to /tmp/print.txt"); */
 		/*
 		 * System.setOut(new PrintStream(new BufferedOutputStream(new

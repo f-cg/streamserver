@@ -13,10 +13,11 @@ import java.util.regex.Pattern;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.json.JSONObject;
 
@@ -30,7 +31,7 @@ public class LogStream {
 	 */
 	LogStreamType lsType;
 	String name;
-	final String initddl;
+	String initddl;
 	String DMSql;
 	String createdTime;
 	String executedTime;
@@ -43,16 +44,25 @@ public class LogStream {
 	Integer queryinc = 1;
 	List<Query> queries = new LinkedList<>();
 	DM2Kafka dm2kafka;
-	private static final Pattern PP = Pattern.compile("^PATTERN");
-	private static final Pattern PR = Pattern.compile("^PREDICT");
+	private static Pattern PP = Pattern.compile("^PATTERN");
+	private static Pattern PR = Pattern.compile("^PREDICT");
 
-	LogStream(String name, String initddl) {
+	public LogStream() {
+		System.err.println("LogStream called");
+	}
+	public LogStream(String name, String initddl) {
+		System.err.println("LogStream called");
 		this.name = name;
+		System.err.println("before checkLogStreamType");
 		this.lsType = checkLogStreamType(initddl);
+		System.err.println("after checkLogStreamType");
 		if (lsType == LogStreamType.DMKF) {
 			this.DMSql = initddl;
+			System.err.println("before new dm2kafka");
 			dm2kafka = new DM2Kafka(initddl, name);
+			System.err.println("before dm2kafka firstRun");
 			dm2kafka.firstRun();
+			System.err.println("after dm2kafka firstRun");
 			String createSql = this.dm2kafka.genCreateSql();
 			this.initddl = createSql;
 			dm2kafka.start();
@@ -61,11 +71,12 @@ public class LogStream {
 		}
 		this.createdTime = this.currentDateString();
 		this.executedTime = "未执行";
+		System.err.println("In LogStream");
 
 		env = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(Constants.parallel);
 		settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
 
-		tEnv = StreamTableEnvironment.create(env, settings);
+		this.tEnv = StreamTableEnvironment.create(env, settings);
 		System.err.println("LogStream constructed!");
 	}
 
@@ -138,25 +149,27 @@ public class LogStream {
 			defaultChartType = ChartType.table;
 		}
 		if (!ddlExecuted) {
-			tEnv.sqlUpdate(initddl);
+			/* tEnv.sqlUpdate(initddl); */
+			this.tEnv.executeSql(initddl);
 			ddlExecuted = true;
 			this.executedTime = this.currentDateString();
 		}
 		System.out.println("add_query sqlQuery");
-		Table result = tEnv.sqlQuery(querySql);
+		Table result = this.tEnv.sqlQuery(querySql);
 		result.printSchema();
 		TableSchema resultSchema = result.getSchema();
 		/* Optional<DataType> f0type = resultSchema.getFieldDataType(0); */
 		/* System.out.println(resultSchema); */
 		/* System.out.println(f0type); */
 		int queryid = queryinc++;
-		Query query = new Query(querySql, resultSchema, queryid, queryName, tEnv, defaultChartType);
-		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
+		Query query = new Query(querySql, resultSchema, queryid, queryName, env, defaultChartType);
+		DataStream<Row> resultDs = this.tEnv.toAppendStream(result, Row.class);
 		queries.add(query);
 		broadcast(queriesListString());
 		broadcast(query.queryMetaString());
-		SocketSink sink = new SocketSink(name, queryid);
-		resultDs.addSink(sink);
+		PrintSinkFunction<Row> sinkhaha = new PrintSinkFunction<>();
+		/* SocketSink sink = new SocketSink(name, queryid); */
+		resultDs.addSink(sinkhaha);
 		/* sinks.put(queryid, sink); */
 		query.start();
 	}
