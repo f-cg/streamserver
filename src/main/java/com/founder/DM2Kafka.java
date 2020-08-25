@@ -61,9 +61,33 @@ public class DM2Kafka extends Thread {
 
 	public String newPredSql(String caseID, String[] eventsFields, String timeField) {
 		String eventsFieldsAsOne = String.join(" ||',' || ", eventsFields);
-		String selectFreqPattSql = "select "+caseID+"," + eventsFieldsAsOne + "\nfrom (\n" + sql + "\n)\n order by "+timeField;
+		String selectFreqPattSql = "select " + caseID + "," + eventsFieldsAsOne + "\nfrom (\n" + sql
+				+ "\n)\n order by " + timeField;
 		System.err.println(selectFreqPattSql);
 		return selectFreqPattSql;
+	}
+
+	public ArrayList<String> getOrderedFieldValues(String field) {
+		ArrayList<String> values = new ArrayList<>();
+		try {
+			String selectSql = "select " + field + ", count(*) as cnt\nfrom (\n" + sql + "\n)\n group by "
+					+ field + " order by cnt DESC";
+			System.err.println("selectSql:\n\n");
+			System.err.println(selectSql);
+			System.err.println("selectSql\n\n");
+			ConnectDM dm = new ConnectDM();
+			dm.connect();
+			SqlResultData result;
+			result = dm.querySql(selectSql);
+			dm.disConnect();
+			for (String[] row : result.dataMatrix) {
+				if (Utils.isGoodStringArray(row))
+					values.add(row[0]);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return values;
 	}
 
 	private void firstPullInit() {

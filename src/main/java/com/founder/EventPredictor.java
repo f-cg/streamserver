@@ -118,6 +118,16 @@ public class EventPredictor {
 		return res;
 	}
 
+	public List<EventProb> predictSeqWithProbs(ArrayList<ArrayList<String>> test_seq) {
+		List<String> seq = new ArrayList<>();
+		for (List<String> s : test_seq) {
+			seq.add(String.join(",", s));
+		}
+		List<List<String>> seqs = new ArrayList<>();
+		seqs.add(seq);
+		return predictWithProb(seqs);
+	}
+
 	public EventProb predictOneWithProb(List<String> test_seq) {
 		StringBuilder query = new StringBuilder();
 		if (test_seq.size() == 0) {

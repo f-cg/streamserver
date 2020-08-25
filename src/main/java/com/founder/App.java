@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,6 +283,22 @@ public class App {
 					LogStream ls = lsm.getls(logid);
 					ls.delquery(qid);
 					ctx.send(ls.queriesListString());
+				} else if (type.equals("Predict")) {
+					System.out.println("Predict");
+					int qid = js.getInt("queryId");
+					ArrayList<ArrayList<String>> seq = new ArrayList<>();
+					for (Object arr : js.getJSONArray("seq")) {
+						JSONArray jsarray = (JSONArray) arr;
+						ArrayList<String> values = new ArrayList<>();
+						for (Object v : jsarray) {
+							values.add((String) v);
+						}
+						seq.add(values);
+					}
+					LogStream ls = lsm.getls(logid);
+					Query qr = ls.getquery(qid);
+					qr.predictSeqFeedback(seq);
+					ctx.send(qr.queryDataString());
 				}
 			});
 		});

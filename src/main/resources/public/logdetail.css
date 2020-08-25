@@ -1,13 +1,28 @@
+.query {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 .chart-display {
     width: 100%;
     height: 400px;
 }
 .query-label {
-	background-color: pink;
+    background-color: pink;
 }
 .table-container {
-    background-color: #eee;
+    overflow: scroll;
     width: 100%;
     height: 350px;
-    overflow: scroll;
+    background-color: #eee;
+}
+
+.eventbox {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px;
+    border: 1px;
+    border-style: solid;
+}
+.eventbox-with-arrow {
+    display: inline-block;
 }

@@ -1,11 +1,7 @@
 package com.founder;
 
-import io.javalin.websocket.WsContext;
-
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +15,8 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.json.JSONObject;
+
+import io.javalin.websocket.WsContext;
 
 enum LogStreamType {
 	DMKF, KF, FS;
@@ -99,13 +97,13 @@ public class LogStream {
 		String[] eventsKeys = lines[2].split(",");
 		String timeField = lines[3];
 		int queryid = queryinc++;
-		Query query = new Query(querySql, caseKey, eventsKeys, timeField, queryid, queryName, qtype,
+		Query query = new Query(this, querySql, caseKey, eventsKeys, timeField, queryid, queryName, qtype,
 				defaultChartType);
 		queries.add(query);
 		System.err.println("before broadcast");
 		broadcast(queriesListString());
+		query.refresh();
 		broadcast(query.queryMetaString());
-		refreshFreqPred(queryid, qtype);
 	}
 
 	void addQuery(String querySql, String queryName, String defaultctype) {
@@ -150,7 +148,7 @@ public class LogStream {
 		/* System.out.println(resultSchema); */
 		/* System.out.println(f0type); */
 		int queryid = queryinc++;
-		Query query = new Query(querySql, resultSchema, queryid, queryName, tEnv, defaultChartType);
+		Query query = new Query(this, querySql, resultSchema, queryid, queryName, tEnv, defaultChartType);
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
 		queries.add(query);
 		broadcast(queriesListString());
@@ -175,86 +173,6 @@ public class LogStream {
 			}
 		}
 		return null;
-	}
-
-	private void refreshFreqPred(int qid, QueryType qtype) {
-		if (qtype == QueryType.FrequentPattern) {
-			refreshFrequentPatterns(qid);
-		} else {
-			refreshPredict(qid);
-		}
-	}
-
-	private void refreshFrequentPatterns(int qid) {
-		if (lsType != LogStreamType.DMKF) {
-			return;
-		}
-		Query query = getquery(qid);
-		String eventsSeqSql = dm2kafka.newFreqPattSql(query.caseField, query.eventsFields, query.timeField);
-		try {
-			ConnectDM dm = new ConnectDM();
-			dm.connect();
-			SqlResultData result = dm.querySql(eventsSeqSql);
-			dm.disConnect();
-			PrefixSpan<String> pfs = new PrefixSpan<String>(0.05, 0, 1);
-			ArrayList<ArrayList<String>> seqs = new ArrayList<ArrayList<String>>();
-			for (String[] row : result.dataMatrix) {
-				if (Utils.isGoodStringArray(row))
-					seqs.add(new ArrayList<>(Arrays.asList(row[0].split("->"))));
-			}
-			ArrayList<FrequentPattern<String>> freqpatt = pfs.run(seqs);
-			ArrayList<Object> resultFreq = new ArrayList<Object>();
-			for (FrequentPattern<String> p : freqpatt) {
-				ArrayList<Object> row = new ArrayList<Object>();
-				row.add(String.join("->", p.pattern));
-				row.add(p.frequence);
-				resultFreq.add(row);
-			}
-			query.result = resultFreq;
-			return;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return;
-		}
-	}
-
-	private void refreshPredict(int qid) {
-		if (lsType != LogStreamType.DMKF) {
-			return;
-		}
-		Query query = getquery(qid);
-		String eventsSeqSql = dm2kafka.newPredSql(query.caseField, query.eventsFields, query.timeField);
-		try {
-			ConnectDM dm = new ConnectDM();
-			dm.connect();
-			SqlResultData result = dm.querySql(eventsSeqSql);
-			dm.disConnect();
-			List<List<String>> seqs = new ArrayList<>();
-			for (String[] row : result.dataMatrix) {
-				if (Utils.isGoodStringArray(row))
-					seqs.add(new ArrayList<>(Arrays.asList(row)));
-			}
-			EventPredictor epr = new EventPredictor();
-			epr.train(seqs);
-			for (List<String> seq : seqs) {
-				seq.remove(0);
-			}
-			List<EventProb> eventProbs = epr.predictBeautifulWithProb(seqs);
-			System.err.println("predicted size:" + eventProbs.size());
-			ArrayList<Object> resultPred = new ArrayList<Object>();
-			for (EventProb p : eventProbs) {
-				ArrayList<Object> row = new ArrayList<Object>();
-				row.add(String.join("->", p.happened));
-				row.add(p.pred);
-				row.add(p.prob);
-				resultPred.add(row);
-			}
-			query.result = resultPred;
-			return;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return;
-		}
 	}
 
 	void delquery(int qid) {

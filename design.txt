@@ -37,6 +37,14 @@ browser --> server
 'queryId':queryId
 }
 
+请求预测
+{
+'type':'Predict'
+'logid': logid
+'queryId':queryId
+'seq':[[..,],..]
+}
+
 server-->browser
 
 返回数据(或者失败)
@@ -88,6 +96,7 @@ Queries=[
   qtype:FlinkSQL|FrequentPattern|Predict,
   fieldNames:[field1,...],
   querySql:,
+  eventKeysValues,(for Predict)
   data:data,
   queryCharts:[
             {
@@ -118,6 +127,7 @@ source=[[f1,f2,f3],[v1,v2,v3],[v1,v2,v3]]
 queries:
     query:
         query-label
+        query-control
         charts:
             chart:
                 chart-display

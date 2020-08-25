@@ -57,12 +57,37 @@ var queryChartsTemplate = `
 <div class="charts">
 </div>
 `
+var EventTemplate = `
+<div class="eventbox-with-arrow">
+<div class="eventbox">
+<form accept-charset="utf-8">
+{{#properties}}
+<label>{{key}}</label><br/>
+<select name="some_name" id="some_name">
+    {{#values}}
+        <option value="{{ . }}">{{ . }}</option>
+    {{/values}}
+</select><br/>
+{{/properties}}
+</form>
+</div>
+ <div style="display:inline-block;">&#8594;</div>
+ </div>
+`
+var queryControlTemplate = `
+<div class="events-for-predict">
+${EventTemplate}
+</div>
+<button onclick="addEvent(this);">添加事件</button>
+<button onclick="refreshPredict(this);">刷新预测</button>
+`
 var queryTemplate = `
 <details open="open" id="{{query_id}}" class="query">
 <summary class="query-summary hovershow-hover">
 <input type="checkbox" class="delete-cb delete-cb-query" autocomplete="off">
 折叠/展开 ${queryLableTemplate}
 </summary>
+    <div class="query-control"></div>
     ${queryChartsTemplate}
 </details>
 `

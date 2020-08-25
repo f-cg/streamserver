@@ -25,6 +25,9 @@ function pullResult() {
 
 var Queries = []
 
+function qdomqid(qd) {
+    return Number.parseInt(qd.id.slice(1));
+}
 function qdom(qref) {
     if (typeof qref == 'number')
         return id("q" + qref);
@@ -138,6 +141,7 @@ function updateMetas(json) {
     } else if (json.qtype == QueryType.Predict) {
         query.caseField = json.caseField;
         query.eventsFields = json.eventsFields;
+        query.eventKeysValues = json.eventKeysValues;
     } else {
         console.error("no such query " + json.qtype);
     }
@@ -270,11 +274,50 @@ function drawQuery(qid) {
     querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
     let query = getQuery(qid);
     if (query.queryCharts.length == 0) { //第一张图
+        if (query.qtype == QueryType.Predict) {
+            let view = {
+                "properties": [],
+            }
+            // let keys_values = {"字段1": ["字段1v1", "字段1v2", "字段1v3",], "字段2": ["字段2v1", "字段2v2",], "字段3": ["字段3v1",]};
+            for (let k in query.eventKeysValues) {
+                view.properties.push({"key": k, "values": query.eventKeysValues[k]});
+            }
+            let rendered = Mustache.render(queryControlTemplate, view);
+            querynode.getElementsByClassName("query-control")[0].innerHTML = rendered;
+        }
         addChart(qid, query.defaultctype);
     }
     for (let i = 0; i < query.queryCharts.length; i++) {
         drawChart(qid, i);
     }
+}
+
+function addEvent(that) {
+    let querynode = qdom(that);
+    let events = querynode.getElementsByClassName("events-for-predict")[0];
+    events.appendChild(events.lastElementChild.cloneNode(true));
+}
+
+function refreshPredict(that) {
+    let querynode = qdom(that);
+    let qid = qdomqid(querynode);
+    let eventboxes = querynode.getElementsByClassName("eventbox");
+    let seq = [];
+    for (let i = 0; i < eventboxes.length; i++) {
+        let eb = eventboxes[i];
+        let values = [];
+        let ss = eb.getElementsByTagName("select");
+        for (let j = 0; j < ss.length; j++) {
+            values.push(ss[j].selectedOptions[0].value);
+        }
+        seq.push(values);
+    }
+    let msg = {
+        "type": "Predict",
+        "queryId": qid,
+        "seq": seq,
+    }
+    ws.send(JSON.stringify(msg));
 }
 
 var chartToAdd = {
