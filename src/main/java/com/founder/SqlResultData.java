@@ -1,5 +1,7 @@
 package com.founder;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 /**
@@ -17,18 +19,33 @@ public class SqlResultData {
 	}
 
 	public void print() {
+		PrintStream out = new PrintStream(System.out);
+		this.print(out);
+	}
+
+	public void print(PrintStream out) {
 		if (!Constants.DMRESULTPRINT)
 			return;
 		for (String f : fieldNames) {
-			System.out.print(f + ",");
+			out.print(f + ",");
 		}
 		System.out.println("");
 		for (String t : typeNames) {
-			System.out.print(t + ",");
+			out.print(t + ",");
 		}
 		System.out.println("");
 		for (String[] strings : dataMatrix) {
-			System.out.println(String.join(",", strings));
+			out.println(String.join(",", strings));
+		}
+	}
+
+	public void save(String filename) {
+		try {
+			PrintStream out;
+			out = new PrintStream("/tmp/" + filename + ".out.txt");
+			this.print(out);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 }
