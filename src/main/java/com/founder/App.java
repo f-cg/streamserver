@@ -204,6 +204,10 @@ public class App {
 			Map<String, String> model = new HashMap<String, String>();
 			String logId = ctx.pathParam("logid");
 			LogStream ls = lsm.getls(logId);
+			if (ls == null) {
+				returnHtml("error", ctx, "不存在该日志流" + logId);
+				return;
+			}
 			model.put("logId", logId);
 			model.put("ddl", ls.initddl);
 			model.put("createdTime", ls.createdTime);
