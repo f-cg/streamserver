@@ -42,7 +42,7 @@ var chartTemplate = `
 </div>
 `
 var queryChartsAdd = `
-<button type="button" class="hovershow-show" onclick="addChartClicked(this);">增加图表</button>
+<button type="button" class="hovershow-show add-chart-btn" onclick="addChartClicked(this);">增加图表</button>
 `
 /**
  * query=(label,charts=[chart])

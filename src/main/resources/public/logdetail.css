@@ -26,3 +26,9 @@
 .eventbox-with-arrow {
     display: inline-block;
 }
+.add-chart-btn,
+.cancel-button {
+    margin-left: 20px;
+    border: none;
+    background-color: #bbb;
+}
