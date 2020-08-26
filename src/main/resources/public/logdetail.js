@@ -441,8 +441,13 @@ function print(info) {
 }
 
 function changelabel(that) {
-    // that.style.background = "#faa";
+    let ow = parseInt(window.getComputedStyle(that, null).width);
     that.innerText = "点击复制语句";
+    let nw = parseInt(window.getComputedStyle(that, null).width);
+    if (that.style.width == "") {
+        let mw = ow > nw ? ow : nw;
+        that.style.width = mw + 1 + "px";
+    }
 }
 
 function recoverlabel(that) {

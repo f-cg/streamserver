@@ -7,6 +7,7 @@
     height: 400px;
 }
 .query-label {
+    text-align: center;
     background-color: pink;
 }
 .table-container {
