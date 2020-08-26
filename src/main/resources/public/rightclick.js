@@ -1,23 +1,10 @@
-
 var contextMenuLinkClassName = 'context-menu__link';
 var contextMenuActive = 'context-menu--active';
 
 var menu = document.getElementById('context-menu');
 var menuState = 0;
-var menuWidth;
-var menuHeight;
-
-var clickCoords;
-var clickCoordsX;
-var clickCoordsY;
 
 var itemInContext;
-var eapi;
-
-var windowWidth;
-var windowHeight;
-
-var highlightedAction = false;
 
 /**
  * Initialise our application's code.
@@ -105,7 +92,7 @@ function toggleMenuOn() {
 function toggleMenuOff() {
     if (menuState !== 0) {
         menuState = 0;
-        itemInContext=null;
+        itemInContext = null;
         menu.classList.remove(contextMenuActive);
     }
 }
@@ -122,10 +109,14 @@ function getPosition(e) {
 
     if (!e) var e = window.event;
 
+    console.log(e.pageX, e.pageY);
     if (e.pageX || e.pageY) {
+        // pageX/Y是相对于文档左上角的坐标
         posx = e.pageX;
         posy = e.pageY;
+        // <=IE8不支持pageX
     } else if (e.clientX || e.clientY) {
+        // clientX/Y是相对于浏览器可视区域的坐标，需要加上滚动距离才能等于pageX/Y
         posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
         posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
     }
@@ -141,28 +132,28 @@ function getPosition(e) {
  * Positions the menu properly.
  * 
  * @param {Object} e The event
+ * 菜单是默认放在点击位置的右下方的，如果下方放不开则向上移动至刚好放开
  */
 function positionMenu(e) {
-    clickCoords = getPosition(e);
-    clickCoordsX = clickCoords.x;
-    clickCoordsY = clickCoords.y;
+    let clickCoords = getPosition(e);
+    let cx = clickCoords.x;
+    let cy = clickCoords.y;
 
-    menuWidth = menu.offsetWidth + 4;
-    menuHeight = menu.offsetHeight + 4;
+    let menuWidth = menu.offsetWidth + 4;
+    let menuHeight = menu.offsetHeight + 4;
 
-    windowWidth = window.innerWidth;
-    windowHeight = window.innerHeight;
-
-    if ((windowWidth - clickCoordsX) < menuWidth) {
-        menu.style.left = windowWidth - menuWidth + "px";
+    let rightDistance = cx - document.documentElement.scrollLeft;
+    if ((window.innerWidth - rightDistance) < menuWidth) {
+        menu.style.left = document.documentElement.scrollLeft + window.innerWidth - menuWidth + "px";
     } else {
-        menu.style.left = clickCoordsX + "px";
+        menu.style.left = cx + "px";
     }
 
-    if ((windowHeight - clickCoordsY) < menuHeight) {
-        menu.style.top = windowHeight - menuHeight + "px";
+    let bottomDistance = cy - document.documentElement.scrollTop;
+    if ((window.innerHeight - bottomDistance) < menuHeight) {
+        menu.style.top = document.documentElement.scrollTop + window.innerHeight - menuHeight + "px";
     } else {
-        menu.style.top = clickCoordsY + "px";
+        menu.style.top = cy + "px";
     }
 }
 
@@ -180,7 +171,7 @@ function chooseLegendTypeRightClick(seriesName, dataName, api, excludeSeriesId) 
     // console.log("api.getDom:",api.getDom())
     // console.log("excludeSeriesId:",excludeSeriesId);
     // console.log('right clicked!');
-    itemInContext = {api: api, seriesName: seriesName, dataName: dataName, target:event.currentTarget};
+    itemInContext = {api: api, seriesName: seriesName, dataName: dataName, target: event.currentTarget};
 
     // api.dispatchAction({
     //     type: 'legendToggleSelect',
