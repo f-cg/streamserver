@@ -279,7 +279,8 @@ function drawQuery(qid) {
                 "properties": [],
             }
             // let keys_values = {"字段1": ["字段1v1", "字段1v2", "字段1v3",], "字段2": ["字段2v1", "字段2v2",], "字段3": ["字段3v1",]};
-            for (let k in query.eventKeysValues) {
+            for (let i = 0; i < query.eventsFields.length; i++) {
+                let k = query.eventsFields[i];
                 view.properties.push({"key": k, "values": query.eventKeysValues[k]});
             }
             let rendered = Mustache.render(queryControlTemplate, view);
