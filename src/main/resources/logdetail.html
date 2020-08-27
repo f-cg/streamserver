@@ -36,7 +36,7 @@
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-predict-modal">
             事件预测
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal">
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-abnorm-modal">
             异常模式
         </button>
         <!-- <button type="button" class="btn btn-secondary" data-toggle="modal"> -->
@@ -205,6 +205,127 @@
                         取消
                     </button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerPDQuery()">
+                        确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="add-query-abnorm-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    定义异常监测
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group form-inline">
+                            <label for="ab-partition">
+                                分组字段
+                            </label>
+                            <input type="text" name="ab-partition" value="" id="ab-partition" required>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="ab-order">
+                                排序字段
+                            </label>
+                            <input type="text" name="ab-order" value="" id="ab-order" required>
+                        </div>
+                        <table>
+                            <tr>
+                                <th>
+                                    字段/监测点
+                                </th>
+                                <th>
+                                    取值
+                                </th>
+                                <th>
+                                    返回字段
+                                </th>
+                            </tr>
+                            <tbody class="pattern-box">
+                                <tr>
+                                    <td>
+                                        A
+                                        <input type="radio" name="detect" value="" id="A-detect" required>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="text" name="A-field" value="" placeholder="监测字段" id="A-field" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="A-value" value="" placeholder="字段取值" id="A-value" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="A-result" value="" placeholder="返回字段" id="A-result" required>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody class="pattern-box">
+                                <tr>
+                                    <td>
+                                        B
+                                        <input type="radio" name="detect" value="" id="B-detect" required>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="text" name="B-field" value="" placeholder="监测字段" id="B-field" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="B-value" value="" placeholder="字段取值" id="B-value" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="B-result" value="" placeholder="返回字段" id="B-result" required>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody class="pattern-box">
+                                <tr>
+                                    <td>
+                                        C
+                                        <input type="radio" name="detect" value="" id="C-detect" required>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="text" name="C-field" value="" placeholder="监测字段" id="C-field" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="C-value" value="" placeholder="字段取值" id="C-value" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="C-result" value="" placeholder="返回字段" id="C-result" required>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="form-group form-inline">
+                            <label for="ab-query-name">
+                                查询名称
+                            </label>
+                            <input type="text" name="ab-query-name" value="" id="ab-query-name" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerABQuery()">
                         确认
                     </button>
                 </div>

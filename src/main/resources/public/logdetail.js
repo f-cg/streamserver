@@ -211,6 +211,67 @@ function registerFPQuery() {
     }
 }
 
+function registerABQuery() {
+    let partition = id("ab-partition").value.trim();
+    let order = id("ab-order").value.trim();
+    let qname = id("ab-query-name").value.trim();
+    let boxes = id("add-query-abnorm-modal").getElementsByClassName("pattern-box");
+    let outputrow = "ONE ROW PER MATCH";
+    let skip = "AFTER MATCH SKIP TO LAST ";
+    let defines = "";
+    let measures = "";
+    let pattern = "";
+    for (let i = 0; i < boxes.length; i++) {
+        let def;
+        let ms="";
+        let rows = boxes[i].getElementsByTagName("tr");
+        let name = rows[0].cells[0].textContent.trim();
+        let checked = rows[0].cells[0].getElementsByTagName("input")[0].checked;
+        let field = rows[1].getElementsByTagName("input")[0].value.trim();
+        let value = rows[1].getElementsByTagName("input")[1].value.trim();
+        let result = rows[1].getElementsByTagName("input")[2].value.trim();
+        console.log(checked);
+        pattern += name;
+        if (checked) {
+            def = name + " AS NOT " + name + "." + field + " = " + value;
+            // 只要不是最后一个，一定要给该事件的条件加上下一个的否定式
+            if (i < boxes.length - 1) {
+                let nrows = boxes[i + 1].getElementsByTagName("tr");
+                let nfield = nrows[1].getElementsByTagName("input")[0].value.trim();
+                let nvalue = nrows[1].getElementsByTagName("input")[1].value.trim();
+                def += " AND NOT " + name + "." + nfield + " = " + nvalue;
+
+                if (i > 0) {
+                    // 中间的要加上*,并且不输出该行了
+                    pattern += "*"
+                } else {
+                    ms = name + "." + result + " AS " + name + "_" + result;
+                }
+            }
+        } else {
+            def = name + " AS " + name + "." + field + " = " + value;
+            ms = name + "." + result + " AS " + name + "_" + result;
+        }
+        if (i < boxes.length - 1) {
+            def += ",\n";
+            if (ms) ms += ",\n";
+            pattern += " ";
+        } else {
+            skip += name;
+        }
+        defines += def;
+        measures += ms;
+    }
+    console.log(pattern);
+    let cep = `SELECT *\nFROM ${logId}\nMATCH_RECOGNIZE (\n`
+        + `PARTITION BY ${partition}\nORDER BY ${order}\n`
+        + `MEASURES\n${measures}\n${outputrow}\n${skip}\n`
+        + `PATTERN (${pattern})\nDEFINE\n${defines}\n) MR`;
+    console.log(cep);
+    let rq = {"type": "register", "logId": logId, "query": cep, "queryName": qname};
+    ws.send(JSON.stringify(rq));
+}
+
 function getDefaultOption(query) {
     let xAxisType = 'category';
     let yAxisType = 'value';
