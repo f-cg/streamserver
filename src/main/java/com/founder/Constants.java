@@ -41,7 +41,7 @@ public class Constants {
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 		URL url = classloader.getResource(dir);
 		File lsdir = new File(url.getPath());
-		File[] lsfiles = lsdir.listFiles();
+		File[] lsfiles = lsdir.listFiles((dir_, name) -> name.toLowerCase().endsWith(".sql"));
 		Arrays.sort(lsfiles);
 		String[][] parts = new String[lsfiles.length][];
 
