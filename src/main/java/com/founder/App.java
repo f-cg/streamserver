@@ -174,14 +174,18 @@ public class App {
 		}
 	}
 
-	public void run() throws Exception {
-		Constants.load();
-		getUserConfig();
+	private void startOtherPrograms() throws IOException {
 		if (!ExecKafka.execKafka()) {
 			ExecKafka.stopKafka();
 			return;
 		}
 		this.CtrlC();
+	}
+
+	public void run() throws Exception {
+		Constants.load();
+		getUserConfig();
+		this.startOtherPrograms();
 		/* System.out.println("System.out has been set to /tmp/print.txt"); */
 		/*
 		 * System.setOut(new PrintStream(new BufferedOutputStream(new
