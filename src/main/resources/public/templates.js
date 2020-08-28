@@ -58,7 +58,7 @@ var queryChartsTemplate = `
 </div>
 `
 var EventTemplate = `
-<div class="eventbox-with-arrow">
+<div class="eventbox-with-arrow hovershow-hover">
 <div class="eventbox">
 <form accept-charset="utf-8">
 {{#properties}}
@@ -70,6 +70,9 @@ var EventTemplate = `
 </select><br/>
 {{/properties}}
 </form>
+<button class="remove-button hovershow-show" onclick="let eb=this.closest('.eventbox-with-arrow'); eb.parentNode.childElementCount>1 && eb.remove();">
+&#10006;
+</button>
 </div>
  <div style="display:inline-block;">&#8594;</div>
  </div>
