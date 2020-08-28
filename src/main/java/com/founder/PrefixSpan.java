@@ -1,7 +1,6 @@
 package com.founder;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -129,9 +128,7 @@ public class PrefixSpan<T> {
 
 	ArrayList<ArrayList<Integer>> loadIntSeqs(String filepath, String delim) throws IOException {
 		ArrayList<ArrayList<Integer>> seqs = new ArrayList<ArrayList<Integer>>();
-		File file = new File(filepath);
-		FileReader fr = new FileReader(file);
-		BufferedReader bf = new BufferedReader(fr);
+		BufferedReader bf = new BufferedReader(new FileReader(filepath));
 		String line;
 		while ((line = bf.readLine()) != null) {
 			ArrayList<Integer> seq = new ArrayList<Integer>();
@@ -146,9 +143,7 @@ public class PrefixSpan<T> {
 
 	ArrayList<ArrayList<String>> loadStrSeqs(String filepath, String delim) throws IOException {
 		ArrayList<ArrayList<String>> seqs = new ArrayList<ArrayList<String>>();
-		File file = new File(filepath);
-		FileReader fr = new FileReader(file);
-		BufferedReader bf = new BufferedReader(fr);
+		BufferedReader bf = new BufferedReader(new FileReader(filepath));
 		String line;
 		while ((line = bf.readLine()) != null) {
 			ArrayList<String> seq = new ArrayList<String>();

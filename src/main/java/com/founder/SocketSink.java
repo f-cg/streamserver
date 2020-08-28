@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 
-import com.esotericsoftware.kryo.util.ObjectMap;
-
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 
@@ -46,10 +44,10 @@ public class SocketSink extends RichSinkFunction<Row> {
 
 	@Override
 	public void invoke(Row record, Context ctx) {
-		int fieldscount=record.getArity();
-		Object[] fields=new Object[fieldscount];
+		int fieldscount = record.getArity();
+		Object[] fields = new Object[fieldscount];
 		for (int i = 0; i < fieldscount; i++) {
-			fields[i]=record.getField(i);
+			fields[i] = record.getField(i);
 		}
 		Socket s;
 		JSONObject json = new JSONObject();

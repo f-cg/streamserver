@@ -1,6 +1,5 @@
 package com.founder;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -163,11 +162,10 @@ public class App {
 			if (!file.exists()) {
 				file.createNewFile();
 			}
-			FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fileWriter);
-			bw.write(String.join("\n",
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			fw.write(String.join("\n",
 					new String[] { Constants.dmUrl, Constants.dmUserName, Constants.dmPassword }));
-			bw.close();
+			fw.close();
 			System.out.println("这些信息保存在了" + filepath);
 		} catch (IOException e) {
 			e.printStackTrace();
