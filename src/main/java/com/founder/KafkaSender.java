@@ -7,7 +7,7 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class KafkaSender {
-	Producer producer;
+	Producer<String, String> producer;
 	String topic;
 	int timeIntervalDefault;
 
