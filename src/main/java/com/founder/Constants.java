@@ -2,12 +2,11 @@ package com.founder;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Constants
@@ -31,6 +30,7 @@ public class Constants {
 	public static final boolean KFSENDPRINT = true;
 	public static final boolean DMLINEPRINT = true;
 	public static final boolean HTTPPATHPRINT = true;
+	static final String workingDir = System.getProperty("user.dir");
 
 	// 日志流定义列表
 	public static String[][] LOGS;
@@ -38,16 +38,12 @@ public class Constants {
 	public static String[][] QUERIES;
 
 	static private String[][] loadDir(String dir) throws IOException, URISyntaxException {
-		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-		URL url = classloader.getResource(dir);
-		File lsdir = new File(url.getPath());
-		File[] lsfiles = lsdir.listFiles((dir_, name) -> name.toLowerCase().endsWith(".sql"));
-		Arrays.sort(lsfiles);
-		String[][] parts = new String[lsfiles.length][];
+		File[] files = (new File(workingDir + "/" + dir)).listFiles();
+		String[][] parts = new String[files.length][];
 
-		for (int fi = 0; fi < lsfiles.length; fi++) {
-			File file = lsfiles[fi];
-			BufferedReader reader = new BufferedReader(new FileReader(file));
+		for (int fi = 0; fi < files.length; fi++) {
+			File file = files[fi];
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 			ArrayList<String> content = new ArrayList<>();
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -65,16 +61,9 @@ public class Constants {
 			}
 		}
 		return parts;
-
 	}
 
-	static public void load() throws IOException, URISyntaxException {
-		LOGS = loadDir(lsdir);
-		QUERIES = loadDir(qsdir);
-	}
-
-	public static void main(String[] args) throws IOException, URISyntaxException {
-		load();
+	static void print() {
 		System.out.println("----LOGS----");
 		for (String[] log : LOGS) {
 			System.out.println("日志名：" + log[0]);
@@ -88,5 +77,16 @@ public class Constants {
 			System.out.println("查询名：" + query[2]);
 			System.out.println("--------");
 		}
+	}
+
+	static public void load() throws IOException, URISyntaxException {
+		LOGS = loadDir(lsdir);
+		QUERIES = loadDir(qsdir);
+		print();
+	}
+
+	public static void main(String[] args) throws IOException, URISyntaxException {
+		load();
+		print();
 	}
 }
