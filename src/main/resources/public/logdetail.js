@@ -272,6 +272,54 @@ function registerABQuery() {
     let rq = {"type": "register", "logId": logId, "query": cep, "queryName": qname};
     ws.send(JSON.stringify(rq));
 }
+function registerTMQuery() {
+    let partition = id("timeout-partition").value.trim();
+    let time = id("timeout-time").value.trim();
+    let thresh = id("timeout-query-thresh").value.trim();
+    let thunit = id("timeout-query-thresh-unit").value.trim();
+    let qname = id("timeout-query-name").value.trim();
+    let boxes = id("add-query-timeout-modal").getElementsByClassName("pattern-box");
+    let outputrow = "ONE ROW PER MATCH";
+    let skip = "AFTER MATCH SKIP TO LAST ";
+    let defines = "";
+    let measures = "";
+    let pattern = "";
+    let comparename = "";
+    for (let i = 0; i < boxes.length; i++) {
+        let def;
+        let ms = "";
+        let rows = boxes[i].getElementsByTagName("tr");
+        let name = rows[0].cells[0].textContent.trim();
+        let field = rows[1].children[0].children[0].value.trim();
+        let value = rows[1].children[1].children[0].value.trim();
+        let result = rows[1].children[2].children[0].value.trim();
+        pattern += name;
+        def = name + " AS " + name + "." + field + " = " + value;
+        ms = name + "." + result + " AS " + name + "_" + result;
+        // 比较最后两个事件
+        if (i == boxes.length - 2) {
+            comparename = name;
+        }
+        if (i < boxes.length - 1) {
+            def += ",\n";
+            if (ms) ms += ",\n";
+            pattern += " ";
+        } else {
+            skip += name;
+            def += " AND TIMESTAMPDIFF(" + thunit + ", " + comparename + "." + time + ", " + name + "." + time + ") > " + thresh;
+        }
+        defines += def;
+        measures += ms;
+    }
+    console.log(pattern);
+    let cep = `SELECT *\nFROM ${logId}\nMATCH_RECOGNIZE (\n`
+        + `PARTITION BY ${partition}\nORDER BY ${time}\n`
+        + `MEASURES\n${measures}\n${outputrow}\n${skip}\n`
+        + `PATTERN (${pattern})\nDEFINE\n${defines}\n) MR`;
+    console.log(cep);
+    let rq = {"type": "register", "logId": logId, "query": cep, "queryName": qname};
+    ws.send(JSON.stringify(rq));
+}
 
 function getDefaultOption(query) {
     let xAxisType = 'category';

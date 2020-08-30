@@ -40,6 +40,9 @@
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-abnorm-modal">
             异常模式
         </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-query-timeout-modal">
+            超时监测
+        </button>
         <!-- <button type="button" class="btn btn-secondary" data-toggle="modal"> -->
         <!--     节点分析 -->
         <!-- </button> -->
@@ -359,6 +362,137 @@
                         取消
                     </button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerABQuery()">
+                        确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="add-query-timeout-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    定义超时监测
+                </div>
+                <div class="modal-body">
+                    <form autocomplete="off">
+                        <div class="form-group form-inline">
+                            <label for="timeout-partition">
+                                分组字段
+                            </label>
+                            <select name="timeout-partition" id="timeout-partition" class="table-fields" required>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="timeout-time">
+                                时间字段
+                            </label>
+                            <select name="timeout-time" id="timeout-time" class="table-fields" required>
+                            </select>
+                        </div>
+                        <table>
+                            <tr>
+                                <th>
+                                    字段/监测点
+                                </th>
+                                <th>
+                                    取值
+                                </th>
+                                <th>
+                                    返回字段
+                                </th>
+                            </tr>
+                            <tbody class="pattern-box">
+                                <tr>
+                                    <td>
+                                        A
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="A-field" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择监测字段
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="A-value" value="" placeholder="字段取值" required>
+                                    </td>
+                                    <td>
+                                        <select name="A-result" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择返回字段
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody class="pattern-box">
+                                <tr>
+                                    <td>
+                                        B
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="B-field" id="B-field" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择监测字段
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="B-value" value="" placeholder="字段取值" id="B-value" required>
+                                    </td>
+                                    <td>
+                                        <select name="B-result" id="B-result" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择返回字段
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="form-group form-inline">
+                            <label for="timeout-query-thresh-unit">
+                                超时阈值
+                            </label>
+                            <input type="text" name="timeout-query-thresh" value="" id="timeout-query-thresh" required>
+                            <select name="timeout-query-thresh-unit" id="timeout-query-thresh-unit">
+                                <option value="MINUTE">
+                                    分钟
+                                </option>
+                                <option value="HOUR">
+                                    小时
+                                </option>
+                                <option value="DAY">
+                                    天
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="timeout-query-name">
+                                查询名称
+                            </label>
+                            <input type="text" name="timeout-query-name" value="" id="timeout-query-name" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerTMQuery()">
                         确认
                     </button>
                 </div>
