@@ -132,111 +132,113 @@
     <div class="modal fade" id="add-query-frequent-patterion-modal">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    新增频繁模式查询
-                </div>
-                <div class="modal-body">
-                    <div class="form-group form-inline">
-                        <label for="case-field">
-                            分组字段
-                        </label>
-                        <select name="case-field" id="case-field" class="table-fields" required>
-                        </select>
+                <form onsubmit="return registerFPQuery();" id="reg-fp-form">
+                    <div class="modal-header">
+                        新增频繁模式查询
                     </div>
-                    <div class="form-group form-inline">
-                        <label for="events-field">
-                            事件字段
-                        </label>
-                        <select name="events-field" id="events-field" class="table-fields" multiple required>
-                        </select>
+                    <div class="modal-body">
+                        <div class="form-group form-inline">
+                            <label for="case-field">
+                                分组字段
+                            </label>
+                            <select name="case-field" id="case-field" class="table-fields" required>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="events-field">
+                                事件字段
+                            </label>
+                            <select name="events-field" id="events-field" class="table-fields" multiple required>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="time-field">
+                                时间顺序字段
+                            </label>
+                            <select name="time-field" id="time-field" class="table-fields" required>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="query-name">
+                                查询名称
+                            </label>
+                            <input type="text" name="fp-query-name" value="" id="fp-query-name" required>
+                        </div>
                     </div>
-                    <div class="form-group form-inline">
-                        <label for="time-field">
-                            时间顺序字段
-                        </label>
-                        <select name="time-field" id="time-field" class="table-fields" required>
-                        </select>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            确认
+                        </button>
                     </div>
-                    <div class="form-group form-inline">
-                        <label for="query-name">
-                            查询名称
-                        </label>
-                        <input type="text" name="fp-query-name" value="" id="fp-query-name" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        取消
-                    </button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerFPQuery()">
-                        确认
-                    </button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
     <div class="modal fade" id="add-query-predict-modal">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    新增事件预测查询
-                </div>
-                <div class="modal-body">
-                    <div class="form-group form-inline">
-                        <label for="case-field-predict">
-                            分组字段
-                        </label>
-                        <select name="case-field-predict" id="case-field-predict" class="table-fields" required>
-                        </select>
+                <form onsubmit="return registerPDQuery();" class="form-container" id="reg-pd-form">
+                    <div class="modal-header">
+                        新增事件预测查询
                     </div>
-                    <div class="form-group form-inline">
-                        <label for="events-fields-predict">
-                            事件字段
-                        </label>
-                        <select name="events-fields-predict" id="events-fields-predict" class="table-fields" multiple required>
-                        </select>
+                    <div class="modal-body">
+                        <div class="form-group form-inline">
+                            <label for="case-field-predict">
+                                分组字段
+                            </label>
+                            <select name="case-field-predict" id="case-field-predict" class="table-fields" required>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="events-fields-predict">
+                                事件字段
+                            </label>
+                            <select name="events-fields-predict" id="events-fields-predict" class="table-fields" multiple required>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="time-field-predict">
+                                时间顺序字段
+                            </label>
+                            <select name="time-field-predict" id="time-field-predict" class="table-fields" required>
+                            </select>
+                        </div>
+                        <div class="form-group form-inline">
+                            <label for="pd-query-name">
+                                查询名称
+                            </label>
+                            <input type="text" name="pd-query-name" value="" id="pd-query-name" required>
+                        </div>
                     </div>
-                    <div class="form-group form-inline">
-                        <label for="time-field-predict">
-                            时间顺序字段
-                        </label>
-                        <select name="time-field-predict" id="time-field-predict" class="table-fields" required>
-                        </select>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            取消
+                        </button>
+                        <button type="input" class="btn btn-primary">
+                            确认
+                        </button>
                     </div>
-                    <div class="form-group form-inline">
-                        <label for="pd-query-name">
-                            查询名称
-                        </label>
-                        <input type="text" name="pd-query-name" value="" id="pd-query-name" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        取消
-                    </button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerPDQuery()">
-                        确认
-                    </button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
     <div class="modal fade" id="add-query-abnorm-modal">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    定义异常监测
-                </div>
-                <div class="modal-body">
-                    <form autocomplete="off">
+                <form onsubmit="return registerABQuery();" class="form-container" id="reg-ab-form">
+                    <div class="modal-header">
+                        定义异常监测
+                    </div>
+                    <div class="modal-body">
                         <div class="form-group form-inline">
                             <label for="ab-partition">
                                 分组字段
                             </label>
                             <select name="ab-partition" id="ab-partition" class="table-fields" required>
                             </select>
-                        </div>
-                        <div class="form-group form-inline">
                             <label for="ab-order">
                                 排序字段
                             </label>
@@ -355,35 +357,33 @@
                             </label>
                             <input type="text" name="ab-query-name" value="" id="ab-query-name" required>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        取消
-                    </button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerABQuery()">
-                        确认
-                    </button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            确认
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
     <div class="modal fade" id="add-query-timeout-modal">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    定义超时监测
-                </div>
-                <div class="modal-body">
-                    <form autocomplete="off">
+                <form onsubmit="return registerTMQuery();" class="form-container" id="reg-tm-form">
+                    <div class="modal-header">
+                        定义超时监测
+                    </div>
+                    <div class="modal-body">
                         <div class="form-group form-inline">
                             <label for="timeout-partition">
                                 分组字段
                             </label>
                             <select name="timeout-partition" id="timeout-partition" class="table-fields" required>
                             </select>
-                        </div>
-                        <div class="form-group form-inline">
                             <label for="timeout-time">
                                 时间字段
                             </label>
@@ -486,54 +486,54 @@
                             </label>
                             <input type="text" name="timeout-query-name" value="" id="timeout-query-name" required>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        取消
-                    </button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="registerTMQuery()">
-                        确认
-                    </button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            确认
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
     <div class="modal fade" id="add-chart-modal">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    选择图表类型
-                </div>
-                <div class="modal-body">
-                    <form>
+                <form onsubmit="return addChartModalClicked();" autocomplete="off">
+                    <div class="modal-header">
+                        选择图表类型
+                    </div>
+                    <div class="modal-body">
                         <div class="form-group">
                             <label for="chart-type">
                                 图表类型
                             </label>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="chart-type" id="chart-type-graph">
+                                    <input type="radio" name="chart-type" id="chart-type-graph" required>
                                     图
                                 </label>
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="chart-type" id="chart-type-table">
+                                    <input type="radio" name="chart-type" id="chart-type-table" required>
                                     表
                                 </label>
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        取消
-                    </button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="addChartModalClicked()">
-                        确认
-                    </button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            确认
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

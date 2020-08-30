@@ -195,6 +195,8 @@ function registerPDQuery() {
     } else {
         alert("字段以及查询名称不能为空!");
     }
+    $("#add-query-predict-modal").modal("hide");
+    return false;
 }
 
 function registerFPQuery() {
@@ -210,6 +212,8 @@ function registerFPQuery() {
     } else {
         alert("字段以及查询名称不能为空!");
     }
+    $("#add-query-frequent-patterion-modal").modal("hide");
+    return false;
 }
 
 function registerABQuery() {
@@ -271,6 +275,8 @@ function registerABQuery() {
     console.log(cep);
     let rq = {"type": "register", "logId": logId, "query": cep, "queryName": qname};
     ws.send(JSON.stringify(rq));
+    $("#add-query-abnorm-modal").modal("hide");
+    return false;
 }
 function registerTMQuery() {
     let partition = id("timeout-partition").value.trim();
@@ -319,6 +325,8 @@ function registerTMQuery() {
     console.log(cep);
     let rq = {"type": "register", "logId": logId, "query": cep, "queryName": qname};
     ws.send(JSON.stringify(rq));
+    $("#add-query-timeout-modal").modal("hide");
+    return false;
 }
 
 function getDefaultOption(query) {
@@ -484,6 +492,8 @@ function addChartModalClicked() {
     let qid = chartToAdd.qid;
     addChart(qid, chartToAdd.ctype)
     drawChart(qid, 0)
+    $("#add-chart-modal").modal("hide");
+    return false;
 }
 
 function delChartData(qid, cidx) {
