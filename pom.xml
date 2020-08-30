@@ -97,6 +97,7 @@ under the License.
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-table-planner-blink_${scala.binary.version}</artifactId>
 			<version>${flink.version}</version>
+			<!-- <scope>provided</scope> -->
 		</dependency>
 			    <!-- <dependency> <groupId>junit</groupId> <artifactId>junit-dep</artifactId> <version>4.11</version> </dependency> <dependency> <groupId>junit</groupId> <artifactId>junit-dep</artifactId> <version>4.11</version> </dependency> -->
 
@@ -113,12 +114,12 @@ under the License.
 
 		<!-- Add logging framework, to produce console output when running in the IDE. -->
 		<!-- These dependencies are excluded from the application JAR by default. -->
-		<!-- <dependency> -->
-		<!--         <groupId>org.slf4j</groupId> -->
-		<!--         <artifactId>slf4j-log4j12</artifactId> -->
-		<!--         <version>1.7.7</version> -->
-		<!--         <scope>runtime</scope> -->
-		<!-- </dependency> -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.7</version>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -197,12 +198,6 @@ under the License.
 						</goals>
 						<configuration>
 							<artifactSet>
-								<excludes>
-									<exclude>org.apache.flink:force-shading</exclude>
-									<exclude>com.google.code.findbugs:jsr305</exclude>
-									<exclude>org.slf4j:*</exclude>
-									<exclude>log4j:*</exclude>
-								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
