@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <link rel="stylesheet" href="/third-party/bootstrap-4.5.0-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/third-party/bootstrap-4.5.0-dist/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="/logdetail.css">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/cmn.css">
@@ -136,19 +137,22 @@
                         <label for="case-field">
                             分组字段
                         </label>
-                        <input type="text" name="case-field" value="" id="case-field" required>
+                        <select name="case-field" id="case-field" class="table-fields" required>
+                        </select>
                     </div>
                     <div class="form-group form-inline">
                         <label for="events-field">
                             事件字段
                         </label>
-                        <input type="text" name="events-field" value="" id="events-field" required>
+                        <select name="events-field" id="events-field" class="table-fields" multiple required>
+                        </select>
                     </div>
                     <div class="form-group form-inline">
                         <label for="time-field">
                             时间顺序字段
                         </label>
-                        <input type="text" name="time-field" value="" id="time-field" required>
+                        <select name="time-field" id="time-field" class="table-fields" required>
+                        </select>
                     </div>
                     <div class="form-group form-inline">
                         <label for="query-name">
@@ -179,19 +183,22 @@
                         <label for="case-field-predict">
                             分组字段
                         </label>
-                        <input type="text" name="case-field-predict" value="" id="case-field-predict" required>
+                        <select name="case-field-predict" id="case-field-predict" class="table-fields" required>
+                        </select>
                     </div>
                     <div class="form-group form-inline">
-                        <label for="events-field-predict">
+                        <label for="events-fields-predict">
                             事件字段
                         </label>
-                        <input type="text" name="events-field-predict" value="" id="events-field-predict" required>
+                        <select name="events-fields-predict" id="events-fields-predict" class="table-fields" multiple required>
+                        </select>
                     </div>
                     <div class="form-group form-inline">
                         <label for="time-field-predict">
                             时间顺序字段
                         </label>
-                        <input type="text" name="time-field-predict" value="" id="time-field-predict" required>
+                        <select name="time-field-predict" id="time-field-predict" class="table-fields" required>
+                        </select>
                     </div>
                     <div class="form-group form-inline">
                         <label for="pd-query-name">
@@ -218,18 +225,20 @@
                     定义异常监测
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form autocomplete="off">
                         <div class="form-group form-inline">
                             <label for="ab-partition">
                                 分组字段
                             </label>
-                            <input type="text" name="ab-partition" value="" id="ab-partition" required>
+                            <select name="ab-partition" id="ab-partition" class="table-fields" required>
+                            </select>
                         </div>
                         <div class="form-group form-inline">
                             <label for="ab-order">
                                 排序字段
                             </label>
-                            <input type="text" name="ab-order" value="" id="ab-order" required>
+                            <select name="ab-order" id="ab-order" class="table-fields" required>
+                            </select>
                         </div>
                         <table>
                             <tr>
@@ -256,13 +265,21 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <input type="text" name="A-field" value="" placeholder="监测字段" id="A-field" required>
+                                        <select name="A-field" id="A-field" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择监测字段
+                                            </option>
+                                        </select>
                                     </td>
                                     <td>
                                         <input type="text" name="A-value" value="" placeholder="字段取值" id="A-value" required>
                                     </td>
                                     <td>
-                                        <input type="text" name="A-result" value="" placeholder="返回字段" id="A-result" required>
+                                        <select name="A-result" id="A-result" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择返回字段
+                                            </option>
+                                        </select>
                                     </td>
                                 </tr>
                             </tbody>
@@ -279,13 +296,21 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <input type="text" name="B-field" value="" placeholder="监测字段" id="B-field" required>
+                                        <select name="B-field" id="B-field" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择监测字段
+                                            </option>
+                                        </select>
                                     </td>
                                     <td>
                                         <input type="text" name="B-value" value="" placeholder="字段取值" id="B-value" required>
                                     </td>
                                     <td>
-                                        <input type="text" name="B-result" value="" placeholder="返回字段" id="B-result" required>
+                                        <select name="B-result" id="B-result" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择返回字段
+                                            </option>
+                                        </select>
                                     </td>
                                 </tr>
                             </tbody>
@@ -302,13 +327,21 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <input type="text" name="C-field" value="" placeholder="监测字段" id="C-field" required>
+                                        <select name="C-field" id="C-field" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择监测字段
+                                            </option>
+                                        </select>
                                     </td>
                                     <td>
                                         <input type="text" name="C-value" value="" placeholder="字段取值" id="C-value" required>
                                     </td>
                                     <td>
-                                        <input type="text" name="C-result" value="" placeholder="返回字段" id="C-result" required>
+                                        <select name="C-result" id="C-result" class="table-fields" required>
+                                            <option value="" selected disabled>
+                                                请选择返回字段
+                                            </option>
+                                        </select>
                                     </td>
                                 </tr>
                             </tbody>
@@ -457,6 +490,7 @@
     <script src="/third-party/jquery.slim.min.js"></script>
     <script src="/third-party/popper.min.js"></script>
     <script src="/third-party/bootstrap-4.5.0-dist/js/bootstrap.min.js"></script>
+    <script src="/third-party/bootstrap-4.5.0-dist/js/bootstrap-multiselect.js"></script>
     <script charset="utf-8">
     </script>
 </body>

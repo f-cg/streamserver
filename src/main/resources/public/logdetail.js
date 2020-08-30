@@ -23,6 +23,7 @@ function pullResult() {
     ws.send(JSON.stringify({"type": "queriesList", "logId": logId}));
 }
 
+var LogAttr = {};
 var Queries = []
 
 function qdomqid(qd) {
@@ -183,7 +184,7 @@ function registerQuery() {
 
 function registerPDQuery() {
     let caseField = id("case-field-predict").value.trim();
-    let eventsField = id("events-field-predict").value.trim();
+    let eventsField = [].slice.call(id("events-fields-predict").selectedOptions).map(o => o.value.trim()).join(",");
     let timeField = id("time-field-predict").value.trim();
     let qname = id("pd-query-name").value.trim();
     if (caseField.length > 0 && timeField.length > 0 && eventsField.length > 0 && qname.length > 0) {
@@ -198,7 +199,7 @@ function registerPDQuery() {
 
 function registerFPQuery() {
     let caseField = id("case-field").value.trim();
-    let eventsField = id("events-field").value.trim();
+    let eventsField = [].slice.call(id("events-field").selectedOptions).map(o => o.value.trim()).join(",");
     let timeField = id("time-field").value.trim();
     let qname = id("fp-query-name").value.trim();
     if (caseField.length > 0 && timeField.length > 0 && eventsField.length > 0 && qname.length > 0) {
@@ -223,13 +224,13 @@ function registerABQuery() {
     let pattern = "";
     for (let i = 0; i < boxes.length; i++) {
         let def;
-        let ms="";
+        let ms = "";
         let rows = boxes[i].getElementsByTagName("tr");
         let name = rows[0].cells[0].textContent.trim();
         let checked = rows[0].cells[0].getElementsByTagName("input")[0].checked;
-        let field = rows[1].getElementsByTagName("input")[0].value.trim();
-        let value = rows[1].getElementsByTagName("input")[1].value.trim();
-        let result = rows[1].getElementsByTagName("input")[2].value.trim();
+        let field = rows[1].children[0].children[0].value.trim();
+        let value = rows[1].children[1].children[0].value.trim();
+        let result = rows[1].children[2].children[0].value.trim();
         console.log(checked);
         pattern += name;
         if (checked) {
@@ -237,8 +238,8 @@ function registerABQuery() {
             // 只要不是最后一个，一定要给该事件的条件加上下一个的否定式
             if (i < boxes.length - 1) {
                 let nrows = boxes[i + 1].getElementsByTagName("tr");
-                let nfield = nrows[1].getElementsByTagName("input")[0].value.trim();
-                let nvalue = nrows[1].getElementsByTagName("input")[1].value.trim();
+                let nfield = nrows[1].children[0].children[0].value.trim();
+                let nvalue = nrows[1].children[1].children[0].value.trim();
                 def += " AND NOT " + name + "." + nfield + " = " + nvalue;
 
                 if (i > 0) {
@@ -561,3 +562,63 @@ function deleteSelectedQueries() {
         delChart(selectedCharts[i]);
     }
 }
+
+function addItemToSelect(objSelect, item) {
+    //判断是否存在
+    var varItem = new Option(item, item);
+    objSelect.options.add(varItem);
+}
+
+function addFieldsToSelect(objSelect) {
+    for (let i = 0; i < LogAttr.fieldstypes.length; i++) {
+        let field = LogAttr.fieldstypes[i][0];
+        addItemToSelect(objSelect, field);
+    }
+}
+
+function setTableFields() {
+    let selects = document.getElementsByClassName("table-fields");
+    for (let i = 0; i < selects.length; i++) {
+        addFieldsToSelect(selects[i]);
+        if (selects[i].multiple) {
+            $(selects[i]).multiselect();
+        }
+    }
+}
+function parseDDL() {
+    let ddl = id("ddl").innerText;
+    let tablename = "";
+    let fieldstypes = "";
+    let field_idx1;
+    let field_idx2;
+    let leftremaining = 0;
+    for (let i = 0; i < ddl.length; i++) {
+        if (ddl[i] == "(") {
+            if (tablename == "") {
+                tablename = ddl.slice(0, i).split(/[\s]/).filter(s => s != "")[2];
+                field_idx1 = i + 1;
+            }
+            leftremaining++;
+        } else if (ddl[i] == ")") {
+            leftremaining--;
+            if (leftremaining == 0 && fieldstypes == "") {
+                field_idx2 = i;
+                fieldstypes = ddl.slice(field_idx1, field_idx2).split(",");
+                break;
+            }
+        }
+    }
+    for (let i = 0; i < fieldstypes.length; i++) {
+        fieldstypes[i] = fieldstypes[i].trim().split(/[\s]/).filter(s => s != "");
+    }
+    if (fieldstypes[fieldstypes.length - 1].length != 2) {
+        fieldstypes.pop();
+    }
+    console.log(tablename);
+    console.log(fieldstypes);
+    LogAttr.fieldstypes = fieldstypes;
+    LogAttr.tablename = tablename;
+    setTableFields();
+}
+
+window.addEventListener("load", parseDDL, false);
