@@ -5,10 +5,6 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-/* import org.apache.flink.table.api.TableSchema; */
-/* import org.apache.flink.table.types.DataType; */
-/* import org.apache.flink.table.types.logical.LogicalType; */
-/* import org.apache.flink.types.Row; */
 import org.json.JSONObject;
 
 public class UniServer extends Thread {
@@ -41,7 +37,7 @@ public class UniServer extends Thread {
 				LogStream ls = lsm.getls(logid);
 				Query q = ls.getquery(qid);
 				q.result.add(record);
-				System.out.println("before broadcast:"+q.queryDataString());
+				System.out.println("before broadcast:" + q.queryDataString());
 				ls.broadcast(q.queryDataString());
 				s.close();
 			}
