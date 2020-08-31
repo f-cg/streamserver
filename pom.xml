@@ -73,12 +73,6 @@ under the License.
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-table-planner_${scala.binary.version}</artifactId>
-			<version>${flink.version}</version>
-			<!-- <scope>provided</scope> -->
-		</dependency>
-		<dependency>
-			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-table-common</artifactId>
 			<version>${flink.version}</version>
 			<!-- <scope>provided</scope> -->
@@ -94,7 +88,6 @@ under the License.
 			<version>${flink.version}</version>
 			<!-- <scope>provided</scope> -->
 		</dependency>
-			    <!-- <dependency> <groupId>junit</groupId> <artifactId>junit-dep</artifactId> <version>4.11</version> </dependency> <dependency> <groupId>junit</groupId> <artifactId>junit-dep</artifactId> <version>4.11</version> </dependency> -->
 
 		<!-- Add connector dependencies here. They must be in the default scope (compile). -->
 		<!-- Example:
@@ -140,19 +133,9 @@ under the License.
 			<version>3.9.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.30</version>
-		</dependency>
-		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20160810</version>
-		</dependency>
-		<dependency>
-			<groupId>com.j2html</groupId>
-			<artifactId>j2html</artifactId>
-			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>
@@ -266,11 +249,6 @@ under the License.
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
