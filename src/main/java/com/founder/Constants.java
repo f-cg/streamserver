@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Constants
@@ -38,6 +39,7 @@ public class Constants {
 
 	static private String[][] loadDir(String dir) throws IOException, URISyntaxException {
 		File[] files = (new File(workingDir + "/" + dir)).listFiles();
+		Arrays.sort(files);
 		String[][] parts = new String[files.length][];
 
 		for (int fi = 0; fi < files.length; fi++) {
