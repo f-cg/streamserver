@@ -329,6 +329,35 @@ function registerTMQuery() {
     return false;
 }
 
+function registerEchoQuery(that) {
+    if (that.innerText.trim() == "打开日志流回显") {
+        let echoSql = "select * from " + logId;
+        let rq = {"type": "register", "logId": logId, "query": echoSql, "queryName": "echoQuery"};
+        ws.send(JSON.stringify(rq));
+        that.innerText = "关闭日志流回显";
+        id("echo-container").hidden = false;
+    } else {
+        console.log(that);
+        let echoQueryIdx = null;
+        for (let i = 0; i < Queries.length; i++) {
+            if (Queries[i].queryName == "echoQuery") {
+                echoQueryIdx = i;
+            }
+        }
+        if (echoQueryIdx != null) {
+            let msg = {
+                "type": "cancelQuery",
+                "logid": logId,
+                "queryId": Queries[echoQueryIdx].qid
+            };
+            ws.send(JSON.stringify(msg));
+            Queries.splice(echoQueryIdx, 1);
+        }
+        that.innerText = "打开日志流回显";
+        id("echo-container").hidden = true;
+    }
+}
+
 function getDefaultOption(query) {
     let xAxisType = 'category';
     let yAxisType = 'value';
@@ -391,6 +420,11 @@ function drawQuery(qid) {
     querynode.getElementsByClassName("query-label")[0].title = getQuery(qid).querySql;
     querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
     let query = getQuery(qid);
+    if (query.queryName == "echoQuery") {
+        let full = query.data.join("\n") + id("echo").textContent;
+        id("echo").textContent = full.substr(0, 640);
+        return;
+    }
     if (query.queryCharts.length == 0) { //第一张图
         if (query.qtype == QueryType.Predict) {
             let view = {

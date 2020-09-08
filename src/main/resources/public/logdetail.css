@@ -47,3 +47,18 @@
     background: transparent;
     cursor: pointer;
 }
+
+#echo {
+    overflow: hidden;
+    width: 40em;
+    height: 16em;
+    font-size: 10px;
+    color: white;
+    background: black;
+    resize: none;
+}
+#echo-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+}

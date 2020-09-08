@@ -49,9 +49,15 @@
         <!--     节点分析 -->
         <!-- </button> -->
         <a href="/" class="btn btn-secondary">日志流列表</a>
+        <button type="button" class="btn btn-secondary" onclick="registerEchoQuery(this);">
+            打开日志流回显
+        </button>
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#help-modal">
             帮助
         </button>
+    </div>
+    <div id="echo-container" class="query">
+        <textarea id="echo" readonly></textarea>
     </div>
     <div class="btn-group delete-selected" role="group" aria-label="Basic example" id="delete-cancel">
         <button type="button" class="btn btn-secondary" onclick="$('.delete-cb, #delete-cancel').hide();">
