@@ -1,20 +1,20 @@
-var DEBUG = true;
+var DEBUG = false;
 var id = idx => document.getElementById(idx);
 
-var QueryType = {
+const QueryType = {
     FlinkSQL: "FlinkSQL",
     FrequentPattern: "FrequentPattern",
-    Predict: "Predict",
-}
+    Predict: "Predict"
+};
 
-var ChartType = {
+const ChartType = Object.freeze({
     graph: "graph",
-    table: "table",
-}
+    table: "table"
+});
 
-let logId = id("log-id").value.trim()
-console.log(logId)
-//Establish the WebSocket connection and set up event handlers
+let logId = id("log-id").value.trim();
+console.log(logId);
+// Establish the WebSocket connection and set up event handlers
 let ws = new WebSocket("ws://" + location.hostname + ":" + location.port + "/ws/" + logId);
 ws.onmessage = msg => processMsg(msg);
 ws.onclose = () => alert("WebSocket connection closed");
@@ -24,7 +24,7 @@ function pullResult() {
 }
 
 var LogAttr = {};
-var Queries = []
+var Queries = [];
 
 function qdomqid(qd) {
     return Number.parseInt(qd.id.slice(1));
@@ -42,9 +42,9 @@ function getChartsDom(qid) {
 
 function changeSeriesType(itemInContext, newtype) {
     // current legend&series name
-    let name = itemInContext.seriesName != null ? itemInContext.seriesName : itemInContext.dataName
+    let name = itemInContext.seriesName != null ? itemInContext.seriesName : itemInContext.dataName;
     console.log(itemInContext);
-    container = itemInContext.api.getDom();
+    let container = itemInContext.api.getDom();
     console.log(container);
     let domChart = container.parentNode;
     let domCharts = container.parentNode.parentNode;
@@ -55,7 +55,7 @@ function changeSeriesType(itemInContext, newtype) {
     let changedFieldIdx = query.fieldNames.indexOf(name);
     print("change field " + name + " to type " + newtype);
     query.queryCharts[chartIndex].customizedOption.option.series[changedFieldIdx - 1].type = newtype;
-    drawQuery(qid)
+    drawQuery(qid);
 }
 
 /**
@@ -65,7 +65,7 @@ function changeSeriesType(itemInContext, newtype) {
 function insertQuery(qid, beforeQid) {
     let view = {
         query_id: 'q' + qid,
-    }
+    };
     let rendered = Mustache.render(queryTemplate, view);
     if (beforeQid == null || beforeQid == -1) {
         id('queries').insertAdjacentHTML('beforeend', rendered);
@@ -104,7 +104,7 @@ function updateQueriesList(qids) {
             // insert qids[j]
             Queries.splice(i, 0, {qid: qids[j], queryCharts: []});
             j++;
-            insertQuery(qids[j], Queries[i].qid)
+            insertQuery(qids[j], Queries[i].qid);
         }
     }
     while (i < Queries.length) {
@@ -125,7 +125,7 @@ function updateQueriesList(qids) {
 }
 
 function updateMetas(json) {
-    query = getQuery(json.queryId);
+    let query = getQuery(json.queryId);
     if (query == null) {
         console.warn("Meta cannot update: not query's qid is: " + json.queryId);
         return;
@@ -248,7 +248,7 @@ function registerABQuery() {
 
                 if (i > 0) {
                     // 中间的要加上*,并且不输出该行了
-                    pattern += "*"
+                    pattern += "*";
                 } else {
                     ms = name + "." + result + " AS " + name + "_" + result;
                 }
@@ -351,7 +351,7 @@ function getDefaultOption(query) {
             }
         ],
         series: seriesTypesDict
-    }
+    };
     return option;
 }
 
@@ -362,7 +362,7 @@ function renderTable(qid) {
         headers: [
             query.fieldNames
         ]
-    }
+    };
     let rendered = Mustache.render(tableTemplate, view);
     return rendered;
 }
@@ -374,7 +374,7 @@ function drawChart(qid, cid) {
         let option = chart.customizedOption.option;
         option.dataset = {
             source: query.data
-        }
+        };
         print(JSON.stringify(option));
         chart.chartInstance.setOption(option);
     } else if (chart.ctype == ChartType.table) {
@@ -395,7 +395,7 @@ function drawQuery(qid) {
         if (query.qtype == QueryType.Predict) {
             let view = {
                 "properties": [],
-            }
+            };
             // let keys_values = {"字段1": ["字段1v1", "字段1v2", "字段1v3",], "字段2": ["字段2v1", "字段2v2",], "字段3": ["字段3v1",]};
             for (let i = 0; i < query.eventsFields.length; i++) {
                 let k = query.eventsFields[i];
@@ -435,18 +435,18 @@ function refreshPredict(that) {
         "type": "Predict",
         "queryId": qid,
         "seq": seq,
-    }
+    };
     ws.send(JSON.stringify(msg));
 }
 
 var chartToAdd = {
     qid: null,
     ctype: null
-}
+};
 
 function addChartClicked(that) {
     console.log(that);
-    let qid = Number.parseInt(qdom(that).id.slice(1))
+    let qid = Number.parseInt(qdom(that).id.slice(1));
     chartToAdd.qid = qid;
     $("#add-chart-modal").modal("show");
 }
@@ -455,23 +455,23 @@ function addChart(qid, ctype) {
     let query = getQuery(qid);
     let charts = qdom(qid).getElementsByClassName("charts")[0];
     let view = {
-    }
+    };
     let rendered = Mustache.render(chartTemplate, view);
     charts.insertAdjacentHTML('beforeend', rendered);
-    let charts_displays = charts.getElementsByClassName('chart-display')
-    let charts_last_display = charts_displays[charts_displays.length - 1]
+    let charts_displays = charts.getElementsByClassName('chart-display');
+    let charts_last_display = charts_displays[charts_displays.length - 1];
     if (ctype == ChartType.graph) {
         let ec = echarts.init(charts_last_display);
         let option = getDefaultOption(query);
         query.queryCharts.push({ctype: ChartType.graph, chartInstance: ec, customizedOption: {option: option}});
-        drawChart(qid, query.queryCharts.length - 1)
+        drawChart(qid, query.queryCharts.length - 1);
     } else if (ctype == ChartType.table) {
         let view = {
             items: query.data,
             headers: [
                 query.fieldNames
             ]
-        }
+        };
         query.queryCharts.push({ctype: ChartType.table});
         let rendered = Mustache.render(tableTemplate, view);
         charts_last_display.innerHTML = rendered;
@@ -490,8 +490,8 @@ function addChartModalClicked() {
         return;
     }
     let qid = chartToAdd.qid;
-    addChart(qid, chartToAdd.ctype)
-    drawChart(qid, 0)
+    addChart(qid, chartToAdd.ctype);
+    drawChart(qid, 0);
     $("#add-chart-modal").modal("hide");
     return false;
 }
@@ -506,9 +506,9 @@ function delChart(that) {
      * that: query-chart dom or an element inside
      * */
     console.log("delChart");
-    let chart = that.closest(".query-chart")
-    let charts = that.closest(".charts")
-    let qid = Number.parseInt(qdom(that).id.slice(1))
+    let chart = that.closest(".query-chart");
+    let charts = that.closest(".charts");
+    let qid = Number.parseInt(qdom(that).id.slice(1));
     let cidx = [...charts.children].indexOf(chart);
     delChartData(qid, cidx);
     charts.removeChild(chart);
@@ -516,7 +516,7 @@ function delChart(that) {
 
 function collapseAll() {
     let collapse = id("collapse-all");
-    let ifopen = collapse.innerHTML.trim() == "打开全部"
+    let ifopen = collapse.innerHTML.trim() == "打开全部";
     let alldetails = document.getElementsByTagName("details");
     for (let i = 0; i < alldetails.length; i++) {
         alldetails[i].open = ifopen;
@@ -589,12 +589,12 @@ function clickCopy(that) {
 
 function cancelQuery(that) {
     print("cancelQuery");
-    let qid = qdom(that).id.slice(1)
+    let qid = qdom(that).id.slice(1);
     let msg = {
         "type": "cancelQuery",
         "logid": logId,
         "queryId": qid
-    }
+    };
     ws.send(JSON.stringify(msg));
 }
 
