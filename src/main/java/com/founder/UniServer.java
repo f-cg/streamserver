@@ -25,6 +25,8 @@ public class UniServer extends Thread {
 				InputStream is = s.getInputStream();
 				byte[] bys = new byte[1024];
 				int len = is.read(bys);
+				is.close();
+				s.close();
 				String sinkmsg = new String(bys, 0, len);
 				JSONObject json = new JSONObject(sinkmsg);
 
@@ -39,7 +41,6 @@ public class UniServer extends Thread {
 				q.result.add(record);
 				System.out.println("before broadcast:" + q.queryDataString());
 				ls.broadcast(q.queryDataString());
-				s.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

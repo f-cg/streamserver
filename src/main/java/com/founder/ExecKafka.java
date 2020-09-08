@@ -1,8 +1,5 @@
 package com.founder;
 
-import org.apache.kafka.common.PartitionInfo;
-import java.util.List;
-import java.util.Map;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -16,13 +13,16 @@ public class ExecKafka {
 	public static boolean execCmd(String[] binArgs, String sucessId) throws IOException {
 		String line;
 		Process process = new ProcessBuilder(binArgs).start();
-		BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		while ((line = br.readLine()) != null) {
-			println(line);
-			if (line.contains(sucessId)) {
-				System.out.println(binArgs[0] + " executed successfully");
-				return true;
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+			while ((line = br.readLine()) != null) {
+				println(line);
+				if (line.contains(sucessId)) {
+					System.out.println(binArgs[0] + " executed successfully");
+					return true;
+				}
 			}
+		} catch (Exception e) {
+			throw e;
 		}
 		System.out.println(binArgs[0] + " executing failed");
 		return false;
@@ -31,28 +31,6 @@ public class ExecKafka {
 	private static void println(String line) {
 		if (Constants.EXECPRINT)
 			System.out.println(line);
-	}
-
-	public static boolean createTopics(String... topics) throws IOException {
-		String sucessId = "Created topic";
-		String topicBin = String.format("%s/bin/kafka-topics.sh", kafkaDir);
-		String[] topicBinArgs = { topicBin, "--create", "--bootstrap-server", "localhost:9092",
-				"--replication-factor", "1", "--partitions", "1", "--topic", "topic_here" };
-		int topicIdx = topicBinArgs.length - 1;
-
-		KafkaReceiver consumer = new KafkaReceiver();
-		Map<String, List<PartitionInfo>> oldTopics = consumer.getTopics();
-		for (String topic : topics) {
-			if (oldTopics.containsKey(topic)) {
-				continue;
-			}
-			topicBinArgs[topicIdx] = topic;
-			System.out.println(String.join(" ", topicBinArgs));
-			if (!execCmd(topicBinArgs, sucessId)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public static boolean execKafka() throws IOException {
@@ -67,8 +45,7 @@ public class ExecKafka {
 		if (!execCmd(new String[] { kfStartBin, kafkaArg }, sucessId)) {
 			return false;
 		}
-
-		return createTopics("BIZLOG");
+		return true;
 	}
 
 	public static void stopKafka() {
