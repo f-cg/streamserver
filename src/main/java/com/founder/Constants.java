@@ -21,6 +21,7 @@ public class Constants {
 	public static final String UNISERVERHOST = "127.0.0.1";
 	public static final int parallel = 1;
 	public static final int KAFKA_SENDER_TIME_INTERVAL = 1000;
+	public static final int QRESULTSIZE = 1000;
 	public static String dmUrl = "jdbc:dm://162.105.146.37:5326";
 	public static String dmUserName = "FOUNDER";
 	public static String dmPassword = "fdOAondameng";

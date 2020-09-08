@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import org.json.JSONObject;
 
@@ -43,6 +44,11 @@ public class UniServer extends Thread {
 				Query q = ls.getquery(qid);
 				if (q == null) {
 					continue;
+				}
+				int rsize = q.result.size();
+				if (rsize > Constants.QRESULTSIZE * 2) {
+					q.result = (ArrayList<Object>) q.result.subList(rsize - Constants.QRESULTSIZE,
+							rsize);
 				}
 				q.result.add(record);
 				System.out.println("before broadcast:" + q.queryDataString());
