@@ -335,7 +335,7 @@ function registerEchoQuery(that) {
         let rq = {"type": "register", "logId": logId, "query": echoSql, "queryName": "echoQuery"};
         ws.send(JSON.stringify(rq));
         that.innerText = "关闭日志流回显";
-        id("echo-container").hidden = false;
+        id("echo-container").style.display = 'block';
     } else {
         console.log(that);
         let echoQueryIdx = null;
@@ -354,7 +354,7 @@ function registerEchoQuery(that) {
             Queries.splice(echoQueryIdx, 1);
         }
         that.innerText = "打开日志流回显";
-        id("echo-container").hidden = true;
+        id("echo-container").style.display = 'none';
     }
 }
 
@@ -421,8 +421,7 @@ function drawQuery(qid) {
     querynode.getElementsByClassName("query-label")[0].innerText = getQuery(qid).queryName;
     let query = getQuery(qid);
     if (query.queryName == "echoQuery") {
-        let full = query.data.join("\n") + id("echo").textContent;
-        id("echo").textContent = full.substr(0, 640);
+        id("echo").textContent = query.data.reverse().join("\n").substr(0, 640);
         return;
     }
     if (query.queryCharts.length == 0) { //第一张图
