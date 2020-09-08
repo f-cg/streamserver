@@ -37,7 +37,13 @@ public class UniServer extends Thread {
 
 				// 按logid qid放到合适的query结果列表
 				LogStream ls = lsm.getls(logid);
+				if (ls == null) {
+					continue;
+				}
 				Query q = ls.getquery(qid);
+				if (q == null) {
+					continue;
+				}
 				q.result.add(record);
 				System.out.println("before broadcast:" + q.queryDataString());
 				ls.broadcast(q.queryDataString());

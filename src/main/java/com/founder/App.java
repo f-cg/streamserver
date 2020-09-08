@@ -22,6 +22,8 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.plugin.rendering.JavalinRenderer;
 import io.javalin.plugin.rendering.template.JavalinMustache;
+import io.javalin.websocket.WsConnectContext;
+import io.javalin.websocket.WsMessageContext;
 
 public class App {
 	MustacheFactory mf = new DefaultMustacheFactory();
@@ -180,6 +182,14 @@ public class App {
 		this.CtrlC();
 	}
 
+	private void wsWarning(WsConnectContext ctx, String msg) {
+		ctx.send(msg);
+	}
+
+	private void wsWarning(WsMessageContext ctx, String msg) {
+		ctx.send(msg);
+	}
+
 	public void run() throws Exception {
 		Constants.load();
 		getUserConfig();
@@ -253,6 +263,10 @@ public class App {
 				String logid = ctx.pathParam("logid");
 				System.out.println("logid:" + logid);
 				LogStream ls = lsm.getls(logid);
+				if (ls == null) {
+					this.wsWarning(ctx, "找不到该日志流:" + logid);
+					return;
+				}
 				ls.wss.add(ctx);
 				System.out.println("joined");
 				// 日志流对应的所有查询的id列表发给该连接
@@ -282,12 +296,24 @@ public class App {
 				} else if (type.equals("queryMeta")) {
 					int qid = js.getInt("queryId");
 					LogStream ls = lsm.getls(logid);
+					if (ls == null) {
+						this.wsWarning(ctx, "找不到该日志流:" + logid);
+						return;
+					}
 					Query qr = ls.getquery(qid);
+					if (qr == null) {
+						this.wsWarning(ctx, "找不到该查询:" + qid);
+						return;
+					}
 					ctx.send(qr.queryMetaString());
 				} else if (type.equals("cancelQuery")) {
 					System.out.println("cancelQuery");
 					int qid = js.getInt("queryId");
 					LogStream ls = lsm.getls(logid);
+					if (ls == null) {
+						this.wsWarning(ctx, "找不到该日志流:" + logid);
+						return;
+					}
 					ls.delquery(qid);
 					ctx.send(ls.queriesListString());
 				} else if (type.equals("Predict")) {
@@ -303,7 +329,15 @@ public class App {
 						seq.add(values);
 					}
 					LogStream ls = lsm.getls(logid);
+					if (ls == null) {
+						this.wsWarning(ctx, "找不到该日志流:" + logid);
+						return;
+					}
 					Query qr = ls.getquery(qid);
+					if (qr == null) {
+						this.wsWarning(ctx, "找不到该查询:" + qid);
+						return;
+					}
 					qr.predictSeqFeedback(seq);
 					ctx.send(qr.queryDataString());
 				}
