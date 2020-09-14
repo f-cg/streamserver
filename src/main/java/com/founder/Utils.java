@@ -34,4 +34,27 @@ public class Utils {
 		}
 		return true;
 	}
+
+	static String utf2hex(String utf) {
+		StringBuffer sb = new StringBuffer();
+		byte[] bytes = utf.getBytes();
+		for (int i = 0; i < bytes.length; i++) {
+			String hexString = Integer.toHexString(bytes[i] & 0x0FF);
+			sb.append(hexString);
+		}
+		String result = sb.toString();
+		return result;
+	}
+
+	static String hex2utf(String hex) {
+		char[] charArray = hex.toCharArray();
+		byte[] bytes = new byte[hex.length() / 2];
+		for (int i = 0; i < charArray.length; i = i + 2) {
+			String st = "" + charArray[i] + "" + charArray[i + 1];
+			byte ch = (byte) Integer.parseInt(st, 16);
+			bytes[i / 2] = ch;
+		}
+		String result = new String(bytes);
+		return result;
+	}
 }

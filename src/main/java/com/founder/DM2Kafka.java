@@ -12,6 +12,7 @@ public class DM2Kafka extends Thread {
 	private String orderBy;
 	private int orderByColIdx;
 	private String topic;
+	private String name;
 	private KafkaSender kf;
 	private String fieldNames[];
 	private String typeNames[];
@@ -100,9 +101,10 @@ public class DM2Kafka extends Thread {
 		this.genWrapSelect();
 	}
 
-	DM2Kafka(String sql, String topic) {
+	DM2Kafka(String sql, String name) {
 		this.sql = sql;
-		this.topic = topic;
+		this.name = name;
+		this.topic = Utils.utf2hex(name);
 		this.kf = new KafkaSender(topic);
 		this.parseSql();
 	}
@@ -112,7 +114,7 @@ public class DM2Kafka extends Thread {
 	}
 
 	public String genCreateSql() {
-		String createSql = "CREATE TABLE " + topic + " (\n";
+		String createSql = "CREATE TABLE " + name + " (\n";
 		for (int i = 0; i < fieldNames.length; i++) {
 			String f = fieldNames[i];
 			String t = typeNames[i];
