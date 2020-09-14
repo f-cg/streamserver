@@ -91,14 +91,14 @@ public class LogStream {
 	/**
 	 * @param querySql PATTERN\ncaseKey\nvalueKey1,valueKey2
 	 */
-	void addQueryFreqPred(String querySql, String queryName, QueryType qtype, ChartType defaultChartType) {
+	void addQueryFreqPred(String querySql, String queryName, QueryType qtype, JSONObject frontInterest) {
 		String[] lines = querySql.split("\n");
 		String caseKey = lines[1];
 		String[] eventsKeys = lines[2].split(",");
 		String timeField = lines[3];
 		int queryid = queryinc++;
 		Query query = new Query(this, querySql, caseKey, eventsKeys, timeField, queryid, queryName, qtype,
-				defaultChartType);
+				frontInterest);
 		queries.add(query);
 		System.err.println("before broadcast");
 		broadcast(queriesListString());
@@ -106,34 +106,29 @@ public class LogStream {
 		broadcast(query.queryMetaString());
 	}
 
-	void addQuery(String querySql, String queryName, String defaultctype) {
+	void addQuery(String querySql, String queryName, JSONObject frontInterest) {
 		// sql query
 		// addSink
 		// execute
+		if (frontInterest == null) {
+			frontInterest = new JSONObject();
+		}
+		String defaultctype = frontInterest.optString("defaultctype");
 		if (PP.matcher(querySql).find()) {
-			ChartType defaultChartType;
-			if (defaultctype == null || defaultctype == "table") {
-				defaultChartType = ChartType.table;
-			} else {
-				defaultChartType = ChartType.graph;
+			if (defaultctype == null || defaultctype.isEmpty()) {
+				frontInterest.put("defaultctype", "table");
 			}
-			addQueryFreqPred(querySql, queryName, QueryType.FrequentPattern, defaultChartType);
+			addQueryFreqPred(querySql, queryName, QueryType.FrequentPattern, frontInterest);
 			return;
 		} else if (PR.matcher(querySql).find()) {
-			ChartType defaultChartType;
-			if (defaultctype == null || defaultctype == "table") {
-				defaultChartType = ChartType.table;
-			} else {
-				defaultChartType = ChartType.graph;
+			if (defaultctype == null || defaultctype.isEmpty()) {
+				frontInterest.put("defaultctype", "table");
 			}
-			addQueryFreqPred(querySql, queryName, QueryType.Predict, defaultChartType);
+			addQueryFreqPred(querySql, queryName, QueryType.Predict, frontInterest);
 			return;
 		}
-		ChartType defaultChartType;
-		if (defaultctype == null || defaultctype == "graph") {
-			defaultChartType = ChartType.graph;
-		} else {
-			defaultChartType = ChartType.table;
+		if (defaultctype == null || defaultctype.isEmpty()) {
+			frontInterest.put("defaultctype", "graph");
 		}
 		if (!ddlExecuted) {
 			tEnv.sqlUpdate(initddl);
@@ -148,7 +143,7 @@ public class LogStream {
 		/* System.out.println(resultSchema); */
 		/* System.out.println(f0type); */
 		int queryid = queryinc++;
-		Query query = new Query(this, querySql, resultSchema, queryid, queryName, tEnv, defaultChartType);
+		Query query = new Query(this, querySql, resultSchema, queryid, queryName, tEnv, frontInterest);
 		DataStream<Row> resultDs = tEnv.toAppendStream(result, Row.class);
 		queries.add(query);
 		broadcast(queriesListString());

@@ -10,10 +10,6 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.json.JSONObject;
 
-enum ChartType {
-	graph, table;
-}
-
 enum QueryType {
 	FlinkSQL, FrequentPattern, Predict;
 }
@@ -29,13 +25,14 @@ public class Query extends Thread {
 	String[] eventsFields = null;
 	String timeField = null;
 	final QueryType qtype;
-	final ChartType defaultctype;
+	JSONObject frontInterest = null;
+	/* final ChartType defaultctype; */
 	TreeMap<String, ArrayList<String>> eventKeysValues;
 	LogStream ls;
 	EventPredictor epr;
 
 	Query(LogStream ls, String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv,
-			ChartType defaultctype) {
+			JSONObject frontObject) {
 		this.ls = ls;
 		qtype = QueryType.FlinkSQL;
 		this.qsql = qsql;
@@ -43,17 +40,14 @@ public class Query extends Thread {
 		this.qid = qid;
 		this.qname = qname;
 		this.tEnv = tEnv;
-		if (defaultctype != null)
-			this.defaultctype = defaultctype;
-		else
-			this.defaultctype = ChartType.graph;
+		this.frontInterest = frontObject;
 	}
 
 	Query(LogStream ls, String qsql, String caseKey, String[] eventsKeys, String timeField, int qid, String qname,
-			QueryType qtype, ChartType defaultctype) {
+			QueryType qtype, JSONObject frontObject) {
 		this.ls = ls;
 		this.qtype = qtype;
-		this.defaultctype = defaultctype;
+		this.frontInterest = frontObject;
 		this.qsql = qsql;
 		this.caseField = caseKey;
 		this.eventsFields = eventsKeys;
@@ -165,7 +159,7 @@ public class Query extends Thread {
 		JSONObject js = new JSONObject();
 		js.put("type", "queryMeta");
 		js.put("qtype", qtype);
-		js.put("defaultctype", defaultctype);
+		js.put("frontInterest", this.frontInterest);
 		js.put("queryId", qid);
 		js.put("queryName", qname);
 		js.put("fieldNames", fieldNames);

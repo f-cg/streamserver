@@ -131,7 +131,7 @@ function updateMetas(json) {
         return;
     }
     query.qtype = json.qtype;
-    query.defaultctype = json.defaultctype;
+    query.defaultctype = json.frontInterest.defaultctype;
     query.queryName = json.queryName;
     query.fieldNames = json.fieldNames;
     query.querySql = json.querySql;

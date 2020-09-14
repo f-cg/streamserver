@@ -69,9 +69,13 @@ public class App {
 	/**
 	 * 注册查询
 	 */
-	public void registerQuery(String logid, String query, String qname, String defaultctype) {
+	public void registerQuery(String logid, String query, String qname, JSONObject frontInterest) {
 		LogStream ls = lsm.getls(logid);
-		ls.addQuery(query, qname, defaultctype);
+		if (ls == null) {
+			System.err.println("no such logid: " + logid);
+			return;
+		}
+		ls.addQuery(query, qname, frontInterest);
 	}
 
 	/**
@@ -292,7 +296,11 @@ public class App {
 				if (type.equals("register")) {
 					String query = js.getString("query");
 					String qname = js.getString("queryName");
-					registerQuery(logid, query, qname, js.optString("defaultctype"));
+					JSONObject frontInterest = js.optJSONObject("frontInterest");
+					if (frontInterest == null) {
+						frontInterest = new JSONObject();
+					}
+					registerQuery(logid, query, qname, frontInterest);
 				} else if (type.equals("queryMeta")) {
 					int qid = js.getInt("queryId");
 					LogStream ls = lsm.getls(logid);
