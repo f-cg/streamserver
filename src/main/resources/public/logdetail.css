@@ -22,11 +22,15 @@
     display: inline-block;
     margin: 10px;
     padding: 10px;
-    border: 1px;
+    border: 2px;
     border-style: solid;
 }
 .eventbox-with-arrow {
     display: inline-block;
+}
+.arrow {
+    display: inline-block;
+    font-size: 3em;
 }
 .add-chart-btn,
 .cancel-button {
