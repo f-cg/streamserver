@@ -7,9 +7,9 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class KafkaSender {
-	Producer<String, String> producer;
-	String topic;
-	int timeIntervalDefault;
+	private Producer<String, String> producer;
+	private String topic;
+	private int timeIntervalDefault;
 
 	KafkaSender(String topic, int timeIntervalDefault) {
 
@@ -80,5 +80,4 @@ public class KafkaSender {
 	public void close() {
 		producer.close();
 	}
-
 }

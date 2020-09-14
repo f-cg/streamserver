@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class ConnectDM {
 	// 定义连接对象
-	Connection conn = null;
+	private Connection conn = null;
 
 	ConnectDM() throws SQLException {
 		this.loadJdbcDriver();

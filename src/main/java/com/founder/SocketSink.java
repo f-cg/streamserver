@@ -15,8 +15,8 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 public class SocketSink extends RichSinkFunction<Row> {
 
 	private static final long serialVersionUID = 1L;
-	int queryid;
-	String logid;
+	private int queryid;
+	private String logid;
 
 	/* private final PrintSinkOutputWriter<IN> writer; */
 

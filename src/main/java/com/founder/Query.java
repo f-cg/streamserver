@@ -15,21 +15,20 @@ enum QueryType {
 }
 
 public class Query extends Thread {
-	String qsql;
-	int qid;
-	String qname;
-	List<String> fieldNames;
+	private String qsql;
+	public int qid;
+	private String qname;
+	private List<String> fieldNames;
 	ArrayList<Object> result = new ArrayList<>();
-	StreamTableEnvironment tEnv;
-	String caseField = null;
-	String[] eventsFields = null;
-	String timeField = null;
-	final QueryType qtype;
-	JSONObject frontInterest = null;
-	/* final ChartType defaultctype; */
-	TreeMap<String, ArrayList<String>> eventKeysValues;
-	LogStream ls;
-	EventPredictor epr;
+	private StreamTableEnvironment tEnv;
+	private String caseField = null;
+	private String[] eventsFields = null;
+	private String timeField = null;
+	private final QueryType qtype;
+	private JSONObject frontInterest = null;
+	private TreeMap<String, ArrayList<String>> eventKeysValues;
+	private LogStream ls;
+	private EventPredictor epr;
 
 	Query(LogStream ls, String qsql, TableSchema schema, int qid, String qname, StreamTableEnvironment tEnv,
 			JSONObject frontObject) {

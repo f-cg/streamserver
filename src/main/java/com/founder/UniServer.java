@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 
 public class UniServer extends Thread {
-	LogStreamsManager lsm;
+	private LogStreamsManager lsm;
 
 	UniServer(LogStreamsManager lsm) {
 		this.lsm = lsm;

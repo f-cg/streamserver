@@ -3,8 +3,10 @@ package com.founder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -26,20 +28,20 @@ public class LogStream {
 	/*
 	 * 每个日志流里可能包含多个查询，每个查询都应该对应一个SocketSink
 	 */
-	LogStreamType lsType;
-	String name;
-	final String initddl;
-	String DMSql;
-	String createdTime;
-	String executedTime;
-	boolean ddlExecuted = false;
-	StreamExecutionEnvironment env;
-	StreamTableEnvironment tEnv;
-	EnvironmentSettings settings;
+	private LogStreamType lsType;
+	public String name;
+	private final String initddl;
+	private String DMSql;
+	private String createdTime;
+	private String executedTime;
+	private boolean ddlExecuted = false;
+	private StreamExecutionEnvironment env;
+	private StreamTableEnvironment tEnv;
+	private EnvironmentSettings settings;
 	/* Map<Integer, SocketSink> sinks = new ConcurrentHashMap<>(); */
-	List<WsContext> wss = new LinkedList<>();
-	Integer queryinc = 1;
-	List<Query> queries = new LinkedList<>();
+	private List<WsContext> wss = new LinkedList<>();
+	private Integer queryinc = 1;
+	private List<Query> queries = new LinkedList<>();
 	DM2Kafka dm2kafka;
 	private static final Pattern PP = Pattern.compile("^PATTERN");
 	private static final Pattern PR = Pattern.compile("^PREDICT");
@@ -82,7 +84,7 @@ public class LogStream {
 		}
 	}
 
-	String currentDateString() {
+	private String currentDateString() {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
 		Date date = new Date(System.currentTimeMillis());
 		return formatter.format(date);
@@ -91,7 +93,7 @@ public class LogStream {
 	/**
 	 * @param querySql PATTERN\ncaseKey\nvalueKey1,valueKey2
 	 */
-	void addQueryFreqPred(String querySql, String queryName, QueryType qtype, JSONObject frontInterest) {
+	private void addQueryFreqPred(String querySql, String queryName, QueryType qtype, JSONObject frontInterest) {
 		String[] lines = querySql.split("\n");
 		String caseKey = lines[1];
 		String[] eventsKeys = lines[2].split(",");
@@ -177,7 +179,7 @@ public class LogStream {
 		}
 	}
 
-	String queriesListString() {
+	private String queriesListString() {
 		JSONObject js = new JSONObject();
 		js.put("type", "queriesList");
 		js.put("logId", name);
@@ -187,5 +189,45 @@ public class LogStream {
 		}
 		js.put("queriesId", qids);
 		return js.toString();
+	}
+
+	void addWss(WsContext ctx) {
+		this.wss.add(ctx);
+
+	}
+
+	Map<String, String> getLogdetailModel() {
+		Map<String, String> model = new HashMap<String, String>();
+		model.put("logId", this.name);
+		model.put("ddl", this.initddl);
+		model.put("createdTime", this.createdTime);
+		model.put("executedTime", this.executedTime);
+		return model;
+	}
+
+	void sendQueriesList(WsContext ctx) {
+		ctx.send(this.queriesListString());
+	}
+
+	void sendQueriesMetas(WsContext ctx) {
+		for (Query q : this.queries) {
+			ctx.send(q.queryMetaString());
+		}
+	}
+
+	void sendQueriesData(WsContext ctx) {
+		for (Query q : this.queries) {
+			ctx.send(q.queryDataString());
+		}
+	}
+
+	/*
+	 * 日志流对应的所有查询的id列表 Metas 结果 分别发给该连接
+	 *
+	 */
+	void sendLogdetails(WsContext ctx) {
+		this.sendQueriesList(ctx);
+		this.sendQueriesMetas(ctx);
+		this.sendQueriesData(ctx);
 	}
 }

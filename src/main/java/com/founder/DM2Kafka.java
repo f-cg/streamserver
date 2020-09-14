@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DM2Kafka extends Thread {
-	String sql;
+	private String sql;
 	/* int whereStartIdx; */
 	/* int whereEndIdx; */
 	private String orderBy;

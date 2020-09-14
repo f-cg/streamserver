@@ -224,10 +224,7 @@ public class App {
 				returnHtml("error", ctx, "不存在该日志流" + logId);
 				return;
 			}
-			model.put("logId", logId);
-			model.put("ddl", ls.initddl);
-			model.put("createdTime", ls.createdTime);
-			model.put("executedTime", ls.executedTime);
+			model = ls.getLogdetailModel();
 			ctx.render("logdetail.html", model);
 		});
 		app_web.get("/delete_log/:logid", ctx -> {
@@ -271,18 +268,9 @@ public class App {
 					this.wsWarning(ctx, "找不到该日志流:" + logid);
 					return;
 				}
-				ls.wss.add(ctx);
+				ls.addWss(ctx);
 				System.out.println("joined");
-				// 日志流对应的所有查询的id列表发给该连接
-				ctx.send(ls.queriesListString());
-				// 日志流对应的所有查询的Meta发给该连接
-				for (Query q : ls.queries) {
-					ctx.send(q.queryMetaString());
-				}
-				// 日志流对应的所有查询的结果发给该连接
-				for (Query q : ls.queries) {
-					ctx.send(q.queryDataString());
-				}
+				ls.sendLogdetails(ctx);
 			});
 			ws.onClose(ctx -> {
 				System.out.println("left");
@@ -323,7 +311,7 @@ public class App {
 						return;
 					}
 					ls.delquery(qid);
-					ctx.send(ls.queriesListString());
+					ls.sendQueriesList(ctx);
 				} else if (type.equals("Predict")) {
 					System.out.println("Predict");
 					int qid = js.getInt("queryId");

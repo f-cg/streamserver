@@ -5,12 +5,12 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
 public class ExecKafka {
-	static final String workingDir = System.getProperty("user.dir");
-	static final String kafkaDir = workingDir + "/kafka_2.12-2.5.0";
-	static final String zkArg = String.format("%s/config/zookeeper.properties", kafkaDir);
-	static final String kafkaArg = String.format("%s/config/server.properties", kafkaDir);
+	private static final String workingDir = System.getProperty("user.dir");
+	private static final String kafkaDir = workingDir + "/kafka_2.12-2.5.0";
+	private static final String zkArg = String.format("%s/config/zookeeper.properties", kafkaDir);
+	private static final String kafkaArg = String.format("%s/config/server.properties", kafkaDir);
 
-	public static boolean execCmd(String[] binArgs, String sucessId) throws IOException {
+	private static boolean execCmd(String[] binArgs, String sucessId) throws IOException {
 		String line;
 		Process process = new ProcessBuilder(binArgs).start();
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
