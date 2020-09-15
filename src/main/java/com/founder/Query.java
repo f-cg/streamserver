@@ -59,7 +59,7 @@ public class Query extends Thread {
 		this.qname = qname;
 		if (qtype == QueryType.FrequentPattern) {
 			this.fieldNames = Arrays.asList(new String[] { "事件序列", "频次" });
-			this.fieldTypes= Arrays.asList(new String[] { "STRING", "BIGINT" });
+			this.fieldTypes = Arrays.asList(new String[] { "STRING", "BIGINT" });
 		} else if (qtype == QueryType.Predict) {
 			this.fieldNames = Arrays.asList(new String[] { "事件序列", "预测", "概率" });
 			this.fieldTypes = Arrays.asList(new String[] { "STRING", "STRING", "FLOAT" });
