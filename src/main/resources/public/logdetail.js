@@ -401,7 +401,7 @@ function getDefaultOption(query) {
     let xAxisType = 'category';
     let xAxisIndx = 0;
     if (rowtime >= 0) {
-        xAxisType = 'time';
+        xAxisType = 'category';//x轴的时间也用category
         xAxisIndx = rowtime;
     } else {
         xAxisType = 'category';
