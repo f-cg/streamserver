@@ -209,11 +209,15 @@ public class App {
 			/* config.showJavalinBanner = false; */
 		}).start(Constants.JAVALINWEBPORT);
 		uniserver.start();
-		prepare();
+		/* prepare(); */
 		app_web.get("/", ctx -> {
 			printHttpPath(ctx);
 			/* ctx.result("index"); */
 			returnLogPage(ctx);
+		});
+		app_web.get("/prepare", ctx -> {
+			printHttpPath(ctx);
+			prepare();
 		});
 		app_web.get("/log/:logid", ctx -> {
 			printHttpPath(ctx);

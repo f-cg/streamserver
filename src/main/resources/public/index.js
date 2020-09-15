@@ -262,3 +262,20 @@ function delete_selected() {
     todelete = JSON.stringify({'todelete': todelete});
     window.open('/delete_log_array?todelete=' + todelete, '_self');
 }
+function getUrl(url) {
+    let XHR = new XMLHttpRequest();
+    // 配置请求
+    XHR.open('GET', url, false);
+    // HTTP头 先open再设置请求头
+    XHR.setRequestHeader('content-type', 'application/json');
+    // 发送请求
+    XHR.send();
+
+    return XHR.responseText;
+}
+
+function sample_pre() {
+    console.log('sample');
+    id('sample-pre').hidden = true;
+    getUrl('/prepare');
+}
