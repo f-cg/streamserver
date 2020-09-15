@@ -83,7 +83,9 @@ public class App {
 	 */
 	public void prepare() {
 		for (String[] LOG : Constants.LOGS) {
-			addLog(LOG[0], LOG[1]);
+			if (!addLog(LOG[0], LOG[1])) {
+				return;
+			}
 		}
 		for (String[] QUERY : Constants.QUERIES) {
 			registerQuery(QUERY[0], QUERY[1], QUERY[2], null);
