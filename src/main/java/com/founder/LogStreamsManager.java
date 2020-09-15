@@ -1,4 +1,5 @@
 package com.founder;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,9 +23,10 @@ public class LogStreamsManager {
 		}
 		return null;
 	}
+
 	void dells(String logId) {
 		LogStream ls = getls(logId);
-		if(ls!=null){
+		if (ls != null) {
 			lslist.remove(ls);
 		}
 	}

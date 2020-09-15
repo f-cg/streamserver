@@ -1,14 +1,12 @@
 package com.founder;
 
-import java.util.Map;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Properties;
+
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
 
 public class KafkaReceiver {
-	KafkaConsumer<String, String> consumer;
-	int timeIntervalDefault;
+	private KafkaConsumer<String, String> consumer;
 
 	KafkaReceiver() {
 		Properties props = new Properties();
@@ -21,8 +19,8 @@ public class KafkaReceiver {
 		consumer = new KafkaConsumer<String, String>(props);
 	}
 
-	public Map<String, List<PartitionInfo>> getTopics() {
-		return consumer.listTopics();
+	public String[] getTopics() {
+		return Arrays.stream(consumer.listTopics().keySet().toArray()).toArray(String[]::new);
 	}
 
 	public void close() {
