@@ -42,20 +42,21 @@ var kafka_properties = `
 var kafka_dom = Mustache.render(kafka_properties, {});
 var filesystem_dom = Mustache.render(filesystem_properties, {});
 function connector_type_list_change(value) {
-    let connector_properties = id("connector-properties")
-    let formdom = id("reg-log-form-details");
-    if (connector_properties != null)
+    let connector_properties = id('connector-properties');
+    let formdom = id('reg-log-form-details');
+    if (connector_properties != null) {
         formdom.removeChild(connector_properties);
-    if (value == "filesystem") {
+    }
+    if (value == 'filesystem') {
         formdom.insertAdjacentHTML('beforeend', filesystem_dom);
-    } else if (value == "kafka") {
+    } else if (value == 'kafka') {
         formdom.insertAdjacentHTML('beforeend', kafka_dom);
     }
 }
 
 window.onload = function () {
-    //保持未选中状态
-    let select = id("connector-type");
+    // 保持未选中状态
+    let select = id('connector-type');
     select.options[0].selected = true;
 };
 function delete_log(that) {
@@ -66,17 +67,17 @@ function delete_log(that) {
 
 
 function removeField(that) {
-    let field = that.closest(".field");
+    let field = that.closest('.field');
     field.parentNode.removeChild(field);
 }
 
 var nameCount = 10;
 function insertField(that) {
-    let field = that.closest(".field");
+    let field = that.closest('.field');
     let view = {
         filedinput: 'i' + nameCount,
         filedtype: 't' + nameCount
-    }
+    };
     nameCount += 1;
     let newfield = Mustache.render(field_temp, view);
     field.insertAdjacentHTML("afterend", newfield);
@@ -117,11 +118,11 @@ function falsealert(error) {
 }
 
 function getFields() {
-    let fields = id("fields").getElementsByClassName("field");
+    let fields = id('fields').getElementsByClassName('field');
     let field_name_type = [];
     for (let i = 0; i < fields.length; i++) {
-        let name = fields[i].getElementsByTagName("input")[0].value.trim();
-        let type = fields[i].getElementsByTagName("select")[0].value.trim();
+        let name = fields[i].getElementsByTagName('input')[0].value.trim();
+        let type = fields[i].getElementsByTagName('select')[0].value.trim();
         if (name.length != 0) {
             field_name_type.push({name: name, type: type});
         }
@@ -130,29 +131,29 @@ function getFields() {
 }
 
 function regLogCheck() {
-    let form = id("reg-log-form");
+    let form = id('reg-log-form');
     console.log(form);
-    let logname = form["logname"].value.trim();
-    let connector_type = form["connector-type"].value.trim();
+    let logname = form['logname'].value.trim();
+    let connector_type = form['connector-type'].value.trim();
     if (logname.length == 0 || connector_type.length == 0)
-        return falsealert("日志名称和连接类型不能为空！");
+        return falsealert('日志名称和连接类型不能为空！');
     let connector_properties = {};
     let ddlwith;
-    if (connector_type == "filesystem") {
-        let path = form["path"].value.trim();
+    if (connector_type == 'filesystem') {
+        let path = form['path'].value.trim();
         if (path.length == 0)
-            return falsealert("path不能为空!");
+            return falsealert('path不能为空!');
         connector_properties.path = path;
         ddlwith = `
 'connector.type' = 'filesystem',
 'connector.path' = '${path}',
-'format.type' = 'csv'`
-    } else if (connector_type == "kafka") {
-        topic = form["topic"].value.trim();
-        zookeeper = form["zookeeper"].value.trim();
-        servers = form["servers"].value.trim();
+'format.type' = 'csv'`;
+    } else if (connector_type == 'kafka') {
+        let topic = form['topic'].value.trim();
+        let zookeeper = form['zookeeper'].value.trim();
+        let servers = form["servers"].value.trim();
         if (topic.length == 0 || zookeeper == 0 || servers == 0)
-            return falsealert("topic zookeeper servers都不能为空！");
+            return falsealert('topic zookeeper servers都不能为空！');
         connector_properties.topic = topic;
         connector_properties.zookeeper = zookeeper;
         connector_properties.servers = servers;
@@ -162,32 +163,32 @@ function regLogCheck() {
 'connector.topic' = '${topic}',
 'connector.properties.zookeeper.connect' = '${zookeeper}',
 'connector.properties.bootstrap.servers' = '${servers}',
-'format.type' = 'csv'`
+'format.type' = 'csv'`;
     } else {
-        return falsealert("连接类型未知");
+        return falsealert('连接类型未知');
     }
     let field_name_type = getFields();
     if (field_name_type.length == 0) {
-        return falsealert("字段不能一个没有！");
+        return falsealert('字段不能一个没有！');
     }
-    let ddlfields = "";
+    let ddlfields = '';
     for (let i = 0; i < field_name_type.length; i++) {
         let field = field_name_type[i];
         ddlfields += field.name + " " + field.type + ",\n";
     }
-    let watermark = id("watermark").value.trim();
+    let watermark = id('watermark').value.trim();
     if (watermark.length == 0)
-        return falsealert("水印不能为空!")
-    let ddlwm = `WATERMARK FOR ${watermark} AS ${watermark} - INTERVAL '3' SECOND`
-    let ddl = `CREATE TABLE ${logname} (${ddlfields} ${ddlwm}) with (${ddlwith})`
-    logformjson = {
-        "logname": logname,
-        "connector_type": connector_type,
-        "properties": connector_properties
+        return falsealert('水印不能为空!');
+    let ddlwm = `WATERMARK FOR ${watermark} AS ${watermark} - INTERVAL '3' SECOND`;
+    let ddl = `CREATE TABLE ${logname} (${ddlfields} ${ddlwm}) with (${ddlwith})`;
+    let logformjson = {
+        'logname': logname,
+        'connector_type': connector_type,
+        'properties': connector_properties
     };
-    redirectPost("/addlogstream", {
+    redirectPost('/addlogstream', {
         addname: logname,
-        ddl: ddl,
+        ddl: ddl
     });
     return false;
 }
@@ -224,12 +225,12 @@ function optionsContains(options, value) {
 }
 
 function watermarkOptionRefresh() {
-    if (event.target.id != "watermark")
+    if (event.target.id != 'watermark')
         return;
     console.log(event.target);
     let field_name_type = getFields();
-    let fields = field_name_type.filter(field => field.type == "TIMESTAMP(3)");
-    let wm = id("watermark");
+    let fields = field_name_type.filter(field => field.type == 'TIMESTAMP(3)');
+    let wm = id('watermark');
     let selectedValue = wm.value;
     let selectedIndex = -1;
     removeOptions(wm);
@@ -245,19 +246,19 @@ function watermarkOptionRefresh() {
 }
 
 function delete_selected() {
-    let cbs = document.getElementsByClassName("delete-cb");
+    let cbs = document.getElementsByClassName('delete-cb');
     let todelete = [];
     for (let i = 0; i < cbs.length; i++) {
         let cb = cbs[i];
         if (!cb.checked)
             continue;
-        let logId = cb.nextElementSibling.attributes["logid"].value;
+        let logId = cb.nextElementSibling.attributes['logid'].value;
         todelete.push(logId);
     }
     if (todelete.length == 0) {
-        alert("至少选中1个再删除");
+        alert('至少选中1个再删除');
         return;
     }
-    todelete = JSON.stringify({"todelete": todelete});
-    window.open("/delete_log_array?todelete=" + todelete, "_self");
+    todelete = JSON.stringify({'todelete': todelete});
+    window.open('/delete_log_array?todelete=' + todelete, '_self');
 }

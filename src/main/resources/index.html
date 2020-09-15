@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <title>日志流管理</title>
@@ -8,11 +9,12 @@
     <link rel="stylesheet" href="/third-party/bootstrap-4.5.0-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/cmn.css">
 </head>
+
 <body>
     <div class="jumbotron">
         <h1 class="display-4">办公日志流系统</h1>
         <p class="lead">
-		智慧办公，快乐生活
+            智慧办公，快乐生活
         </p>
     </div>
     <div class="btn-group" role="group" aria-label="Basic example">
@@ -54,13 +56,15 @@
                                 <label for="logname">
                                     <b>日志流名称&nbsp;</b>
                                 </label>
-                                <input type="text" placeholder="日志流名称" name="logname" id="logname" class="form-control" required>
+                                <input type="text" placeholder="日志流名称" name="logname" id="logname" class="form-control"
+                                    required>
                             </div>
                             <div class="form-group form-inline">
                                 <label for="connector-type">
                                     <b>连接类型&nbsp;</b>
                                 </label>
-                                <select name="connector-type" id="connector-type" class="form-control" onchange="connector_type_list_change(this.value);">
+                                <select name="connector-type" id="connector-type" class="form-control"
+                                    onchange="connector_type_list_change(this.value);">
                                     <option disabled selected value="">
                                         请选择
                                     </option>
@@ -89,7 +93,8 @@
                                             TIMESTAMP(3)
                                         </option>
                                     </select>
-                                    <a href="javascript:void(0);" onclick="insertField(this);" class="hovershow-show"><b>&nbsp;+</b></a>
+                                    <a href="javascript:void(0);" onclick="insertField(this);"
+                                        class="hovershow-show"><b>&nbsp;+</b></a>
                                 </div>
                             </fieldset>
                             <div class="form-group form-inline">
@@ -140,7 +145,8 @@
                                     <label for="ddl">
                                         SQL语句
                                     </label>
-                                    <textarea class="sql-input no-empty form-control" rows="3" name="ddl" id="ddl" required></textarea>
+                                    <textarea class="sql-input no-empty form-control" rows="3" name="ddl" id="ddl"
+                                        required></textarea>
                                 </div>
                                 <div class="editor"></div>
                             </div>
@@ -148,7 +154,8 @@
                                 <label for="add-log-name">
                                     日志流名称
                                 </label>
-                                <input type="text" name="addname" value="" id="add-log-name" class="no-empty form-control" required>
+                                <input type="text" name="addname" value="" id="add-log-name" class="no-empty form-control"
+                                    required>
                             </div>
                         </div>
                     </div>
@@ -207,4 +214,5 @@
     <script src="/third-party/popper.min.js"></script>
     <script src="/third-party/bootstrap-4.5.0-dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>
