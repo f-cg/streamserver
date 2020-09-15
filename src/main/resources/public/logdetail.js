@@ -7,6 +7,13 @@ const QueryType = {
     Predict: "Predict"
 };
 
+const FieldType = {
+    STRING: "STRING",
+    INT: "INT",
+    TIME: "TIME",
+    ROWTIME: "ROWTIME"
+};
+
 const ChartType = Object.freeze({
     graph: "graph",
     table: "table"
@@ -54,8 +61,14 @@ function changeSeriesType(itemInContext, newtype) {
     let query = getQuery(qid);
     let changedFieldIdx = query.fieldNames.indexOf(name);
     print("change field " + name + " to type " + newtype);
-    query.queryCharts[chartIndex].customizedOption.option.series[changedFieldIdx - 1].type = newtype;
-    drawQuery(qid);
+    let series = query.queryCharts[chartIndex].customizedOption.option.series;
+    for (let i = 0; i < series.length; i++) {
+        if (series[i].encode.y == changedFieldIdx) {
+            series[i].type = newtype;
+            drawQuery(qid);
+            break;
+        }
+    }
 }
 
 /**
@@ -124,6 +137,22 @@ function updateQueriesList(qids) {
     print("Queries" + Queries);
 }
 
+function convertFieldTypes(fieldFlinkTypes) {
+    let fieldTypes = [];
+    for (let i = 0; i < fieldFlinkTypes.length; i++) {
+        if (fieldFlinkTypes[i].includes('ROWTIME')) {
+            fieldTypes.push(FieldType.ROWTIME);
+        } else if (fieldFlinkTypes[i].trim().startsWith('STRING')) {
+            fieldTypes.push(FieldType.STRING);
+        } else if (fieldFlinkTypes[i].trim().startsWith('BIGINT')) {
+            fieldTypes.push(FieldType.INT);
+        } else {
+            fieldTypes.push(FieldType.STRING);
+        }
+    }
+    return fieldTypes;
+}
+
 function updateMetas(json) {
     let query = getQuery(json.queryId);
     if (query == null) {
@@ -134,6 +163,8 @@ function updateMetas(json) {
     query.defaultctype = json.frontInterest.defaultctype;
     query.queryName = json.queryName;
     query.fieldNames = json.fieldNames;
+    query.fieldFlinkTypes = json.fieldTypes;
+    query.fieldTypes = convertFieldTypes(query.fieldFlinkTypes);
     query.querySql = json.querySql;
     if (json.qtype == QueryType.FlinkSQL) {
     } else if (json.qtype == QueryType.FrequentPattern) {
@@ -359,15 +390,80 @@ function registerEchoQuery(that) {
 }
 
 function getDefaultOption(query) {
+    /*
+     * x轴 单个属性
+*y轴 若干个属性
+*其余属性放在tooltip里
+*x: 只有是rowtime类型时才能作为time类型，否则为category,并把第一个非int类型的field放在这里，否则采用table
+*y:[]， 如果还剩rowtime类型field,则放在这里并把轴类型设为time,否则如果有int类型，则把所有int类型的field放在这里，否则则采用table.
+     * */
+    let rowtime = query.fieldTypes.indexOf(FieldType.ROWTIME);
     let xAxisType = 'category';
+    let xAxisIndx = 0;
+    if (rowtime >= 0) {
+        xAxisType = 'time';
+        xAxisIndx = rowtime;
+    } else {
+        xAxisType = 'category';
+        let firstNotInt = -1;
+        for (let i = 0; i < query.fieldTypes.length; i++) {
+            if (query.fieldTypes[0] != FieldType.INT) {
+                firstNotInt = i;
+                break;
+            }
+        }
+        if (firstNotInt < -1) {
+            return null;
+        }
+        xAxisIndx = firstNotInt;
+    }
+
     let yAxisType = 'value';
+    let yAxisIndices = [];
+    let rowtimeRemaining = [];
+    if (rowtime >= 0) {
+        for (let i = rowtime + 1; i < query.fieldTypes.length; i++) {
+            if (query.fieldTypes[i] == FieldType.ROWTIME) {
+                rowtimeRemaining.push(i);
+            }
+        }
+    }
+    if (rowtimeRemaining.length > 0) {
+        yAxisType = 'time';
+        yAxisIndices = rowtimeRemaining;
+    } else {
+        let intIdices = [];
+        for (let i = rowtime + 1; i < query.fieldTypes.length; i++) {
+            if (query.fieldTypes[i] == FieldType.INT) {
+                intIdices.push(i);
+            }
+        }
+        if (intIdices.length == 0) {
+            return null;
+        } else {
+            yAxisIndices = intIdices;
+            yAxisType = 'value';
+        }
+    }
+
     let seriesTypesDict = [];
-    for (let i = 0; i < query.fieldNames.length - 1; i++) {
-        seriesTypesDict.push({type: "bar", encode: {x: 0, y: i + 1}, name: query.fieldNames[i + 1]});
+    for (let i = 0; i < yAxisIndices.length; i++) {
+        seriesTypesDict.push({type: "bar", encode: {x: xAxisIndx, y: yAxisIndices[i]}, name: query.fieldNames[yAxisIndices[i]]});
     }
     let option = {
         legend: {},
-        tooltip: {},
+        tooltip: {
+            trigger: 'axis',
+            formatter(params) {
+                // params: 若干数据项(item)，每个item包括相同的data，不同的dimensionNames，暂时将所有value都放上。
+                let q = getQuery(query.qid);
+                let tip = "";
+                for (let i = 0; i < q.fieldNames.length; i++) {
+                    tip += '<span style="float:left;">' + q.fieldNames[i] + ': ' + params[0].data[i] + '</span></br>';
+                }
+                return tip;
+            }
+        },
         dataset: {
         },
         xAxis: {'type': xAxisType},
@@ -425,6 +521,7 @@ function drawQuery(qid) {
         return;
     }
     if (query.queryCharts.length == 0) { //第一张图
+        // 如果是预测则需要先初始化交互控制部件
         if (query.qtype == QueryType.Predict) {
             let view = {
                 "properties": [],
@@ -437,6 +534,7 @@ function drawQuery(qid) {
             let rendered = Mustache.render(queryControlTemplate, view);
             querynode.getElementsByClassName("query-control")[0].innerHTML = rendered;
         }
+        // 所有的查询都需要有chart,包括graph和table
         addChart(qid, query.defaultctype);
     }
     for (let i = 0; i < query.queryCharts.length; i++) {
@@ -484,6 +582,17 @@ function addChartClicked(that) {
     $("#add-chart-modal").modal("show");
 }
 
+function addTable(charts_last_display, query) {
+    let view = {
+        items: query.data,
+        headers: [
+            query.fieldNames
+        ]
+    };
+    query.queryCharts.push({ctype: ChartType.table});
+    let rendered = Mustache.render(tableTemplate, view);
+    charts_last_display.innerHTML = rendered;
+}
 function addChart(qid, ctype) {
     let query = getQuery(qid);
     let charts = qdom(qid).getElementsByClassName("charts")[0];
@@ -496,18 +605,14 @@ function addChart(qid, ctype) {
     if (ctype == ChartType.graph) {
         let ec = echarts.init(charts_last_display);
         let option = getDefaultOption(query);
+        if (option == null) {
+            addTable(charts_last_display, query);
+            return;
+        }
         query.queryCharts.push({ctype: ChartType.graph, chartInstance: ec, customizedOption: {option: option}});
         drawChart(qid, query.queryCharts.length - 1);
     } else if (ctype == ChartType.table) {
-        let view = {
-            items: query.data,
-            headers: [
-                query.fieldNames
-            ]
-        };
-        query.queryCharts.push({ctype: ChartType.table});
-        let rendered = Mustache.render(tableTemplate, view);
-        charts_last_display.innerHTML = rendered;
+        addTable(charts_last_display, query);
     } else {
         console.error("no such ctype" + chartToAdd.ctype);
     }

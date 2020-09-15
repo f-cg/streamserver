@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
@@ -19,6 +20,7 @@ public class Query extends Thread {
 	public int qid;
 	private String qname;
 	private List<String> fieldNames;
+	private List<String> fieldTypes;
 	ArrayList<Object> result = new ArrayList<>();
 	private StreamTableEnvironment tEnv;
 	private String caseField = null;
@@ -36,6 +38,8 @@ public class Query extends Thread {
 		qtype = QueryType.FlinkSQL;
 		this.qsql = qsql;
 		this.fieldNames = Arrays.asList(schema.getFieldNames());
+		this.fieldTypes = Arrays.asList(schema.getFieldDataTypes()).stream().map(dt -> dt.toString())
+				.collect(Collectors.toList());
 		this.qid = qid;
 		this.qname = qname;
 		this.tEnv = tEnv;
@@ -55,8 +59,10 @@ public class Query extends Thread {
 		this.qname = qname;
 		if (qtype == QueryType.FrequentPattern) {
 			this.fieldNames = Arrays.asList(new String[] { "事件序列", "频次" });
+			this.fieldTypes= Arrays.asList(new String[] { "STRING", "BIGINT" });
 		} else if (qtype == QueryType.Predict) {
 			this.fieldNames = Arrays.asList(new String[] { "事件序列", "预测", "概率" });
+			this.fieldTypes = Arrays.asList(new String[] { "STRING", "STRING", "FLOAT" });
 		} else {
 			System.err.println("no such query type" + qtype);
 			System.exit(1);
@@ -162,6 +168,7 @@ public class Query extends Thread {
 		js.put("queryId", qid);
 		js.put("queryName", qname);
 		js.put("fieldNames", fieldNames);
+		js.put("fieldTypes", fieldTypes);
 		js.put("querySql", qsql);
 		if (qtype == QueryType.FlinkSQL) {
 		} else if (qtype == QueryType.FrequentPattern) {
