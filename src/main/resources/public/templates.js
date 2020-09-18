@@ -87,11 +87,12 @@ ${EventTemplate}
 `;
 var queryTemplate = `
 <details open id="{{query_id}}" class="query">
-<summary class="query-summary hovershow-hover">
+<summary class="query-summary hovershow-hover" onclick="collapseThisSum(this);">
 <input type="checkbox" class="delete-cb delete-cb-query" autocomplete="off">
-折叠/展开 ${queryLableTemplate}
+<button onclick="collapseThisBtn(this);">折叠/展开</button> ${queryLableTemplate}
 </summary>
+<div class="query-details">
     <div class="query-control"></div>
     ${queryChartsTemplate}
-</details>
-`;
+</div>
+</details>`;

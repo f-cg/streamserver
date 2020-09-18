@@ -657,12 +657,41 @@ function collapseAll() {
     let ifopen = collapse.innerHTML.trim() == "打开全部";
     let alldetails = document.getElementsByTagName("details");
     for (let i = 0; i < alldetails.length; i++) {
-        alldetails[i].open = ifopen;
+        // 判断浏览器是否支持details标签
+        if (alldetails[i].open == undefined) {
+            alldetails[i].getElementsByClassName("query-details")[0].hidden = !ifopen;
+        } else {
+            alldetails[i].open = ifopen;
+        }
     }
     if (ifopen) {
         collapse.innerHTML = "折叠全部";
     } else {
         collapse.innerHTML = "打开全部";
+    }
+}
+function collapseThisBtn(that) {
+    let details = that.closest("details");
+    // 判断浏览器是否支持details标签
+    if (details.open == undefined) {
+        // let hidden = details.getElementsByClassName("query-details")[0].hidden;
+        // details.getElementsByClassName("query-details")[0].hidden = !hidden;
+    } else {
+        if (details.open) {
+            details.open = false;
+        } else {
+            details.open = true;
+        }
+    }
+}
+function collapseThisSum(that) {
+    let details = that.closest("details");
+    // 判断浏览器是否支持details标签
+    if (details.open == undefined) {
+        let hidden = details.getElementsByClassName("query-details")[0].hidden;
+        details.getElementsByClassName("query-details")[0].hidden = !hidden;
+    } else {
+        return;
     }
 }
 
