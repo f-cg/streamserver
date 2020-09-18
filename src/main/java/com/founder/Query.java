@@ -88,13 +88,13 @@ public class Query extends Thread {
 			dm.connect();
 			SqlResultData result = dm.querySql(eventsSeqSql);
 			dm.disConnect();
-			PrefixSpan<String> pfs = new PrefixSpan<String>(0.02, 0, 1);
+			PrefixSpan<String> pfs = new PrefixSpan<String>(0.02, 2, 1, false);
 			ArrayList<ArrayList<String>> seqs = new ArrayList<ArrayList<String>>();
 			for (String[] row : result.dataMatrix) {
 				if (Utils.isGoodStringArray(row))
 					seqs.add(new ArrayList<>(Arrays.asList(row[0].split("->"))));
 			}
-			ArrayList<FrequentPattern<String>> freqpatt = pfs.run(seqs);
+			List<FrequentPattern<String>> freqpatt = pfs.run(seqs);
 			ArrayList<Object> resultFreq = new ArrayList<Object>();
 			for (FrequentPattern<String> p : freqpatt) {
 				ArrayList<Object> row = new ArrayList<Object>();

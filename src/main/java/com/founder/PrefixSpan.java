@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * input: [[T,...],[],] output:[{patt, freq}]
@@ -36,18 +38,20 @@ public class PrefixSpan<T> {
 	double minSupDefault;
 	int minLenDefault;
 	int sortLenDefault;
-	ArrayList<ArrayList<T>> seqs;
+	boolean sortByLen;
+	List<ArrayList<T>> seqs;
 	/* FrequentPatterns<T> freqpatt; */
-	ArrayList<FrequentPattern<T>> results;
+	List<FrequentPattern<T>> results;
 
-	PrefixSpan(double minsup, int minlen, int sortlen) {
+	PrefixSpan(double minsup, int minlen, int sortlen, boolean sortByLen) {
 		this.minSupDefault = minsup;
 		this.minLenDefault = minlen;
 		this.sortLenDefault = sortlen;
+		this.sortByLen = sortByLen;
 	}
 
 	PrefixSpan(double minsup) {
-		this(minsup, 1, 0);
+		this(minsup, 1, 0, false);
 	}
 
 	PrefixSpan() {
@@ -83,7 +87,7 @@ public class PrefixSpan<T> {
 		}
 	}
 
-	ArrayList<FrequentPattern<T>> run(ArrayList<ArrayList<T>> seqs, double minSupRate) {
+	List<FrequentPattern<T>> run(ArrayList<ArrayList<T>> seqs, double minSupRate) {
 		this.minSupDefault = minSupRate;
 		this.minSup = (int) (seqs.size() * minSupRate);
 		this.seqs = seqs;
@@ -98,7 +102,7 @@ public class PrefixSpan<T> {
 		return this.results;
 	}
 
-	ArrayList<FrequentPattern<T>> run(ArrayList<ArrayList<T>> seqs) {
+	List<FrequentPattern<T>> run(ArrayList<ArrayList<T>> seqs) {
 		return this.run(seqs, this.minSupDefault);
 	}
 
@@ -157,27 +161,42 @@ public class PrefixSpan<T> {
 	}
 
 	private void sortResults() {
-		this.results.sort(new Comparator<FrequentPattern<T>>() {
-			@Override
-			public int compare(FrequentPattern<T> f1, FrequentPattern<T> f2) {
-				int len1 = f1.pattern.size();
-				int len2 = f2.pattern.size();
-				// 如果两个都在sortlen一边，则按频率从大到小排序
-				if ((len1 - sortLenDefault) * (len2 - sortLenDefault) > 0) {
-					if (f1.frequence != f2.frequence) {
-						return -(f1.frequence - f2.frequence);
+		if (this.minLenDefault > 0) {
+			this.results = this.results.stream().filter(f -> f.pattern.size() > this.minLenDefault)
+					.collect(Collectors.toList());
+		}
+		if (this.sortByLen) {
+			this.results.sort(new Comparator<FrequentPattern<T>>() {
+				@Override
+				public int compare(FrequentPattern<T> f1, FrequentPattern<T> f2) {
+					int len1 = f1.pattern.size();
+					int len2 = f2.pattern.size();
+					return -(len1 - len2);
+				}
+			});
+		} else {
+			this.results.sort(new Comparator<FrequentPattern<T>>() {
+				@Override
+				public int compare(FrequentPattern<T> f1, FrequentPattern<T> f2) {
+					int len1 = f1.pattern.size();
+					int len2 = f2.pattern.size();
+					// 如果两个都在sortlen一边，则按频率从大到小排序
+					if ((len1 - sortLenDefault) * (len2 - sortLenDefault) > 0) {
+						if (f1.frequence != f2.frequence) {
+							return -(f1.frequence - f2.frequence);
+						} else {
+							return -(len1 - len2);
+						}
+						// 否则两个在sortlen两边，则按长度从大到小排序
 					} else {
-						return -(len1 - len2);
-					}
-					// 否则两个在sortlen两边，则按长度从大到小排序
-				} else {
-					if (len1 != len2) {
-						return -(len1 - len2);
-					} else {
-						return -(f1.frequence - f2.frequence);
+						if (len1 != len2) {
+							return -(len1 - len2);
+						} else {
+							return -(f1.frequence - f2.frequence);
+						}
 					}
 				}
-			}
-		});
+			});
+		}
 	}
 }
