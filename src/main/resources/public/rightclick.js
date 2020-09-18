@@ -36,8 +36,6 @@ function menuItemListener(link) {
  */
 function clickListener() {
     document.addEventListener("click", function (e) {
-        console.log("left clicked")
-        console.log(e);
         var clickeElIsLink = clickInsideElement(e, contextMenuLinkClassName);
         if (clickeElIsLink) {
             e.preventDefault();
