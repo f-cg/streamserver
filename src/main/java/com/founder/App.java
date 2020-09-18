@@ -180,12 +180,13 @@ public class App {
 		}
 	}
 
-	private void startOtherPrograms() throws IOException {
+	private boolean startOtherPrograms() throws IOException {
 		if (!ExecKafka.execKafka()) {
 			ExecKafka.stopKafka();
-			return;
+			return false;
 		}
 		this.CtrlC();
+		return true;
 	}
 
 	private void wsWarning(WsConnectContext ctx, String msg) {
@@ -199,7 +200,9 @@ public class App {
 	public void run() throws Exception {
 		Constants.load();
 		getUserConfig();
-		this.startOtherPrograms();
+		if(!this.startOtherPrograms()){
+			System.err.println("启动kafka或者zookeeper server失败，请查看9092端口占用情况");
+		}
 		/* System.out.println("System.out has been set to /tmp/print.txt"); */
 		/*
 		 * System.setOut(new PrintStream(new BufferedOutputStream(new
