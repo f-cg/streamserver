@@ -47,3 +47,5 @@ BLGC
 深度学习预测按钮/操作
 
 中文名 汉化
+Kafka topic和logstream name可以不相同 logstream里记录kafka topic
+

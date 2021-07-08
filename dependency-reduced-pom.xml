@@ -4,7 +4,7 @@
   <groupId>com.founder</groupId>
   <artifactId>streamserver</artifactId>
   <name>Flink Quickstart Job</name>
-  <version>0.1</version>
+  <version>0.4.1</version>
   <url>http://www.myorganization.org</url>
   <build>
     <pluginManagement>
