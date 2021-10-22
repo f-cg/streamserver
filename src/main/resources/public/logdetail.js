@@ -9,6 +9,7 @@ const QueryType = {
 
 const FieldType = {
     STRING: "STRING",
+    FLOAT: "FLOAT",
     INT: "INT",
     TIME: "TIME",
     ROWTIME: "ROWTIME"
@@ -55,10 +56,13 @@ function changeSeriesType(itemInContext, newtype) {
     console.log(container);
     let domChart = container.parentNode;
     let domCharts = container.parentNode.parentNode;
-    let domQuery = container.parentNode.parentNode.parentNode;
+    let domQuery = container.parentNode.parentNode.parentNode.parentNode;
+	console.log(domQuery);
     let chartIndex = [...domCharts.children].indexOf(domChart);
     let qid = Number.parseInt(domQuery.id.slice(1));
+	console.log(qid);
     let query = getQuery(qid);
+	console.log(query);
     let changedFieldIdx = query.fieldNames.indexOf(name);
     print("change field " + name + " to type " + newtype);
     let series = query.queryCharts[chartIndex].customizedOption.option.series;
@@ -146,6 +150,8 @@ function convertFieldTypes(fieldFlinkTypes) {
             fieldTypes.push(FieldType.STRING);
         } else if (fieldFlinkTypes[i].trim().startsWith('BIGINT')) {
             fieldTypes.push(FieldType.INT);
+        } else if (fieldFlinkTypes[i].trim().startsWith('FLOAT')) {
+            fieldTypes.push(FieldType.FLOAT);
         } else {
             fieldTypes.push(FieldType.STRING);
         }
@@ -389,6 +395,9 @@ function registerEchoQuery(that) {
     }
 }
 
+function isNum(TYPE){
+	return TYPE == FieldType.INT || TYPE == FieldType.FLOAT;
+}
 function getDefaultOption(query) {
     /*
      * x轴 单个属性
@@ -397,9 +406,11 @@ function getDefaultOption(query) {
 *x: 只有是rowtime类型时才能作为time类型，否则为category,并把第一个非int类型的field放在这里，否则采用table
 *y:[]， 如果还剩rowtime类型field,则放在这里并把轴类型设为time,否则如果有int类型，则把所有int类型的field放在这里，否则则采用table.
      * */
+	console.log(query.fieldTypes);
     let rowtime = query.fieldTypes.indexOf(FieldType.ROWTIME);
     let xAxisType = 'category';
     let xAxisIndx = 0;
+	console.log(rowtime);
     if (rowtime >= 0) {
         xAxisType = 'category';//x轴的时间也用category
         xAxisIndx = rowtime;
@@ -407,7 +418,7 @@ function getDefaultOption(query) {
         xAxisType = 'category';
         let firstNotInt = -1;
         for (let i = 0; i < query.fieldTypes.length; i++) {
-            if (query.fieldTypes[0] != FieldType.INT) {
+            if (isNum(query.fieldTypes[0])) {
                 firstNotInt = i;
                 break;
             }
@@ -434,7 +445,7 @@ function getDefaultOption(query) {
     } else {
         let intIdices = [];
         for (let i = rowtime + 1; i < query.fieldTypes.length; i++) {
-            if (query.fieldTypes[i] == FieldType.INT) {
+            if (isNum(query.fieldTypes[i])) {
                 intIdices.push(i);
             }
         }
@@ -602,9 +613,12 @@ function addChart(qid, ctype) {
     charts.insertAdjacentHTML('beforeend', rendered);
     let charts_displays = charts.getElementsByClassName('chart-display');
     let charts_last_display = charts_displays[charts_displays.length - 1];
+	console.log(ChartType.graph);
+	console.log(ctype);
     if (ctype == ChartType.graph) {
         let ec = echarts.init(charts_last_display);
         let option = getDefaultOption(query);
+	console.log(option);
         if (option == null) {
             addTable(charts_last_display, query);
             return;
@@ -627,6 +641,8 @@ function addChartModalClicked() {
         console.error("none of the chart-typle has been checked!");
         return;
     }
+    console.log('add chart!');
+    console.log(chartToAdd);
     let qid = chartToAdd.qid;
     addChart(qid, chartToAdd.ctype);
     drawChart(qid, 0);

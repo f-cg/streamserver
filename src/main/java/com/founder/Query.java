@@ -40,6 +40,10 @@ public class Query extends Thread {
 		this.fieldNames = Arrays.asList(schema.getFieldNames());
 		this.fieldTypes = Arrays.asList(schema.getFieldDataTypes()).stream().map(dt -> dt.toString())
 				.collect(Collectors.toList());
+		System.out.println("fieldTypes");
+		for(String field: this.fieldTypes){
+		System.out.println(field);
+		}
 		this.qid = qid;
 		this.qname = qname;
 		this.tEnv = tEnv;
